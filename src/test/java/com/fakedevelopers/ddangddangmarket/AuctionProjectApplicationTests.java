@@ -1,4 +1,4 @@
-package com.fakedevelopers.auctionproject;
+package com.fakedevelopers.ddangddangmarket;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
