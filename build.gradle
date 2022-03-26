@@ -24,6 +24,17 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    implementation 'org.springframework.boot:spring-boot-starter-validation:2.6.5'
+
+    //아래 두 라이브러리는 나중에 하이버네이트 연결할때 주석해제할것
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-jpa
+    /*implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.6.5'
+
+    // https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.0.4'*/
+
+
 }
 
 tasks.named('test') {
