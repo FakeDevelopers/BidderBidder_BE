@@ -8,3 +8,7 @@
 #    hibernate:
 #      ddl-auto: update # 운영시에는 validate 추천
 #    show-sql: true
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher

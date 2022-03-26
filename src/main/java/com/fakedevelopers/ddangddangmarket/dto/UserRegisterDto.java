@@ -24,8 +24,4 @@ public class UserRegisterDto {
     @NotNull
     @NotEmpty
     private final String passwd;
-
-    @NotNull
-    @NotEmpty
-    private final String passwdCheck;
 }
