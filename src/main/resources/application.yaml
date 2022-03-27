@@ -1,0 +1,14 @@
+# 이 파일은 hibernate 연결할때 설정하세요!
+# spring:
+#  datasource:
+#    url: jdbc:mysql://<host>:<port>/<dbname>
+#    username: <username>
+#    password: <password>
+#  jpa:
+#    hibernate:
+#      ddl-auto: update # 운영시에는 validate 추천
+#    show-sql: true
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
