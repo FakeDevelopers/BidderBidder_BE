@@ -1,8 +1,14 @@
 spring:
   datasource:
-    url: jdbc:mariadb://fakedeveloper-1.cntzqxmv6ryr.ap-northeast-2.rds.amazonaws.com:3306/ddangddangmarket
-    username: fakedev
-    password: alstjd1234
+    # 인텔리제이 상단의 AuctionProjectApplication 클릭 후 Edit Configurations 클릭
+    # Build and run 칸의 우측에 있는 Modify Option 클릭
+    # Java 칸의 Program argument 클릭
+    # 새로 생긴 Program argumetn 칸에 밑의 정보 입력
+    # --datasource.url={~~~} --datasource.username={~~~} --datasource.password={~~~}
+    # ~~~에는 각 정보를 입력, 및 {}(중괄호) 제거
+    url: ${datasource.url}
+    username: ${datasource.username}
+    password: ${datasource.password}
   jpa:
     hibernate:
       ddl-auto: update # 운영시에는 validate 추천
