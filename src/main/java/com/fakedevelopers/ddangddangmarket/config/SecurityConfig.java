@@ -25,8 +25,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      */
 
     private UserService userService;
-
-    @Autowired
+    
     public SecurityConfig(UserService userService) {
         this.userService = userService;
     }
@@ -35,6 +34,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public PasswordEncoder passwordEncoder() {
         // 비밀번호를 암호화/복호화하는 객체 리턴
         return new BCryptPasswordEncoder();
+    }
 
     @Override
     public void configure(WebSecurity web) throws Exception {
