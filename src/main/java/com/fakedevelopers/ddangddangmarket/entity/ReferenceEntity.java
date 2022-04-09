@@ -37,7 +37,6 @@ public class ReferenceEntity {
     @Column(nullable = false)
     private int bar;
 
-    @JoinColumn
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL) // 요거는 FetchType은 필요에 따라 변경하세요!!
     private List<ReferenceFileEntity> fileEntities;
 
