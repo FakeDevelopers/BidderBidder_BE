@@ -30,12 +30,9 @@ public class ReferenceFileEntity {
     @Column(nullable = false)
     private String savedFileName;
 
-
     public ReferenceFileEntity(String path, String savedFileName, MultipartFile multipartFile) {
         filePath = path;
         this.savedFileName = savedFileName;
         realFileName = multipartFile.getOriginalFilename();
     }
-
-
 }

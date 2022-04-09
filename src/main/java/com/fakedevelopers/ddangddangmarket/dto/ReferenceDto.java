@@ -11,5 +11,5 @@ import java.util.List;
 public class ReferenceDto {
     private final String foo;
     private final int bar;
-    private List<MultipartFile> files;
+    private final List<MultipartFile> files;
 }

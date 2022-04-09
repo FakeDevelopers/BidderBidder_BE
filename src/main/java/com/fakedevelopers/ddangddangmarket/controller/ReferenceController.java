@@ -26,7 +26,7 @@ public class ReferenceController {
     }
 
     @GetMapping("/getAll")
-    List<ReferenceEntity> getAllReference() {
+    List<ReferenceEntity> getAllReferences() {
         return referenceService.getAllReferences();
     }
 }

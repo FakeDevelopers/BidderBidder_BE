@@ -18,7 +18,6 @@ public class ReferenceService {
     private final ReferenceRepository referenceRepository;
     ServletContext servletContext;
 
-
     ReferenceService(ReferenceRepository referenceRepository, ServletContext servletContext) {
         this.referenceRepository = referenceRepository;
         this.servletContext = servletContext;
@@ -42,7 +41,6 @@ public class ReferenceService {
             folder.mkdirs();
         return path;
     }
-
 
     public List<ReferenceEntity> getAllReferences() {
         return referenceRepository.findAll();

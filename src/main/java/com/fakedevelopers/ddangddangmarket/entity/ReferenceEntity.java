@@ -57,5 +57,4 @@ public class ReferenceEntity {
         }
         return list;
     }
-
 }
