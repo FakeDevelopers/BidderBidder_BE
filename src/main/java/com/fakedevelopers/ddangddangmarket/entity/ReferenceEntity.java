@@ -50,7 +50,7 @@ public class ReferenceEntity {
 
         for (MultipartFile file : files) {
             String savedFileName = UUID.randomUUID().toString(); // uuid가 중복이 난다는건 정말 상상도 못할일이지만 그래도 확실하게 하기 위해 중복방지로직을 생각해봐!
-            list.add(new ReferenceFileEntity(path, savedFileName,this, file));
+            list.add(new ReferenceFileEntity(path, savedFileName, this, file));
             file.transferTo(new File(path, savedFileName));
         }
         return list;

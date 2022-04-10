@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -30,15 +32,11 @@ public class ReferenceService {
         referenceRepository.saveAndFlush(referenceEntity);
     }
 
-    private String createPathIfNeeded() {
+    private String createPathIfNeeded() throws IOException {
         String realPath = servletContext.getRealPath(RESOURCE_PATH);
         String today = new SimpleDateFormat("yyMMdd").format(new Date()); // SimpleDateFormat 잘못쓰면 큰일나요! 다른 분들은 이거쓰지마세요ㅋㅋㅋ
         String path = realPath + File.separator + today;
-
-        File folder = new File(path);
-
-        if (!folder.exists())
-            folder.mkdirs();
+        Files.createDirectories(Path.of(path));
         return path;
     }
 

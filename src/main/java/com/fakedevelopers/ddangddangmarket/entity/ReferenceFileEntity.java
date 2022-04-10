@@ -36,7 +36,7 @@ public class ReferenceFileEntity {
     @JsonIgnore
     private ReferenceEntity referenceEntity;
 
-    public ReferenceFileEntity(String path, String savedFileName,ReferenceEntity referenceEntity, MultipartFile multipartFile) {
+    public ReferenceFileEntity(String path, String savedFileName, ReferenceEntity referenceEntity, MultipartFile multipartFile) {
         filePath = path;
         this.savedFileName = savedFileName;
         this.referenceEntity = referenceEntity;
