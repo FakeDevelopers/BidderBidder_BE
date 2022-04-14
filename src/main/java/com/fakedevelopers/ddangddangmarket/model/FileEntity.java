@@ -22,7 +22,7 @@ public class FileEntity {
     // 파일 번호
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long file_id;
+    private long fileId;
 
     // 파일 경로
     @Column(nullable = false)
