@@ -3,6 +3,7 @@ package com.fakedevelopers.ddangddangmarket.dto;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
@@ -17,6 +18,7 @@ public class BoardWriteDto {
 
     private final long opening_bid;
 
+    @Min(1)
     private final long tick;
 
     private final Long hope_price;

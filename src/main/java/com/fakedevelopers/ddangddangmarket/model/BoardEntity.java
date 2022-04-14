@@ -56,7 +56,6 @@ public class BoardEntity {
 
     // 호가
     @Column(nullable = false)
-    @Min(1)
     private long tick;
 
     // 등록시간

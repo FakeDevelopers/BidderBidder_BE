@@ -41,7 +41,7 @@ public class BoardService {
 
     // 시작가가 희망가보다 적은지 확인
     public void compareBids(BoardWriteDto boardWriteDto) throws Exception {
-        if (!(boardWriteDto.getHope_price() == null)) {
+        if ((boardWriteDto.getHope_price() != null)) {
             if (boardWriteDto.getHope_price() < boardWriteDto.getOpening_bid()) {
                 throw new Exception("희망가가 시작가보다 적어 ㅠㅠ ");
             }
