@@ -19,8 +19,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.Min;
 import java.io.File;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +44,7 @@ public class BoardEntity {
     private String board_title;
 
     // 게시글 내용
-    @Lob
+    @Column(nullable = false, length = 3000)
     private String board_content;
 
     // 시작가
@@ -52,11 +52,11 @@ public class BoardEntity {
     private long opening_bid;
 
     // 희망가
-    @Column
-    private Long hope_bid;
+    private Long hope_price;
 
     // 호가
     @Column(nullable = false)
+    @Min(1)
     private long tick;
 
     // 등록시간
@@ -90,7 +90,7 @@ public class BoardEntity {
         board_title = boardWriteDto.getBoard_title();
         board_content = boardWriteDto.getBoard_content();
         opening_bid = boardWriteDto.getOpening_bid();
-        hope_bid = getHopeBid(boardWriteDto);
+        hope_price = boardWriteDto.getHope_price();
         tick = boardWriteDto.getTick();
         category = findCategory(boardWriteDto.getCategory());
         end_date = boardWriteDto.getEnd_date();
@@ -120,17 +120,4 @@ public class BoardEntity {
         }
         throw new Exception("카테고리가 없어요");
     }
-
-    // 희망가 있는지 없는지 확인 후 반환
-    private Long getHopeBid(BoardWriteDto boardWriteDto) {
-        Long hope;
-
-        if (boardWriteDto.getHope_bid().isBlank()) {
-            hope = null;
-        } else {
-            hope = Long.parseLong(boardWriteDto.getHope_bid());
-        }
-        return hope;
-    }
-
 }

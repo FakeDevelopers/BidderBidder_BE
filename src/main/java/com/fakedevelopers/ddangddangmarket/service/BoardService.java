@@ -9,7 +9,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
@@ -42,9 +41,9 @@ public class BoardService {
 
     // 시작가가 희망가보다 적은지 확인
     public void compareBids(BoardWriteDto boardWriteDto) throws Exception {
-        if (!boardWriteDto.getHope_bid().isBlank()) {
-            if (Long.parseLong(boardWriteDto.getHope_bid()) < boardWriteDto.getOpening_bid()) {
-                throw new Exception("시작가가 희망가보다 적어 ㅠㅠ ");
+        if (!(boardWriteDto.getHope_price() == null)) {
+            if (boardWriteDto.getHope_price() < boardWriteDto.getOpening_bid()) {
+                throw new Exception("희망가가 시작가보다 적어 ㅠㅠ ");
             }
         }
     }

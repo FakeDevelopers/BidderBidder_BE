@@ -19,7 +19,7 @@ public class BoardWriteDto {
 
     private final long tick;
 
-    private final String hope_bid;
+    private final Long hope_price;
 
     private final int category;
 
