@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Getter
@@ -23,6 +24,7 @@ public class BoardWriteDto {
 
     private final Long hope_price;
 
+    @NotNull
     private final int category;
 
     private final LocalDateTime end_date;

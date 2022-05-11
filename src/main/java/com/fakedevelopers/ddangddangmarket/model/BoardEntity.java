@@ -1,6 +1,7 @@
 package com.fakedevelopers.ddangddangmarket.model;
 
 import com.fakedevelopers.ddangddangmarket.dto.BoardWriteDto;
+import com.fakedevelopers.ddangddangmarket.exception.InvalidCategoryException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,9 +18,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.OneToMany;
-import javax.validation.constraints.Min;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -111,12 +110,10 @@ public class BoardEntity {
     }
 
     // 입력 받은 카테고리 있는지 확인 후 반환
-    private Category findCategory(int category) throws Exception {
-        for (Category c : Category.values()) {
-            if (c.ordinal() == category) {
-                return c;
-            }
+    private Category findCategory(int index) {
+        if (Category.VALUES.length > index) {
+            return Category.VALUES[index];
         }
-        throw new Exception("카테고리가 없어요");
+        throw new InvalidCategoryException("카테고리가 없어요");
     }
 }

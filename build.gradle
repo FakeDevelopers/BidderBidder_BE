@@ -35,6 +35,7 @@ dependencies {
     // https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
     implementation 'org.mariadb.jdbc:mariadb-java-client:3.0.4'
 
+    implementation 'commons-io:commons-io:2.6'
 
 }
 

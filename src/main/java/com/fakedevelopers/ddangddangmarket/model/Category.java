@@ -4,5 +4,7 @@ package com.fakedevelopers.ddangddangmarket.model;
 public enum Category {
     FOOD,
     COOK,
-    TOY
+    TOY;
+
+    public static final Category[] VALUES = Category.values();
 }
