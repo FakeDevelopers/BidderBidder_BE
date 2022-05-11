@@ -1,6 +1,7 @@
 package com.fakedevelopers.ddangddangmarket.model;
 
 import com.fakedevelopers.ddangddangmarket.dto.BoardWriteDto;
+import com.fakedevelopers.ddangddangmarket.exception.CategoryException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -111,12 +112,12 @@ public class BoardEntity {
     }
 
     // 입력 받은 카테고리 있는지 확인 후 반환
-    private Category findCategory(int category) throws Exception {
+    private Category findCategory(int category) throws CategoryException {
         for (Category c : Category.values()) {
             if (c.ordinal() == category) {
                 return c;
             }
         }
-        throw new Exception("카테고리가 없어요");
+        throw new CategoryException("카테고리가 없어요");
     }
 }
