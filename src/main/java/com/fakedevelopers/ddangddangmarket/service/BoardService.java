@@ -3,7 +3,7 @@ package com.fakedevelopers.ddangddangmarket.service;
 import com.fakedevelopers.ddangddangmarket.dto.BoardWriteDto;
 import com.fakedevelopers.ddangddangmarket.exception.InvalidExpirationDateException;
 import com.fakedevelopers.ddangddangmarket.exception.InvalidExtensionException;
-import com.fakedevelopers.ddangddangmarket.exception.InvalidHopePrice;
+import com.fakedevelopers.ddangddangmarket.exception.InvalidHopePriceException;
 import com.fakedevelopers.ddangddangmarket.model.BoardEntity;
 import com.fakedevelopers.ddangddangmarket.repository.BoardRepository;
 import org.apache.commons.io.FilenameUtils;
@@ -53,7 +53,7 @@ public class BoardService {
     public void compareBids(BoardWriteDto boardWriteDto) {
         if (boardWriteDto.getHope_price() != null) {
             if (boardWriteDto.getHope_price() < boardWriteDto.getOpening_bid()) {
-                throw new InvalidHopePrice("희망가가 시작가보다 적어 ㅠㅠ ");
+                throw new InvalidHopePriceException("희망가가 시작가보다 적어 ㅠㅠ ");
             }
         }
     }
