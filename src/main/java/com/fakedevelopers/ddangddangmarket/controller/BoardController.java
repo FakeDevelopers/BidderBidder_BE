@@ -1,6 +1,8 @@
 package com.fakedevelopers.ddangddangmarket.controller;
 
-import com.fakedevelopers.ddangddangmarket.dto.BoardListDto;
+import com.fakedevelopers.ddangddangmarket.dto.InfiniteProductListRequestDto;
+import com.fakedevelopers.ddangddangmarket.dto.PageProductListRequestDto;
+import com.fakedevelopers.ddangddangmarket.dto.ProductListDto;
 import com.fakedevelopers.ddangddangmarket.dto.BoardWriteDto;
 import com.fakedevelopers.ddangddangmarket.model.BoardEntity;
 import com.fakedevelopers.ddangddangmarket.service.BoardService;
@@ -9,12 +11,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -35,13 +35,16 @@ public class BoardController {
         return "success";
     }
 
-    @GetMapping("/getBoardList")
-    //String SearchWord, int CountPerPage 매개변수로 넣어야함
-    List<BoardListDto> getBoardList(String searchWord,
-                                    @RequestParam(value = "listCount", required = false, defaultValue = "10") int listCount,
-                                    @RequestParam(value = "page", required = false, defaultValue = "1") int page) {
+    @GetMapping("/getPageProductList")
+    List<ProductListDto> getProductList(PageProductListRequestDto pageProductListRequestDto) {
 
-        return boardService.createBoardLists(searchWord, listCount, page);
+        return boardService.createProductLists(pageProductListRequestDto);
+    }
+
+    @GetMapping("/getInfiniteProductList")
+    List<ProductListDto> getProductList(InfiniteProductListRequestDto infiniteProductListRequestDto){
+
+        return boardService.createProductLists(infiniteProductListRequestDto);
     }
 
     // 게시글 전체 찾기
