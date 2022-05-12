@@ -33,8 +33,8 @@ import static java.lang.Math.min;
 @Service
 public class BoardService {
 
-    private final static String RESOURCE_PATH = "/resources/upload";
-    private final static int MAXNUMBER = 10000;
+    private static final String RESOURCE_PATH = "/resources/upload";
+    private static final int MAXNUMBER = 10000;
     private final BoardRepository boardRepository;
     private final String[] extensions = {"jpg", "jpeg", "png"};
     private final String[] productLists = {"원격 방망이", "모기향", "이어폰", "냄비", "베개",
