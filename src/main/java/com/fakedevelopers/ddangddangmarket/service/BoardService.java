@@ -1,5 +1,6 @@
 package com.fakedevelopers.ddangddangmarket.service;
 
+import com.fakedevelopers.ddangddangmarket.dto.BoardListDto;
 import com.fakedevelopers.ddangddangmarket.dto.BoardWriteDto;
 import com.fakedevelopers.ddangddangmarket.exception.InvalidExpirationDateException;
 import com.fakedevelopers.ddangddangmarket.exception.InvalidExtensionException;
@@ -90,6 +91,17 @@ public class BoardService {
         return path;
     }
 
+    public List<BoardListDto> createBoardLists(String searchWord, int listCount, int page){
+        List<BoardListDto> boardListDto = new ArrayList<>();
+        BoardListDto board;
+        int board_id = (page-1)*listCount;
+        for(int i=1; i<=listCount; i++) {
+            board = new BoardListDto(i+board_id,"kkk",
+                    "리스트 테스트입니다", i*10000L, i*1000, i*500, "2022-05-20 18:00", i*10);
+            boardListDto.add(board);
+        }
+        return boardListDto;
+    }
 
     // 게시글 검색
     public List<BoardEntity> getAllBoards() {
