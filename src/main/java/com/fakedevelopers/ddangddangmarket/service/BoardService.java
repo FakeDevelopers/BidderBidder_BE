@@ -104,14 +104,12 @@ public class BoardService {
 
         Calendar cal = todayPlusThreeDays();
 
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-
         int size = productListRequestDto.getListCount();
         int nextNumber = (page - 1) * size;
 
         size = min(size, max(0, MAXNUMBER - nextNumber));
 
-        productList = makeProductList(size, MAXNUMBER-nextNumber, cal);
+        productList = makeProductList(size, MAXNUMBER - nextNumber, cal);
 
         return productList;
     }
@@ -135,7 +133,7 @@ public class BoardService {
         return productList;
     }
 
-    public List<ProductListDto> makeProductList(int size, int boardId, Calendar cal){
+    public List<ProductListDto> makeProductList(int size, int boardId, Calendar cal) {
         List<ProductListDto> productListDtos = new ArrayList<>();
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -151,7 +149,7 @@ public class BoardService {
         return productListDtos;
     }
 
-    public Calendar todayPlusThreeDays(){
+    public Calendar todayPlusThreeDays() {
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date());
 
