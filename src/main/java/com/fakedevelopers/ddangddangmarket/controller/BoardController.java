@@ -1,5 +1,7 @@
 package com.fakedevelopers.ddangddangmarket.controller;
 
+import com.fakedevelopers.ddangddangmarket.domain.Constants;
+import com.fakedevelopers.ddangddangmarket.dto.PageListResponseDto;
 import com.fakedevelopers.ddangddangmarket.dto.ProductListDto;
 import com.fakedevelopers.ddangddangmarket.dto.BoardWriteDto;
 import com.fakedevelopers.ddangddangmarket.dto.ProductListRequestDto;
@@ -36,10 +38,10 @@ public class BoardController {
     }
 
     @GetMapping("/getPageProductList")
-    List<ProductListDto> getPageProductList(ProductListRequestDto productListRequestDto,
-                                        @RequestParam(required = false, defaultValue = "1") int page) {
+    PageListResponseDto getPageProductList(ProductListRequestDto productListRequestDto,
+                                           @RequestParam(required = false, defaultValue = "1") int page) {
 
-        return boardService.createPageProductLists(productListRequestDto, page);
+        return new PageListResponseDto(Constants.ITEMMAXCOUNT, boardService.createPageProductLists(productListRequestDto, page));
     }
 
     @GetMapping("/getInfiniteProductList")

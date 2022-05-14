@@ -13,7 +13,7 @@ public class ProductListDto {
     private final Long hopePrice;
     private final long openingBid;
     private final long tick;
-    private final String remainTime;
+    private final String expirationDate;
     private final int bidderCount;
 
 }
