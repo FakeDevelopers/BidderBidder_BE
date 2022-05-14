@@ -1,5 +1,6 @@
 package com.fakedevelopers.ddangddangmarket.controller;
 
+import com.fakedevelopers.ddangddangmarket.domain.Constants;
 import com.fakedevelopers.ddangddangmarket.dto.PageListResponseDto;
 import com.fakedevelopers.ddangddangmarket.dto.ProductListDto;
 import com.fakedevelopers.ddangddangmarket.dto.BoardWriteDto;
@@ -40,7 +41,7 @@ public class BoardController {
     PageListResponseDto getPageProductList(ProductListRequestDto productListRequestDto,
                                            @RequestParam(required = false, defaultValue = "1") int page) {
 
-        return boardService.responseMaxPageWithLists(productListRequestDto, page);
+        return new PageListResponseDto(Constants.MAXNUMBER, boardService.createPageProductLists(productListRequestDto, page));
     }
 
     @GetMapping("/getInfiniteProductList")

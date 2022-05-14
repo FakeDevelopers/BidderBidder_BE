@@ -1,7 +1,7 @@
 package com.fakedevelopers.ddangddangmarket.service;
 
+import com.fakedevelopers.ddangddangmarket.domain.Constants;
 import com.fakedevelopers.ddangddangmarket.dto.BoardWriteDto;
-import com.fakedevelopers.ddangddangmarket.dto.PageListResponseDto;
 import com.fakedevelopers.ddangddangmarket.dto.ProductListDto;
 import com.fakedevelopers.ddangddangmarket.dto.ProductListRequestDto;
 import com.fakedevelopers.ddangddangmarket.exception.InvalidExpirationDateException;
@@ -10,7 +10,6 @@ import com.fakedevelopers.ddangddangmarket.exception.InvalidHopePrice;
 import com.fakedevelopers.ddangddangmarket.model.BoardEntity;
 import com.fakedevelopers.ddangddangmarket.repository.BoardRepository;
 import org.apache.commons.io.FilenameUtils;
-import org.hibernate.query.criteria.internal.expression.function.AggregationFunction;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,7 +23,6 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -35,7 +33,6 @@ import static java.lang.Math.min;
 public class BoardService {
 
     private static final String RESOURCE_PATH = "/resources/upload";
-    private static final int MAXNUMBER = 10000;
     private final BoardRepository boardRepository;
     private final String[] extensions = {"jpg", "jpeg", "png"};
     private final String[] productLists = {"원격 방망이", "모기향", "이어폰", "냄비", "베개",
@@ -107,15 +104,11 @@ public class BoardService {
         int size = productListRequestDto.getListCount();
         int nextNumber = (page - 1) * size;
 
-        size = min(size, max(0, MAXNUMBER - nextNumber));
+        size = min(size, max(0, Constants.MAXNUMBER - nextNumber));
 
-        productList = makeProductList(size, MAXNUMBER - nextNumber);
+        productList = makeProductList(size, Constants.MAXNUMBER - nextNumber);
 
         return productList;
-    }
-
-    public PageListResponseDto responseMaxPageWithLists(ProductListRequestDto productListRequestDto, int page){
-        return new PageListResponseDto(MAXNUMBER, createPageProductLists(productListRequestDto, page));
     }
 
     public List<ProductListDto> createInfiniteProductLists(ProductListRequestDto productListRequestDto, int startNumber) {
@@ -125,10 +118,10 @@ public class BoardService {
         int firstNumber = startNumber;
 
         if (firstNumber == -1) {
-            firstNumber = MAXNUMBER;
+            firstNumber = Constants.MAXNUMBER;
         }
 
-        size = (firstNumber < size) ? firstNumber : min(size, max(0, MAXNUMBER - firstNumber + size));
+        size = (firstNumber < size) ? firstNumber : min(size, max(0, Constants.MAXNUMBER - firstNumber + size));
 
         productList = makeProductList(size, firstNumber);
 

@@ -1,5 +1,6 @@
 package com.fakedevelopers.ddangddangmarket.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.*;
@@ -9,8 +10,8 @@ public class PageListResponseDto {
     private final int itemCount;
     private final List<ProductListDto> items;
 
-    public PageListResponseDto(int maxPage, List<ProductListDto> items){
-        this.itemCount = maxPage;
+    public PageListResponseDto(int itemCount, List<ProductListDto> items){
+        this.itemCount = itemCount;
         this.items = items;
     }
 }
