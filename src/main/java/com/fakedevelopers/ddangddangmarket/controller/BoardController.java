@@ -41,7 +41,7 @@ public class BoardController {
     PageListResponseDto getPageProductList(ProductListRequestDto productListRequestDto,
                                            @RequestParam(required = false, defaultValue = "1") int page) {
 
-        return new PageListResponseDto(Constants.MAXNUMBER, boardService.createPageProductLists(productListRequestDto, page));
+        return new PageListResponseDto(Constants.ITEMMAXCOUNT, boardService.createPageProductLists(productListRequestDto, page));
     }
 
     @GetMapping("/getInfiniteProductList")

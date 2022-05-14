@@ -104,9 +104,9 @@ public class BoardService {
         int size = productListRequestDto.getListCount();
         int nextNumber = (page - 1) * size;
 
-        size = min(size, max(0, Constants.MAXNUMBER - nextNumber));
+        size = min(size, max(0, Constants.ITEMMAXCOUNT - nextNumber));
 
-        productList = makeProductList(size, Constants.MAXNUMBER - nextNumber);
+        productList = makeProductList(size, Constants.ITEMMAXCOUNT - nextNumber);
 
         return productList;
     }
@@ -115,15 +115,14 @@ public class BoardService {
         List<ProductListDto> productList;
 
         int size = productListRequestDto.getListCount();
-        int firstNumber = startNumber;
 
-        if (firstNumber == -1) {
-            firstNumber = Constants.MAXNUMBER;
+        if (startNumber == -1) {
+            startNumber = Constants.ITEMMAXCOUNT;
         }
 
-        size = (firstNumber < size) ? firstNumber : min(size, max(0, Constants.MAXNUMBER - firstNumber + size));
+        size = (startNumber < size) ? startNumber : min(size, max(0, Constants.ITEMMAXCOUNT - startNumber + size));
 
-        productList = makeProductList(size, firstNumber);
+        productList = makeProductList(size, startNumber);
 
         return productList;
     }
