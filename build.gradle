@@ -37,6 +37,8 @@ dependencies {
 
     implementation 'commons-io:commons-io:2.6'
 
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
 }
 
 tasks.named('test') {
