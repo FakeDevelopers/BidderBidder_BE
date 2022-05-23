@@ -1,15 +1,13 @@
 package com.fakedevelopers.ddangddangmarket.controller;
 
 import com.fakedevelopers.ddangddangmarket.domain.Constants;
-import com.fakedevelopers.ddangddangmarket.dto.BoardWriteDto;
 import com.fakedevelopers.ddangddangmarket.dto.PageListResponseDto;
 import com.fakedevelopers.ddangddangmarket.dto.ProductListDto;
+import com.fakedevelopers.ddangddangmarket.dto.BoardWriteDto;
 import com.fakedevelopers.ddangddangmarket.dto.ProductListRequestDto;
 import com.fakedevelopers.ddangddangmarket.model.BoardEntity;
 import com.fakedevelopers.ddangddangmarket.service.BoardService;
-import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -49,14 +46,9 @@ public class BoardController {
 
     @GetMapping("/getInfiniteProductList")
     List<ProductListDto> getInfiniteProductList(ProductListRequestDto productListRequestDto,
-                                                @RequestParam(required = false, defaultValue = "-1") int startNumber) {
+                                        @RequestParam(required = false, defaultValue = "-1") int startNumber){
 
         return boardService.createInfiniteProductLists(productListRequestDto, startNumber);
-    }
-
-    @GetMapping("/getResizedImage")
-    ResponseEntity<Resource> getResizedImage(int width) throws IOException {
-        return boardService.imageResize(width);
     }
 
     // 게시글 전체 찾기
