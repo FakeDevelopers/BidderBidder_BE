@@ -1,6 +1,8 @@
 package com.fakedevelopers.bidderbidder.service;
 
+import com.fakedevelopers.bidderbidder.domain.Constants;
 import com.fakedevelopers.bidderbidder.dto.BoardWriteDto;
+import com.fakedevelopers.bidderbidder.dto.PageListResponseDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListRequestDto;
 import com.fakedevelopers.bidderbidder.exception.InvalidExpirationDateException;
@@ -26,7 +28,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -46,15 +47,12 @@ import static java.lang.Math.min;
 @Service
 public class BoardService {
 
-    private static final String RESOURCE_PATH = "/resources/upload";
+    private static final String UPLOAD_FOLDER = "./upload";
     private final ResourceLoader resourceLoader;
     private final BoardRepository boardRepository;
-    private final String[] extensions = {"jpg", "jpeg", "png"};
-    private final ArrayList<String> extensionList = new ArrayList<>(Arrays.asList(extensions));
-    ServletContext servletContext;
+    private final ArrayList<String> extensionList = new ArrayList<>(Arrays.asList("jpg", "jpeg", "png"));
 
-    BoardService(BoardRepository boardRepository, ServletContext servletContext, ResourceLoader resourceLoader) {
-        this.servletContext = servletContext;
+    BoardService(BoardRepository boardRepository, ResourceLoader resourceLoader) {
         this.boardRepository = boardRepository;
         this.resourceLoader = resourceLoader;
     }
@@ -73,20 +71,19 @@ public class BoardService {
         BoardEntity savedBoardEntity = boardRepository.save(boardEntity);
         if (files != null) {
             FileEntity representFileEntity = savedBoardEntity.getFileEntities().get(boardWriteDto.getRepresentPicture());
-            saveResizeFile("./upload", representFileEntity.getSavedFileName(),
-                    savedBoardEntity.getBoardId(), pathList);
+            saveResizeFile(representFileEntity.getSavedFileName(), savedBoardEntity.getBoardId(), pathList);
         }
     }
 
-    private void saveResizeFile(String filePath, String fileName, Long boardId, List<String> pathList) throws Exception {
-        File representImage = new File(filePath, fileName);
+    private void saveResizeFile(String fileName, Long boardId, List<String> pathList) throws Exception {
+        File representImage = new File(UPLOAD_FOLDER, fileName);
         String newFileName = Long.toString(boardId);
-        resizeImage(newFileName, pathList.get(1), 100, representImage);
-        resizeImage(newFileName, pathList.get(2), 200, representImage);
+        resizeImage(newFileName, pathList.get(1), Constants.APP_RESIZE_SIZE, representImage);
+        resizeImage(newFileName, pathList.get(2), Constants.WEB_RESIZE_SIZE, representImage);
     }
 
     private void imageCount(BoardWriteDto boardWriteDto, List<MultipartFile> files) {
-        Integer size = files.size();
+        int size = files.size();
         if (boardWriteDto.getRepresentPicture() < 0) {
             throw new InvalidRepresentPictureIndexException("대표 사진은 0번째보다 낮을 수 없습니다.");
         }
@@ -129,7 +126,7 @@ public class BoardService {
 
     // 파일 경로 생성
     private List<String> createPathIfNeed() throws IOException {
-        String realPath = "./upload";
+        String realPath = UPLOAD_FOLDER;
         String resizeAppPath = realPath + File.separator + "resize_app";
         String resizeWebPath = realPath + File.separator + "resize_web";
         Files.createDirectories(Path.of(resizeAppPath));
@@ -161,6 +158,11 @@ public class BoardService {
         return productList;
     }
 
+    public PageListResponseDto makePageListResponseDto(ProductListRequestDto productListRequestDto, int page) {
+        return new PageListResponseDto(Long.valueOf(boardRepository.count()).intValue(),
+                createPageProductLists(productListRequestDto, page));
+    }
+
     private List<ProductListDto> makeProductList(Pageable pageable) {
 
         List<BoardEntity> boardList = boardRepository.findAllBy(pageable);
@@ -168,10 +170,8 @@ public class BoardService {
         return addItemList(boardList, true);
     }
 
-    // TODO 이거 startNumber부터 시작하도록 해봐라
     private List<ProductListDto> makeProductList(int size, long startNumber) {
 
-        //List<BoardEntity> boardList = boardRepository.findAll(Sort.by(Sort.Direction.DESC, "boardId"));
         List<BoardEntity> boardList = boardRepository.findAllByBoardIdIsLessThanOrderByBoardIdDesc(startNumber, PageRequest.of(0, size));
         return addItemList(boardList, false);
     }
@@ -180,11 +180,11 @@ public class BoardService {
         ArrayList<ProductListDto> itemList = new ArrayList<>();
 
         SecureRandom random = new SecureRandom();
-        for (BoardEntity tmp : boardList) {
+        for (BoardEntity boardentity : boardList) {
             int randomZeroNine = random.nextInt(10);
-            itemList.add(new ProductListDto(tmp.getBoardId(), "/board/getThumbnail?boardId=" + tmp.getBoardId() + "&isWeb=" + isWeb,
-                    tmp.getBoardTitle(), tmp.getHopePrice(), tmp.getOpeningBid(), tmp.getTick(),
-                    tmp.getExpirationDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), randomZeroNine * 3));
+            itemList.add(new ProductListDto(boardentity.getBoardId(), "/board/getThumbnail?boardId=" + boardentity.getBoardId() + "&isWeb=" + isWeb,
+                    boardentity.getBoardTitle(), boardentity.getHopePrice(), boardentity.getOpeningBid(), boardentity.getTick(),
+                    boardentity.getExpirationDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), randomZeroNine * 3));
         }
         return itemList;
     }
@@ -192,7 +192,7 @@ public class BoardService {
     public ResponseEntity<Resource> getThumbnail(Long boardId, Boolean isWeb) throws IOException {
 
         InputStream inputStream;
-        String imagePath = "./upload/" + (isWeb ? "resize_web" : "resize_app");
+        String imagePath = UPLOAD_FOLDER + "/" + (isWeb ? "resize_web" : "resize_app");
         File image = new File(imagePath + "/resize_" + boardId + ".jpg");
         if (image.exists()) {
             inputStream = new FileInputStream(image);
@@ -239,7 +239,7 @@ public class BoardService {
 
     }
 
-    private File resizeImage(String imageName, String path, int width, File file) throws IOException {
+    private void resizeImage(String imageName, String path, int width, File file) throws IOException {
         InputStream inputStream = new FileInputStream(file);
         Image img = ImageLoader.fromStream(inputStream);
 
@@ -252,8 +252,6 @@ public class BoardService {
 
         File resizedFile = new File(path, "resize_" + imageName);
         resizedImg.writeToFile(resizedFile);
-
-        return resizedFile;
     }
 
     private File resizeImage(String imageName, int width, InputStream file) throws IOException {

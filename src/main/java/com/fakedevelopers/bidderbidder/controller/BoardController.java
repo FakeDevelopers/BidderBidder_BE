@@ -5,7 +5,6 @@ import com.fakedevelopers.bidderbidder.dto.PageListResponseDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListRequestDto;
 import com.fakedevelopers.bidderbidder.model.BoardEntity;
-import com.fakedevelopers.bidderbidder.repository.BoardRepository;
 import com.fakedevelopers.bidderbidder.service.BoardService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -27,12 +26,10 @@ import java.util.List;
 public class BoardController {
 
     private final BoardService boardService;
-    private final BoardRepository boardRepository;
 
-    BoardController(BoardService boardService, BoardRepository boardRepository) {
+    BoardController(BoardService boardService) {
 
         this.boardService = boardService;
-        this.boardRepository = boardRepository;
     }
 
     // 게시글 작성
@@ -47,8 +44,7 @@ public class BoardController {
     PageListResponseDto getPageProductList(ProductListRequestDto productListRequestDto,
                                            @RequestParam(required = false, defaultValue = "1") int page) {
 
-        return new PageListResponseDto(Long.valueOf(boardRepository.count()).intValue(),
-                boardService.createPageProductLists(productListRequestDto, page));
+        return boardService.makePageListResponseDto(productListRequestDto, page);
     }
 
     @GetMapping("/getInfiniteProductList")
