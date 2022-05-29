@@ -37,6 +37,7 @@ dependencies {
 
     implementation 'commons-io:commons-io:2.6'
 
+    implementation group: 'com.mortennobel', name: 'java-image-scaling', version: '0.8.6'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
 }
