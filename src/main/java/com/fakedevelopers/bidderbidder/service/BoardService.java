@@ -75,7 +75,7 @@ public class BoardService {
         }
     }
 
-    private void saveResizeFile(String fileName, Long boardId, List<String> pathList) throws Exception {
+    private void saveResizeFile(String fileName, Long boardId, List<String> pathList) throws IOException {
         File representImage = new File(UPLOAD_FOLDER, fileName);
         String newFileName = Long.toString(boardId);
         resizeImage(newFileName, pathList.get(1), Constants.APP_RESIZE_SIZE, representImage);
@@ -187,7 +187,7 @@ public class BoardService {
         return itemList;
     }
 
-    public ResponseEntity<Resource> getThumbnail(Long boardId, Boolean isWeb) throws IOException {
+    public ResponseEntity<Resource> getThumbnail(Long boardId, boolean isWeb) throws IOException {
 
         InputStream inputStream;
         String imagePath = UPLOAD_FOLDER + File.separator + (isWeb ? "resize_web" : "resize_app");
