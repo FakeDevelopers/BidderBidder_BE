@@ -5,10 +5,10 @@ import java.util.List;
 
 @Getter
 public class PageListResponseDto {
-    private final int itemCount;
+    private final long itemCount;
     private final List<ProductListDto> items;
 
-    public PageListResponseDto(int itemCount, List<ProductListDto> items) {
+    public PageListResponseDto(long itemCount, List<ProductListDto> items) {
         this.itemCount = itemCount;
         this.items = items;
     }

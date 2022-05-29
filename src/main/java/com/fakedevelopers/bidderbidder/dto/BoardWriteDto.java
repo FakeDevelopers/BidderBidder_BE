@@ -1,6 +1,8 @@
 package com.fakedevelopers.bidderbidder.dto;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
@@ -9,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Getter
-
+@RequiredArgsConstructor
 public class BoardWriteDto {
     @NotBlank(message = "제목에 빈칸은 입력불가입니다.")
     private final String boardTitle;
@@ -24,22 +26,11 @@ public class BoardWriteDto {
 
     private final Long hopePrice;
 
-    private final Integer representPicture;
+    private final int representPicture;
 
     @NotNull
     private final int category;
 
     private final LocalDateTime expirationDate;
 
-    BoardWriteDto(String boardTitle, String boardContent, long openingBid, long tick, Long hopePrice,
-                  Integer representPicture, int category, LocalDateTime expirationDate) {
-        this.boardTitle = boardTitle;
-        this.boardContent = boardContent;
-        this.openingBid = openingBid;
-        this.tick = tick;
-        this.hopePrice = hopePrice;
-        this.representPicture = Objects.requireNonNullElse(representPicture, 0);
-        this.category = category;
-        this.expirationDate = expirationDate;
-    }
 }

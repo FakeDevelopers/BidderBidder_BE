@@ -70,7 +70,7 @@ public class BoardEntity {
     private LocalDateTime modifiedTime;
 
     @Column
-    private Integer representPicture;
+    private int representPicture;
 
     // 카테고리
     @Column(nullable = false)
@@ -111,6 +111,7 @@ public class BoardEntity {
                 list.add(new FileEntity(path, savedFileName, this, file.getOriginalFilename()));
                 FileOutputStream fo = new FileOutputStream(new File(path, savedFileName));
                 fo.write(file.getBytes());
+                fo.close();
             }
         }
         return list;

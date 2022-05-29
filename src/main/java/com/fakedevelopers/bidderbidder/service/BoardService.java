@@ -60,11 +60,11 @@ public class BoardService {
     // 게시글 저장
     public void saveBoard(BoardWriteDto boardWriteDto, List<MultipartFile> files) throws Exception {
 
-        compareBids(boardWriteDto);
-        compareDate(boardWriteDto);
+        compareBids(boardWriteDto.getHopePrice(), boardWriteDto.getOpeningBid());
+        compareDate(boardWriteDto.getExpirationDate());
         if (files != null) {
             compareExtension(files);
-            imageCount(boardWriteDto, files);
+            imageCount(boardWriteDto.getRepresentPicture(), files);
         }
         List<String> pathList = createPathIfNeed();
         BoardEntity boardEntity = new BoardEntity(pathList.get(0), boardWriteDto, files);
@@ -82,28 +82,16 @@ public class BoardService {
         resizeImage(newFileName, pathList.get(2), Constants.WEB_RESIZE_SIZE, representImage);
     }
 
-    private void imageCount(BoardWriteDto boardWriteDto, List<MultipartFile> files) {
-        int size = files.size();
-        if (boardWriteDto.getRepresentPicture() < 0) {
-            throw new InvalidRepresentPictureIndexException("대표 사진은 0번째보다 낮을 수 없습니다.");
-        }
-        if (boardWriteDto.getRepresentPicture() > size - 1) {
-            throw new InvalidRepresentPictureIndexException("사진의 개수보다 큰 값을 입력했습니다.");
-        }
-    }
-
     // 시작가가 희망가보다 적은지 확인
-    private void compareBids(BoardWriteDto boardWriteDto) {
-        if (boardWriteDto.getHopePrice() != null) {
-            if (boardWriteDto.getHopePrice() < boardWriteDto.getOpeningBid()) {
+    private void compareBids(Long hopePrice, long openingBid) {
+        if (hopePrice != null && hopePrice < openingBid) {
                 throw new InvalidHopePriceException("희망가가 시작가보다 적어 ㅠㅠ ");
-            }
         }
     }
 
     // 경매 마감 날짜가 지금 날짜보다 나중인지 확인
-    private void compareDate(BoardWriteDto boardWriteDto) {
-        if (boardWriteDto.getExpirationDate().isBefore(LocalDateTime.now())) {
+    private void compareDate(LocalDateTime expirationDate) {
+        if (expirationDate.isBefore(LocalDateTime.now())) {
             throw new InvalidExpirationDateException("마감 날짜가 지금 날짜보다 빨라요");
         }
     }
@@ -121,6 +109,16 @@ public class BoardService {
                     throw new InvalidExtensionException("파일 확장자가 다릅니다.");
                 }
             }
+        }
+    }
+
+    private void imageCount(int representPicture, List<MultipartFile> files) {
+        int size = files.size();
+        if (representPicture < 0) {
+            throw new InvalidRepresentPictureIndexException("대표 사진은 0번째보다 낮을 수 없습니다.");
+        }
+        if (representPicture > size - 1) {
+            throw new InvalidRepresentPictureIndexException("사진의 개수보다 큰 값을 입력했습니다.");
         }
     }
 
@@ -159,7 +157,7 @@ public class BoardService {
     }
 
     public PageListResponseDto makePageListResponseDto(ProductListRequestDto productListRequestDto, int page) {
-        return new PageListResponseDto(Long.valueOf(boardRepository.count()).intValue(),
+        return new PageListResponseDto(boardRepository.count(),
                 createPageProductLists(productListRequestDto, page));
     }
 
@@ -192,7 +190,7 @@ public class BoardService {
     public ResponseEntity<Resource> getThumbnail(Long boardId, Boolean isWeb) throws IOException {
 
         InputStream inputStream;
-        String imagePath = UPLOAD_FOLDER + "/" + (isWeb ? "resize_web" : "resize_app");
+        String imagePath = UPLOAD_FOLDER + File.separator + (isWeb ? "resize_web" : "resize_app");
         File image = new File(imagePath + "/resize_" + boardId + ".jpg");
         if (image.exists()) {
             inputStream = new FileInputStream(image);
