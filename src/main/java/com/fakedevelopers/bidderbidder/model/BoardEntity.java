@@ -22,6 +22,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -102,7 +103,7 @@ public class BoardEntity {
     }
 
     // 파일 엔티티 리스트 만듦
-    private List<FileEntity> makeFileEntityList(String path, List<MultipartFile> files) throws Exception {
+    private List<FileEntity> makeFileEntityList(String path, List<MultipartFile> files) throws IOException {
         List<FileEntity> list = new ArrayList<>();
         if (files != null) {
             for (MultipartFile file : files) {
@@ -119,8 +120,8 @@ public class BoardEntity {
 
     // 입력 받은 카테고리 있는지 확인 후 반환
     private Category findCategory(int index) {
-        if (Category.VALUES.length > index) {
-            return Category.VALUES[index];
+        if (Category.CATEGORY_VALUES.length > index) {
+            return Category.CATEGORY_VALUES[index];
         }
         throw new InvalidCategoryException("카테고리가 없어요");
     }

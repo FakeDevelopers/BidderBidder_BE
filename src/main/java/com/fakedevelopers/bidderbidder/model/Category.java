@@ -6,5 +6,5 @@ public enum Category {
     COOK,
     TOY;
 
-    public static final Category[] VALUES = Category.values();
+    static final Category[] CATEGORY_VALUES = Category.values();
 }
