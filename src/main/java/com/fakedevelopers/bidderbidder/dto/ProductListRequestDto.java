@@ -11,8 +11,11 @@ public class ProductListRequestDto {
 
     private final Integer listCount;
 
-    ProductListRequestDto(String searchWord, Integer listCount){
+    private final Integer searchType;
+
+    ProductListRequestDto(String searchWord, Integer listCount, Integer searchType) {
         this.searchWord = searchWord;
         this.listCount = Objects.requireNonNullElse(listCount, 10);
+        this.searchType = Objects.requireNonNullElse(searchType, 2);
     }
 }

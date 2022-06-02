@@ -64,6 +64,11 @@ public class BoardController {
         return boardService.getThumbnail(boardId, isWeb);
     }
 
+    @GetMapping("/getBoardInfo")
+    BoardEntity getBoardInfo(long boardId) {
+        return boardService.getBoardInfo(boardId);
+    }
+
     // 게시글 전체 찾기
     @GetMapping("/getAll")
     List<BoardEntity> getAllBoards() {
