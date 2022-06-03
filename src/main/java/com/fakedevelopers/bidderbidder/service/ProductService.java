@@ -234,7 +234,7 @@ public class ProductService {
     public ResponseEntity<Resource> getProductImage(Long fileId) throws IOException {
         FileEntity fileEntity = fileRepository.findByFileId(fileId);
         InputStream inputStream;
-        File image = new File(UPLOAD_FOLDER + fileEntity.getSavedFileName());
+        File image = new File(UPLOAD_FOLDER + File.separator + fileEntity.getSavedFileName());
         if (image.exists()) {
             inputStream = new FileInputStream(image);
         } else {
