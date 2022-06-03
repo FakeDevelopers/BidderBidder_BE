@@ -3,6 +3,8 @@ package com.fakedevelopers.bidderbidder.dto;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
+
 @Getter
 @RequiredArgsConstructor
 public class ProductInformationDto {
@@ -16,5 +18,5 @@ public class ProductInformationDto {
     private final String expirationDate;
     private final String createdTime;
     private final int bidderCount;
-
+    private final ArrayList<String> images;
 }

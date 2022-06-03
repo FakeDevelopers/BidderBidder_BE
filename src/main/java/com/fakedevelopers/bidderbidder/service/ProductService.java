@@ -295,19 +295,25 @@ public class ProductService {
     }
 
     // 게시글 상세 내용 얻어오기
-    public ProductInformationDto getProductInfo(long productId){
+    public ProductInformationDto getProductInfo(long productId) {
 
         ProductEntity productEntity = productRepository.findByProductId(productId);
+        List<FileEntity> fileEntities = productEntity.getFileEntities();
+        ArrayList<String> images = new ArrayList<>();
+        String url = "/product/getImage/";
+        for (FileEntity fileEntity : fileEntities) {
+            images.add(url + fileEntity.getFileId());
+        }
+
         SecureRandom random = new SecureRandom();
         int randomZeroNine = random.nextInt(10);
-
         return new ProductInformationDto(productId,
                 productEntity.getProductTitle(), productEntity.getProductContent(),
                 productEntity.getOpeningBid(), productEntity.getHopePrice(),
                 productEntity.getTick(),
                 productEntity.getExpirationDate().format(DateTimeFormatter.ofPattern(DATE_FORMAT)),
                 productEntity.getCreatedTime().format(DateTimeFormatter.ofPattern(DATE_FORMAT)),
-                randomZeroNine * 3);
+                randomZeroNine * 3, images);
 
     }
 
