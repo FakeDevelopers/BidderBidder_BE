@@ -36,7 +36,7 @@ public class ProductController {
 
     // 게시글 작성
     @PostMapping(value = "/write", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    String ProductWrite(@Validated ProductWriteDto productWriteDto,
+    String productWrite(@Validated ProductWriteDto productWriteDto,
                         @RequestPart(required = false) List<MultipartFile> files) throws Exception {
         productService.saveProduct(productWriteDto, files);
         return "success";

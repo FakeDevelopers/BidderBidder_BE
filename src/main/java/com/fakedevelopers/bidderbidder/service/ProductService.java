@@ -49,6 +49,8 @@ import static java.lang.Math.min;
 public class ProductService {
 
     private static final String UPLOAD_FOLDER = "./upload";
+    private static final String DATE_FORMAT = "yyyy-MM-dd HH:MM";
+    private static final String IMAGE_TYPE = "image/jpg";
     private final ResourceLoader resourceLoader;
     private final ProductRepository productRepository;
     private final FileRepository fileRepository;
@@ -204,7 +206,7 @@ public class ProductService {
             int randomZeroNine = random.nextInt(10);
             itemList.add(new ProductListDto(productEntity.getProductId(), "/product/getThumbnail?productId=" + productEntity.getProductId() + "&isWeb=" + isWeb,
                     productEntity.getProductTitle(), productEntity.getHopePrice(), productEntity.getOpeningBid(), productEntity.getTick(),
-                    productEntity.getExpirationDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), randomZeroNine * 3));
+                    productEntity.getExpirationDate().format(DateTimeFormatter.ofPattern(DATE_FORMAT)), randomZeroNine * 3));
         }
         return itemList;
     }
@@ -222,10 +224,8 @@ public class ProductService {
             inputStream = resourceLoader.getResource("classpath:/static/img/noImage.jpg").getInputStream();
         }
 
-        String contentType = "image/jpg";
-
         HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_TYPE, contentType);
+        headers.add(HttpHeaders.CONTENT_TYPE, IMAGE_TYPE);
         Resource resource = new InputStreamResource(inputStream);
 
         return new ResponseEntity<>(resource, headers, HttpStatus.OK);
@@ -234,16 +234,15 @@ public class ProductService {
     public ResponseEntity<Resource> getProductImage(Long fileId) throws IOException {
         FileEntity fileEntity = fileRepository.findByFileId(fileId);
         InputStream inputStream;
-        File image = new File(UPLOAD_FOLDER + "/" + fileEntity.getSavedFileName());
+        File image = new File(UPLOAD_FOLDER + fileEntity.getSavedFileName());
         if (image.exists()) {
             inputStream = new FileInputStream(image);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        String contentType = "image/jpg";
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_TYPE, contentType);
+        headers.add(HttpHeaders.CONTENT_TYPE, IMAGE_TYPE);
         Resource resource = new InputStreamResource(inputStream);
 
         return new ResponseEntity<>(resource, headers, HttpStatus.OK);
@@ -255,12 +254,9 @@ public class ProductService {
         InputStream file = resourceLoader.getResource("classpath:/static/img/중고 자전거.jpg").getInputStream();
 
         String imageName = "중고 자전거.jpg";
-        String contentType = "image/jpg";
 
         HttpHeaders headers = new HttpHeaders();
-
-        headers.add(HttpHeaders.CONTENT_TYPE, contentType);
-
+        headers.add(HttpHeaders.CONTENT_TYPE, IMAGE_TYPE);
         Resource resource = new InputStreamResource(new FileInputStream(resizeImage(imageName, width, file)));
 
         return new ResponseEntity<>(resource, headers, HttpStatus.OK);
@@ -309,8 +305,8 @@ public class ProductService {
                 productEntity.getProductTitle(), productEntity.getProductContent(),
                 productEntity.getOpeningBid(), productEntity.getHopePrice(),
                 productEntity.getTick(),
-                productEntity.getExpirationDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
-                productEntity.getCreatedTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
+                productEntity.getExpirationDate().format(DateTimeFormatter.ofPattern(DATE_FORMAT)),
+                productEntity.getCreatedTime().format(DateTimeFormatter.ofPattern(DATE_FORMAT)),
                 randomZeroNine * 3);
 
     }
