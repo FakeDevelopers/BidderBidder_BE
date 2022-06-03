@@ -66,8 +66,8 @@ public class ProductController {
         return productService.getThumbnail(productId, isWeb);
     }
 
-    @GetMapping("/getProductInfo")
-    ProductInformationDto getProductInfo(long productId){
+    @GetMapping("/getProductInfo/{productId}")
+    ResponseEntity<ProductInformationDto> getProductInfo(@PathVariable long productId){
         return productService.getProductInfo(productId);
     }
 

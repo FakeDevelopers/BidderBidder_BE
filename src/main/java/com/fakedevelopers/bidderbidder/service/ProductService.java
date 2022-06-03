@@ -233,13 +233,13 @@ public class ProductService {
 
     public ResponseEntity<Resource> getProductImage(Long fileId) throws IOException {
         FileEntity fileEntity = fileRepository.findByFileId(fileId);
-        InputStream inputStream;
-        File image = new File(UPLOAD_FOLDER + File.separator + fileEntity.getSavedFileName());
-        if (image.exists()) {
-            inputStream = new FileInputStream(image);
-        } else {
+        if (fileEntity == null){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        InputStream inputStream;
+        File image = new File(UPLOAD_FOLDER + File.separator + fileEntity.getSavedFileName());
+        inputStream = new FileInputStream(image);
+
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, IMAGE_TYPE);
@@ -295,9 +295,12 @@ public class ProductService {
     }
 
     // 게시글 상세 내용 얻어오기
-    public ProductInformationDto getProductInfo(long productId) {
+    public ResponseEntity<ProductInformationDto> getProductInfo(long productId) {
 
         ProductEntity productEntity = productRepository.findByProductId(productId);
+        if(productEntity == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         List<FileEntity> fileEntities = productEntity.getFileEntities();
         ArrayList<String> images = new ArrayList<>();
         String url = "/product/getImage/";
@@ -307,14 +310,14 @@ public class ProductService {
 
         SecureRandom random = new SecureRandom();
         int randomZeroNine = random.nextInt(10);
-        return new ProductInformationDto(productId,
+        ProductInformationDto productInformationDto = new ProductInformationDto(productId,
                 productEntity.getProductTitle(), productEntity.getProductContent(),
                 productEntity.getOpeningBid(), productEntity.getHopePrice(),
                 productEntity.getTick(),
                 productEntity.getExpirationDate().format(DateTimeFormatter.ofPattern(DATE_FORMAT)),
                 productEntity.getCreatedTime().format(DateTimeFormatter.ofPattern(DATE_FORMAT)),
                 randomZeroNine * 3, images);
-
+        return new ResponseEntity<>(productInformationDto, HttpStatus.OK);
     }
 
     // 페이지네이션 searchProduct
