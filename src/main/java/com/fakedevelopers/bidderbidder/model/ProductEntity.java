@@ -1,6 +1,6 @@
 package com.fakedevelopers.bidderbidder.model;
 
-import com.fakedevelopers.bidderbidder.dto.BoardWriteDto;
+import com.fakedevelopers.bidderbidder.dto.ProductWriteDto;
 import com.fakedevelopers.bidderbidder.exception.InvalidCategoryException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,20 +34,20 @@ import java.util.UUID;
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 @Entity
-public class BoardEntity {
+public class ProductEntity {
 
     // 게시글 고유 번호
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long boardId;
+    private long productId;
 
     // 게시글 제목
     @Column(nullable = false, length = 300)
-    private String boardTitle;
+    private String productTitle;
 
     // 게시글 내용
     @Column(nullable = false, length = 3000)
-    private String boardContent;
+    private String productContent;
 
     // 시작가
     @Column(nullable = false)
@@ -87,18 +87,18 @@ public class BoardEntity {
 //    private long user_id;
 
     // 파일
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "boardEntity")
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "productEntity")
     private List<FileEntity> fileEntities;
 
-    public BoardEntity(String path, BoardWriteDto boardWriteDto, List<MultipartFile> files) throws Exception {
-        boardTitle = boardWriteDto.getBoardTitle();
-        boardContent = boardWriteDto.getBoardContent();
-        openingBid = boardWriteDto.getOpeningBid();
-        hopePrice = boardWriteDto.getHopePrice();
-        tick = boardWriteDto.getTick();
-        representPicture = boardWriteDto.getRepresentPicture();
-        category = findCategory(boardWriteDto.getCategory());
-        expirationDate = boardWriteDto.getExpirationDate();
+    public ProductEntity(String path, ProductWriteDto productWriteDto, List<MultipartFile> files) throws Exception {
+        productTitle = productWriteDto.getProductTitle();
+        productContent = productWriteDto.getProductContent();
+        openingBid = productWriteDto.getOpeningBid();
+        hopePrice = productWriteDto.getHopePrice();
+        tick = productWriteDto.getTick();
+        representPicture = productWriteDto.getRepresentPicture();
+        category = findCategory(productWriteDto.getCategory());
+        expirationDate = productWriteDto.getExpirationDate();
         fileEntities = makeFileEntityList(path, files);
     }
 

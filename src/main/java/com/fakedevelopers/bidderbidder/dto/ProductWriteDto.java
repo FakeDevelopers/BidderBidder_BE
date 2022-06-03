@@ -1,23 +1,21 @@
 package com.fakedevelopers.bidderbidder.dto;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Getter
 @RequiredArgsConstructor
-public class BoardWriteDto {
+public class ProductWriteDto {
     @NotBlank(message = "제목에 빈칸은 입력불가입니다.")
-    private final String boardTitle;
+    private final String productTitle;
 
     @NotBlank(message = "내용에 빈칸은 입력불가입니다.")
-    private final String boardContent;
+    private final String productContent;
 
     private final long openingBid;
 
