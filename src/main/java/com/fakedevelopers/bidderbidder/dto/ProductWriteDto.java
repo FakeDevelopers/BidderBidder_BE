@@ -10,12 +10,12 @@ import java.time.LocalDateTime;
 
 @Getter
 @RequiredArgsConstructor
-public class BoardWriteDto {
+public class ProductWriteDto {
     @NotBlank(message = "제목에 빈칸은 입력불가입니다.")
-    private final String boardTitle;
+    private final String productTitle;
 
     @NotBlank(message = "내용에 빈칸은 입력불가입니다.")
-    private final String boardContent;
+    private final String productContent;
 
     private final long openingBid;
 

@@ -37,12 +37,12 @@ public class FileEntity {
 
     @ManyToOne
     @JsonIgnore
-    private BoardEntity boardEntity;
+    private ProductEntity productEntity;
 
-    public FileEntity(String filePath, String savedFileName, BoardEntity boardEntity, String realFileName) {
+    public FileEntity(String filePath, String savedFileName, ProductEntity productEntity, String realFileName) {
         this.filePath = filePath;
         this.savedFileName = savedFileName;
-        this.boardEntity = boardEntity;
+        this.productEntity = productEntity;
         this.realFileName = realFileName;
     }
 }

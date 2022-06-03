@@ -1,18 +1,20 @@
 package com.fakedevelopers.bidderbidder.service;
 
 import com.fakedevelopers.bidderbidder.domain.Constants;
-import com.fakedevelopers.bidderbidder.dto.BoardWriteDto;
 import com.fakedevelopers.bidderbidder.dto.PageListResponseDto;
+import com.fakedevelopers.bidderbidder.dto.ProductInformationDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListRequestDto;
+import com.fakedevelopers.bidderbidder.dto.ProductWriteDto;
 import com.fakedevelopers.bidderbidder.exception.InvalidExpirationDateException;
 import com.fakedevelopers.bidderbidder.exception.InvalidExtensionException;
 import com.fakedevelopers.bidderbidder.exception.InvalidHopePriceException;
 import com.fakedevelopers.bidderbidder.exception.InvalidRepresentPictureIndexException;
 import com.fakedevelopers.bidderbidder.exception.InvalidSearchTypeException;
-import com.fakedevelopers.bidderbidder.model.BoardEntity;
 import com.fakedevelopers.bidderbidder.model.FileEntity;
-import com.fakedevelopers.bidderbidder.repository.BoardRepository;
+import com.fakedevelopers.bidderbidder.model.ProductEntity;
+import com.fakedevelopers.bidderbidder.repository.FileRepository;
+import com.fakedevelopers.bidderbidder.repository.ProductRepository;
 import imageUtil.Image;
 import imageUtil.ImageLoader;
 import org.apache.commons.io.FilenameUtils;
@@ -22,7 +24,6 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +34,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.SecureRandom;
@@ -46,40 +46,42 @@ import java.util.List;
 import static java.lang.Math.min;
 
 @Service
-public class BoardService {
+public class ProductService {
 
     private static final String UPLOAD_FOLDER = "./upload";
     private final ResourceLoader resourceLoader;
-    private final BoardRepository boardRepository;
+    private final ProductRepository productRepository;
+    private final FileRepository fileRepository;
     private final ArrayList<String> extensionList = new ArrayList<>(Arrays.asList("jpg", "jpeg", "png"));
 
-    BoardService(BoardRepository boardRepository, ResourceLoader resourceLoader) {
-        this.boardRepository = boardRepository;
+    ProductService(ProductRepository productRepository, ResourceLoader resourceLoader, FileRepository fileRepository) {
+        this.productRepository = productRepository;
         this.resourceLoader = resourceLoader;
+        this.fileRepository = fileRepository;
     }
 
     // 게시글 저장
-    public void saveBoard(BoardWriteDto boardWriteDto, List<MultipartFile> files) throws Exception {
+    public void saveProduct(ProductWriteDto productWriteDto, List<MultipartFile> files) throws Exception {
 
-        compareBids(boardWriteDto.getHopePrice(), boardWriteDto.getOpeningBid());
-        compareDate(boardWriteDto.getExpirationDate());
+        compareBids(productWriteDto.getHopePrice(), productWriteDto.getOpeningBid());
+        compareDate(productWriteDto.getExpirationDate());
         if (files != null) {
             compareExtension(files);
-            imageCount(boardWriteDto.getRepresentPicture(), files);
+            imageCount(productWriteDto.getRepresentPicture(), files);
         }
         List<String> pathList = createPathIfNeed();
-        BoardEntity boardEntity = new BoardEntity(pathList.get(0), boardWriteDto, files);
-        BoardEntity savedBoardEntity = boardRepository.save(boardEntity);
+        ProductEntity productEntity = new ProductEntity(pathList.get(0), productWriteDto, files);
+        ProductEntity savedProductEntity = productRepository.save(productEntity);
         if (files != null) {
-            FileEntity representFileEntity = savedBoardEntity.getFileEntities().get(boardWriteDto.getRepresentPicture());
-            saveResizeFile(representFileEntity.getSavedFileName(), savedBoardEntity.getBoardId(), pathList);
+            FileEntity representFileEntity = savedProductEntity.getFileEntities().get(productWriteDto.getRepresentPicture());
+            saveResizeFile(representFileEntity.getSavedFileName(), savedProductEntity.getProductId(), pathList);
         }
     }
 
     // 입력 받은 이미지를 web, app 에 맞게 각각 리사이징 후 저장
-    private void saveResizeFile(String fileName, Long boardId, List<String> pathList) throws IOException {
+    private void saveResizeFile(String fileName, Long productId, List<String> pathList) throws IOException {
         File representImage = new File(UPLOAD_FOLDER, fileName);
-        String newFileName = Long.toString(boardId);
+        String newFileName = Long.toString(productId);
         resizeImage(newFileName, pathList.get(1), Constants.APP_RESIZE_SIZE, representImage);
         resizeImage(newFileName, pathList.get(2), Constants.WEB_RESIZE_SIZE, representImage);
     }
@@ -116,11 +118,10 @@ public class BoardService {
 
     // 대표이미지 index가 유효하지 않으면 예외처리
     private void imageCount(int representPicture, List<MultipartFile> files) {
-        int size = files.size();
         if (representPicture < 0) {
             throw new InvalidRepresentPictureIndexException("대표 사진은 0번째보다 낮을 수 없습니다.");
         }
-        if (representPicture > size - 1) {
+        if (representPicture > files.size() - 1) {
             throw new InvalidRepresentPictureIndexException("사진의 개수보다 큰 값을 입력했습니다.");
         }
     }
@@ -137,119 +138,115 @@ public class BoardService {
 
     // 요청받은 내용을 기반으로 페이지네이션 상품리스트 프론트에 반환
     public PageListResponseDto makePageListResponseDto(ProductListRequestDto productListRequestDto, int page) {
-        return new PageListResponseDto(boardRepository.count(),
+        return new PageListResponseDto(productRepository.count(),
                 createPageProductLists(productListRequestDto, page));
     }
 
-    // 요청밷은 내용을 기반으로 페이지네이션 상품리스트 생성
+    // 요청받은 내용을 기반으로 페이지네이션 상품리스트 생성
     public List<ProductListDto> createPageProductLists(ProductListRequestDto productListRequestDto, int page) {
-        List<ProductListDto> productList;
-        Pageable pageable = PageRequest.of(page - 1, productListRequestDto.getListCount(), Sort.Direction.DESC, "boardId");
+        Pageable pageable = PageRequest.of(page - 1, productListRequestDto.getListCount(), Sort.Direction.DESC, "productId");
         String searchWord = productListRequestDto.getSearchWord();
         int searchType = productListRequestDto.getSearchType();
 
-        if (searchWord == null) {
-            productList = makeProductList(pageable);
-        } else {
-            productList = makeProductList(searchWord, searchType, pageable);
-        }
-        return productList;
+        return searchWord == null ? makeProductList(pageable) : makeProductList(searchWord, searchType, pageable);
     }
 
     // 요청받은 내용을 기반으로 무한스크롤 상품리스트 생성 및 프론트에 반환
     public List<ProductListDto> createInfiniteProductLists(ProductListRequestDto productListRequestDto, long startNumber) {
-        List<ProductListDto> productList;
-
         int size = productListRequestDto.getListCount();
-        BoardEntity boardEntity = boardRepository.findTopByOrderByBoardIdDesc();
-        long maxCount = boardEntity.getBoardId();
+        ProductEntity productEntity = productRepository.findTopByOrderByProductIdDesc();
+        long maxCount = productEntity.getProductId();
         if (startNumber == -1) {
             startNumber = maxCount + 1;
         }
         String searchWord = productListRequestDto.getSearchWord();
         int searchType = productListRequestDto.getSearchType();
 
-        if (searchWord == null) {
-            productList = makeProductList(size, startNumber);
-        } else {
-            productList = makeProductList(searchWord, searchType, size, startNumber);
-        }
-        return productList;
+        return searchWord == null ? makeProductList(size, startNumber) : makeProductList(searchWord, searchType, size, startNumber);
     }
 
     // 검색어 없을 때 페이지네이션으로 상품 리스트 만들기
     private List<ProductListDto> makeProductList(Pageable pageable) {
 
-        List<BoardEntity> boardList = boardRepository.findAllBy(pageable);
+        List<ProductEntity> productList = productRepository.findAllBy(pageable);
 
-        return addItemList(boardList, true);
-    }
-
-    // 검색어 있을 때 페이지네이션으로 상품 리스트 만들기
-    private List<ProductListDto> makeProductList(String searchWord, int searchType, Pageable pageable) {
-
-        List<BoardEntity> boardList = searchBoard(searchWord, searchType, pageable);
-
-        return addItemList(boardList, true);
+        return addItemList(productList, true);
     }
 
     // 검색어 없을 때 무한스크롤로 상품 리스트 만들기
     private List<ProductListDto> makeProductList(int size, long startNumber) {
 
-        List<BoardEntity> boardList = boardRepository.findAllByBoardIdIsLessThanOrderByBoardIdDesc(startNumber, PageRequest.of(0, size));
-        return addItemList(boardList, false);
+        List<ProductEntity> productList = productRepository.findAllByProductIdIsLessThanOrderByProductIdDesc(startNumber, PageRequest.of(0, size));
+        return addItemList(productList, false);
+    }
+
+    // 검색어 있을 때 페이지네이션으로 상품 리스트 만들기
+    private List<ProductListDto> makeProductList(String searchWord, int searchType, Pageable pageable) {
+
+        List<ProductEntity> productList = searchProduct(searchWord, searchType, pageable);
+
+        return addItemList(productList, true);
     }
 
     // 검색어 있을 때 무한스크롤로 상품 리스트 만들기
     private List<ProductListDto> makeProductList(String searchWord, int searchType, int size, long startNumber) {
         Pageable pageable = PageRequest.of(0, size);
-        List<BoardEntity> boardList = searchBoard(searchWord, searchType, startNumber, pageable);
-        return addItemList(boardList, false);
+        List<ProductEntity> productList = searchProduct(searchWord, searchType, startNumber, pageable);
+        return addItemList(productList, false);
     }
 
     // 상품 리스트 만들어줌
-    private ArrayList<ProductListDto> addItemList(List<BoardEntity> boardList, Boolean isWeb) {
+    private ArrayList<ProductListDto> addItemList(List<ProductEntity> productList, Boolean isWeb) {
         ArrayList<ProductListDto> itemList = new ArrayList<>();
 
         SecureRandom random = new SecureRandom();
-        for (BoardEntity boardentity : boardList) {
+        for (ProductEntity productEntity : productList) {
             int randomZeroNine = random.nextInt(10);
-            itemList.add(new ProductListDto(boardentity.getBoardId(), "/board/getThumbnail?boardId=" + boardentity.getBoardId() + "&isWeb=" + isWeb,
-                    boardentity.getBoardTitle(), boardentity.getHopePrice(), boardentity.getOpeningBid(), boardentity.getTick(),
-                    boardentity.getExpirationDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), randomZeroNine * 3));
+            itemList.add(new ProductListDto(productEntity.getProductId(), "/product/getThumbnail?productId=" + productEntity.getProductId() + "&isWeb=" + isWeb,
+                    productEntity.getProductTitle(), productEntity.getHopePrice(), productEntity.getOpeningBid(), productEntity.getTick(),
+                    productEntity.getExpirationDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), randomZeroNine * 3));
         }
         return itemList;
     }
 
     // 실제 이미지 리사이징 후, 프론트에 보내줌
     // 이미지가 없다면 X표 이미지가 나옴
-    public ResponseEntity<Resource> getThumbnail(Long boardId, boolean isWeb) throws IOException {
+    public ResponseEntity<Resource> getThumbnail(Long productId, boolean isWeb) throws IOException {
 
         InputStream inputStream;
         String imagePath = UPLOAD_FOLDER + File.separator + (isWeb ? "resize_web" : "resize_app");
-        File image = new File(imagePath + "/resize_" + boardId + ".jpg");
+        File image = new File(imagePath + "/resize_" + productId + ".jpg");
         if (image.exists()) {
             inputStream = new FileInputStream(image);
         } else {
             inputStream = resourceLoader.getResource("classpath:/static/img/noImage.jpg").getInputStream();
         }
 
-        String imageName = "thumbnail.jpg";
         String contentType = "image/jpg";
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentDisposition(
-                ContentDisposition.builder("attachment")
-                        .filename(imageName, StandardCharsets.UTF_8)
-                        .build()
-        );
-
         headers.add(HttpHeaders.CONTENT_TYPE, contentType);
-
         Resource resource = new InputStreamResource(inputStream);
 
         return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+    }
 
+    public ResponseEntity<Resource> getProductImage(Long fileId) throws IOException {
+        FileEntity fileEntity = fileRepository.findByFileId(fileId);
+        InputStream inputStream;
+        File image = new File(UPLOAD_FOLDER + "/" + fileEntity.getSavedFileName());
+        if (image.exists()) {
+            inputStream = new FileInputStream(image);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        String contentType = "image/jpg";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_TYPE, contentType);
+        Resource resource = new InputStreamResource(inputStream);
+
+        return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
 
     // 중고 자전거.jpg로 리사이징 후 프론트에 보내줌
@@ -258,15 +255,9 @@ public class BoardService {
         InputStream file = resourceLoader.getResource("classpath:/static/img/중고 자전거.jpg").getInputStream();
 
         String imageName = "중고 자전거.jpg";
-
         String contentType = "image/jpg";
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentDisposition(
-                ContentDisposition.builder("attachment")
-                        .filename(imageName, StandardCharsets.UTF_8)
-                        .build()
-        );
 
         headers.add(HttpHeaders.CONTENT_TYPE, contentType);
 
@@ -308,40 +299,52 @@ public class BoardService {
     }
 
     // 게시글 상세 내용 얻어오기
-    public BoardEntity getBoardInfo(long boardId) {
-        return boardRepository.findByBoardId(boardId);
+    public ProductInformationDto getProductInfo(long productId){
+
+        ProductEntity productEntity = productRepository.findByProductId(productId);
+        SecureRandom random = new SecureRandom();
+        int randomZeroNine = random.nextInt(10);
+
+        return new ProductInformationDto(productId,
+                productEntity.getProductTitle(), productEntity.getProductContent(),
+                productEntity.getOpeningBid(), productEntity.getHopePrice(),
+                productEntity.getTick(),
+                productEntity.getExpirationDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
+                productEntity.getCreatedTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
+                randomZeroNine * 3);
+
     }
 
-    // 페이지네이션 searchBoard
-    public List<BoardEntity> searchBoard(String searchWord, int searchType, Pageable pageable) {
-        switch (searchType){
+    // 페이지네이션 searchProduct
+    public List<ProductEntity> searchProduct(String searchWord, int searchType, Pageable pageable) {
+        switch (searchType) {
             // 제목에서 searchWord 포함하는 상품 검색
             case 0:
-                return boardRepository.findAllByBoardTitleContainingIgnoreCase(searchWord, pageable);
+                return productRepository.findAllByProductTitleContainingIgnoreCase(searchWord, pageable);
             // 내용에서 searchWord 포함하는 상품 검색
             case 1:
-                return boardRepository.findAllByBoardContentContainingIgnoreCase(searchWord, pageable);
+                return productRepository.findAllByProductContentContainingIgnoreCase(searchWord, pageable);
             // 제목+내용에서 searchWord 포함하는 상품 검색
             case 2:
-                return boardRepository.findAllByBoardTitleContainingIgnoreCaseOrBoardContentContainingIgnoreCase(searchWord, searchWord, pageable);
+                return productRepository.findAllByProductTitleContainingIgnoreCaseOrProductContentContainingIgnoreCase(searchWord, searchWord, pageable);
             default:
                 throw new InvalidSearchTypeException("검색 타입이 잘못되었습니다.");
         }
     }
 
-    // 무한 스크롤 searchBoard
-    public List<BoardEntity> searchBoard(String searchWord, int searchType, long startNumber, Pageable pageable) {
+    // 무한 스크롤 searchProduct
+    public List<ProductEntity> searchProduct(String searchWord, int searchType, long startNumber, Pageable pageable) {
 
-        switch (searchType){
+        switch (searchType) {
             // 제목에서 searchWord 포함하는 상품 검색
             case 0:
-                return boardRepository.findAllByBoardTitleContainingIgnoreCaseAndBoardIdIsLessThanOrderByBoardIdDesc(searchWord, startNumber, pageable);
+                return productRepository.findAllByProductTitleContainingIgnoreCaseAndProductIdIsLessThanOrderByProductIdDesc(searchWord, startNumber, pageable);
             // 내용에서 searchWord 포함하는 상품 검색
             case 1:
-                return boardRepository.findAllByBoardContentContainingIgnoreCaseAndBoardIdIsLessThanOrderByBoardIdDesc(searchWord, startNumber, pageable);
+                return productRepository.findAllByProductContentContainingIgnoreCaseAndProductIdIsLessThanOrderByProductIdDesc(searchWord, startNumber, pageable);
             // 제목+내용에서 searchWord 포함하는 상품 검색
             case 2:
-                return boardRepository.searchBoardByTitleAndContentInInfiniteScroll(searchWord, startNumber, pageable);
+                return productRepository.searchProductByTitleAndContentInInfiniteScroll(searchWord, startNumber, pageable);
             default:
                 throw new InvalidSearchTypeException("검색 타입이 잘못되었습니다.");
 
@@ -349,8 +352,8 @@ public class BoardService {
     }
 
     // 게시글 검색
-    public List<BoardEntity> getAllBoards() {
-        return boardRepository.findAll();
+    public List<ProductEntity> getAllProducts() {
+        return productRepository.findAll();
     }
 
 }
