@@ -50,7 +50,6 @@ import static java.lang.Math.min;
 public class ProductService {
 
     private static final String UPLOAD_FOLDER = "./upload";
-    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";
     private static final String IMAGE_TYPE = "image/jpg";
     private final ResourceLoader resourceLoader;
     private final ProductRepository productRepository;
@@ -206,7 +205,7 @@ public class ProductService {
             int randomZeroNine = random.nextInt(10);
             itemList.add(new ProductListDto(productEntity.getProductId(), "/product/getThumbnail?productId=" + productEntity.getProductId() + "&isWeb=" + isWeb,
                     productEntity.getProductTitle(), productEntity.getHopePrice(), productEntity.getOpeningBid(), productEntity.getTick(),
-                    productEntity.getExpirationDate().format(DateTimeFormatter.ofPattern(DATE_FORMAT)), randomZeroNine * 3));
+                    productEntity.getExpirationDate().format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT)), randomZeroNine * 3));
         }
         return itemList;
     }
@@ -311,12 +310,7 @@ public class ProductService {
         SecureRandom random = new SecureRandom();
         int randomZeroNine = random.nextInt(10);
         ProductInformationDto productInformationDto = new ProductInformationDto(
-                productEntity.getProductTitle(), productEntity.getProductContent(),
-                productEntity.getOpeningBid(), productEntity.getHopePrice(),
-                productEntity.getTick(),
-                productEntity.getExpirationDate().format(DateTimeFormatter.ofPattern(DATE_FORMAT)),
-                productEntity.getCreatedTime().format(DateTimeFormatter.ofPattern(DATE_FORMAT)),
-                randomZeroNine * 3, images);
+                productEntity, randomZeroNine * 3, images);
         return new ResponseEntity<>(productInformationDto, HttpStatus.OK);
     }
 
