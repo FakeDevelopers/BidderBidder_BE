@@ -20,9 +20,9 @@ public class ProductInformationDto {
     private final String expirationDate;
     private final String createdTime;
     private final int bidderCount;
-    private final ArrayList<String> images;
+    private final List<String> images;
 
-    public ProductInformationDto(ProductEntity productEntity, int bidderCount, ArrayList<String> images) {
+    public ProductInformationDto(ProductEntity productEntity, int bidderCount, List<String> images) {
         this.productTitle = productEntity.getProductTitle();
         this.productContent = productEntity.getProductContent();
         this.openingBid = productEntity.getOpeningBid();
