@@ -26,6 +26,12 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
 
     List<ProductEntity> findAllByProductTitleContainingIgnoreCaseOrProductContentContainingIgnoreCase(String title, String content, Pageable pageable);
 
+    long countAllByProductTitleContainingIgnoreCase(String searchWord);
+
+    long countAllByProductContentContainingIgnoreCase(String searchWord);
+
+    long countAllByProductTitleContainingIgnoreCaseOrProductContentContainingIgnoreCase(String title, String content);
+
     ProductEntity findByProductId(long productId);
 
     ProductEntity findTopByOrderByProductIdDesc();

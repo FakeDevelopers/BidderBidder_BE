@@ -5,6 +5,7 @@ import com.fakedevelopers.bidderbidder.dto.PageListResponseDto;
 import com.fakedevelopers.bidderbidder.dto.ProductInformationDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListRequestDto;
+import com.fakedevelopers.bidderbidder.dto.ProductSearchCountDto;
 import com.fakedevelopers.bidderbidder.dto.ProductWriteDto;
 import com.fakedevelopers.bidderbidder.exception.InvalidExpirationDateException;
 import com.fakedevelopers.bidderbidder.exception.InvalidExtensionException;
@@ -49,7 +50,7 @@ import static java.lang.Math.min;
 public class ProductService {
 
     private static final String UPLOAD_FOLDER = "./upload";
-    private static final String DATE_FORMAT = "yyyy-MM-dd HH:MM";
+    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";
     private static final String IMAGE_TYPE = "image/jpg";
     private final ResourceLoader resourceLoader;
     private final ProductRepository productRepository;
@@ -140,12 +141,11 @@ public class ProductService {
 
     // 요청받은 내용을 기반으로 페이지네이션 상품리스트 프론트에 반환
     public PageListResponseDto makePageListResponseDto(ProductListRequestDto productListRequestDto, int page) {
-        return new PageListResponseDto(productRepository.count(),
-                createPageProductLists(productListRequestDto, page));
+        return createPageProductLists(productListRequestDto, page);
     }
 
     // 요청받은 내용을 기반으로 페이지네이션 상품리스트 생성
-    public List<ProductListDto> createPageProductLists(ProductListRequestDto productListRequestDto, int page) {
+    public PageListResponseDto createPageProductLists(ProductListRequestDto productListRequestDto, int page) {
         Pageable pageable = PageRequest.of(page - 1, productListRequestDto.getListCount(), Sort.Direction.DESC, "productId");
         String searchWord = productListRequestDto.getSearchWord();
         int searchType = productListRequestDto.getSearchType();
@@ -168,11 +168,11 @@ public class ProductService {
     }
 
     // 검색어 없을 때 페이지네이션으로 상품 리스트 만들기
-    private List<ProductListDto> makeProductList(Pageable pageable) {
+    private PageListResponseDto makeProductList(Pageable pageable) {
 
         List<ProductEntity> productList = productRepository.findAllBy(pageable);
 
-        return addItemList(productList, true);
+        return new PageListResponseDto(productRepository.count(), addItemList(productList, true));
     }
 
     // 검색어 없을 때 무한스크롤로 상품 리스트 만들기
@@ -183,11 +183,11 @@ public class ProductService {
     }
 
     // 검색어 있을 때 페이지네이션으로 상품 리스트 만들기
-    private List<ProductListDto> makeProductList(String searchWord, int searchType, Pageable pageable) {
+    private PageListResponseDto makeProductList(String searchWord, int searchType, Pageable pageable) {
 
-        List<ProductEntity> productList = searchProduct(searchWord, searchType, pageable);
+        ProductSearchCountDto productList = searchProduct(searchWord, searchType, pageable);
 
-        return addItemList(productList, true);
+        return new PageListResponseDto(productList.getItemCount(), addItemList(productList.getItems(), true));
     }
 
     // 검색어 있을 때 무한스크롤로 상품 리스트 만들기
@@ -233,7 +233,7 @@ public class ProductService {
 
     public ResponseEntity<Resource> getProductImage(Long fileId) throws IOException {
         FileEntity fileEntity = fileRepository.findByFileId(fileId);
-        if (fileEntity == null){
+        if (fileEntity == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         InputStream inputStream;
@@ -298,7 +298,7 @@ public class ProductService {
     public ResponseEntity<ProductInformationDto> getProductInfo(long productId) {
 
         ProductEntity productEntity = productRepository.findByProductId(productId);
-        if(productEntity == null){
+        if (productEntity == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         List<FileEntity> fileEntities = productEntity.getFileEntities();
@@ -310,7 +310,7 @@ public class ProductService {
 
         SecureRandom random = new SecureRandom();
         int randomZeroNine = random.nextInt(10);
-        ProductInformationDto productInformationDto = new ProductInformationDto(productId,
+        ProductInformationDto productInformationDto = new ProductInformationDto(
                 productEntity.getProductTitle(), productEntity.getProductContent(),
                 productEntity.getOpeningBid(), productEntity.getHopePrice(),
                 productEntity.getTick(),
@@ -321,21 +321,25 @@ public class ProductService {
     }
 
     // 페이지네이션 searchProduct
-    public List<ProductEntity> searchProduct(String searchWord, int searchType, Pageable pageable) {
+    public ProductSearchCountDto searchProduct(String searchWord, int searchType, Pageable pageable) {
         switch (searchType) {
             // 제목에서 searchWord 포함하는 상품 검색
             case 0:
-                return productRepository.findAllByProductTitleContainingIgnoreCase(searchWord, pageable);
+                return new ProductSearchCountDto(productRepository.countAllByProductTitleContainingIgnoreCase(searchWord),
+                        productRepository.findAllByProductTitleContainingIgnoreCase(searchWord, pageable));
             // 내용에서 searchWord 포함하는 상품 검색
             case 1:
-                return productRepository.findAllByProductContentContainingIgnoreCase(searchWord, pageable);
+                return new ProductSearchCountDto(productRepository.countAllByProductContentContainingIgnoreCase(searchWord),
+                        productRepository.findAllByProductContentContainingIgnoreCase(searchWord, pageable));
             // 제목+내용에서 searchWord 포함하는 상품 검색
             case 2:
-                return productRepository.findAllByProductTitleContainingIgnoreCaseOrProductContentContainingIgnoreCase(searchWord, searchWord, pageable);
+                return new ProductSearchCountDto(productRepository.countAllByProductTitleContainingIgnoreCaseOrProductContentContainingIgnoreCase(searchWord, searchWord),
+                        productRepository.findAllByProductTitleContainingIgnoreCaseOrProductContentContainingIgnoreCase(searchWord, searchWord, pageable));
             default:
                 throw new InvalidSearchTypeException("검색 타입이 잘못되었습니다.");
         }
     }
+
 
     // 무한 스크롤 searchProduct
     public List<ProductEntity> searchProduct(String searchWord, int searchType, long startNumber, Pageable pageable) {
