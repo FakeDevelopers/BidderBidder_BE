@@ -9,7 +9,6 @@ import java.util.ArrayList;
 @RequiredArgsConstructor
 public class ProductInformationDto {
 
-    private final long productId;
     private final String productTitle;
     private final String productContent;
     private final long openingBid;
