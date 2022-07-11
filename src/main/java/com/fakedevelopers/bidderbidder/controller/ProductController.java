@@ -30,7 +30,6 @@ public class ProductController {
     private final ProductService productService;
 
     ProductController(ProductService productService) {
-
         this.productService = productService;
     }
 
@@ -67,7 +66,7 @@ public class ProductController {
     }
 
     @GetMapping("/getProductInfo/{productId}")
-    ResponseEntity<ProductInformationDto> getProductInfo(@PathVariable long productId){
+    ResponseEntity<ProductInformationDto> getProductInfo(@PathVariable long productId) {
         return productService.getProductInfo(productId);
     }
 
@@ -76,10 +75,14 @@ public class ProductController {
         return productService.getProductImage(imageId);
     }
 
+    @GetMapping("/getSearchRank")
+    List<String> searchRankList(int listCount) {
+        return productService.getPopularSearchWord(listCount);
+    }
+
     // 게시글 전체 찾기
     @GetMapping("/getAll")
     List<ProductEntity> getAllProducts() {
         return productService.getAllProducts();
     }
-
 }

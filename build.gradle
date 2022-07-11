@@ -37,9 +37,13 @@ dependencies {
 
     implementation 'commons-io:commons-io:2.6'
 
-    implementation group: 'com.mortennobel', name: 'java-image-scaling', version: '0.8.6'
+    implementation 'com.mortennobel:java-image-scaling:0.8.6'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis:2.7.1'
+    implementation 'com.google.firebase:firebase-admin:8.0.1'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
 }
 
 tasks.named('test') {
