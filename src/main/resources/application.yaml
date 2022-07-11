@@ -12,6 +12,7 @@ spring:
     url: ${datasource.url}
     username: ${datasource.username}
     password: ${datasource.password}
+
   jpa:
     hibernate:
       ddl-auto: update # 운영시에는 validate 추천
