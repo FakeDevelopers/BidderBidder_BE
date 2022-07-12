@@ -30,7 +30,7 @@ public class ProductController {
 
     private final ProductService productService;
 
-    ProductController(ProductService productService, RedisRepository redisRepository) {
+    ProductController(ProductService productService) {
         this.productService = productService;
     }
 
