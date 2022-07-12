@@ -6,6 +6,7 @@ import com.google.firebase.auth.FirebaseToken;
 import org.apache.http.HttpStatus;
 import org.springframework.lang.NonNullApi;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -58,6 +59,8 @@ public class FirebaseTokenFilter extends OncePerRequestFilter {
             UserDetails userDetails = userDetailsService.loadUserByUsername(decodedToken.getUid());
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            // 최종 인증 결과를 Security Context에 저장, 이후에는 인증 객체를 전역적으로 사용 가능
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (NoSuchElementException e) {
             setUnauthorizedResponseMessage(response, "USER_NOT_FOUND");
             return;
