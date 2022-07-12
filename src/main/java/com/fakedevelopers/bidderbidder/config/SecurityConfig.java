@@ -6,11 +6,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 // 아래는 실제 로직 작성 후 주석 해제
@@ -39,7 +37,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // 2. 로그인, 회원가입에 대한 Filter 적용 X
         web.ignoring()
                 .antMatchers("/resources/static/**")
-                .antMatchers("/user/**");
+                .antMatchers("/user/**")
+                .antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/product/**");
     }
 
     @Override

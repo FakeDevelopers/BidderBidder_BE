@@ -19,3 +19,8 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+  redis:
+    host: ${redis.host}
+    password: ${redis.password}
+    port: 6379
+    timeout: 5000
