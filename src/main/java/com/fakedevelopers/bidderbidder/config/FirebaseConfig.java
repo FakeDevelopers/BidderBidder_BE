@@ -13,11 +13,11 @@ import java.io.IOException;
 @Configuration
 public class FirebaseConfig {
     // https://firebase.google.com/docs/admin/setup?hl=ko#java_1
-    private final static String firebaseSdkPath = "./firebase.json";
+    private static final String FIREBASE_SDK_PATH = "./firebase.json";
 
     @Bean
     public FirebaseAuth firebaseAuth() throws IOException {
-        FileInputStream fis = new FileInputStream(firebaseSdkPath);
+        FileInputStream fis = new FileInputStream(FIREBASE_SDK_PATH);
 
         FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(fis))
