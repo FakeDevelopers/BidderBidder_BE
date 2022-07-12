@@ -12,9 +12,4 @@ public class RedisRepository {
     RedisRepository(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
-
-    public void save(String str) {
-        ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
-        valueOperations.set("testValue", str);
-    }
 }

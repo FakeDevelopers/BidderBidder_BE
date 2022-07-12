@@ -29,11 +29,9 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
-    private final RedisRepository redisRepository;
 
     ProductController(ProductService productService, RedisRepository redisRepository) {
         this.productService = productService;
-        this.redisRepository = redisRepository;
     }
 
     // 게시글 작성
