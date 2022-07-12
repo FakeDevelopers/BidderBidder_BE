@@ -84,4 +84,7 @@ public class ProductController {
         return productService.getAllProducts();
     }
 
+    // redis 연결 확인용 테스트 api
+    @PostMapping("/redisTest")
+    void redisTest(String str){ redisRepository.save(str); }
 }
