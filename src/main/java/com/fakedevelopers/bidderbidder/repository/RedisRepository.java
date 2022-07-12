@@ -1,7 +1,6 @@
 package com.fakedevelopers.bidderbidder.repository;
 
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 
 @Component
