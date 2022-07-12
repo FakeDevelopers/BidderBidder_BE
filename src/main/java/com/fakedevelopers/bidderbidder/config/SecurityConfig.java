@@ -15,9 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 // 아래는 실제 로직 작성 후 주석 해제
 // @EnableWebSecurity
-/**
- * 필터 체인 구성
- */
+
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     /*
@@ -29,7 +27,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private UserDetailsService userDetailsService;
 
     /*
-        TODO : Firebase token을 인증하는 커스텀 필터 적용
+        Firebase token을 인증하는 커스텀 필터 적용
         Consists of) UserDetailsService, firebaseAuth
           UserDetailsService -> 인증 성공 시, 인증된 사용자 정보 얻기 위함
           firebaseAuth -> 이것을 이용하여, token 검증

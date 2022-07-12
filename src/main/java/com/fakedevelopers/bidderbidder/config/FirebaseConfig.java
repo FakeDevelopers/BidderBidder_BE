@@ -1,6 +1,5 @@
 package com.fakedevelopers.bidderbidder.config;
 
-import com.google.api.client.util.Value;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
@@ -14,7 +13,7 @@ import java.io.IOException;
 @Configuration
 public class FirebaseConfig {
     // https://firebase.google.com/docs/admin/setup?hl=ko#java_1
-    private final String firebaseSdkPath = "./firebase.json";
+    private final static String firebaseSdkPath = "./firebase.json";
 
     @Bean
     public FirebaseAuth firebaseAuth() throws IOException {
