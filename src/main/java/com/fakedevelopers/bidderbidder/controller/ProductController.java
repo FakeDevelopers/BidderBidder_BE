@@ -6,6 +6,7 @@ import com.fakedevelopers.bidderbidder.dto.ProductListDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListRequestDto;
 import com.fakedevelopers.bidderbidder.dto.ProductWriteDto;
 import com.fakedevelopers.bidderbidder.model.ProductEntity;
+import com.fakedevelopers.bidderbidder.repository.RedisRepository;
 import com.fakedevelopers.bidderbidder.service.ProductService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -28,10 +29,11 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+    private final RedisRepository redisRepository;
 
-    ProductController(ProductService productService) {
-
+    ProductController(ProductService productService, RedisRepository redisRepository) {
         this.productService = productService;
+        this.redisRepository = redisRepository;
     }
 
     // 게시글 작성
@@ -67,7 +69,7 @@ public class ProductController {
     }
 
     @GetMapping("/getProductInfo/{productId}")
-    ResponseEntity<ProductInformationDto> getProductInfo(@PathVariable long productId){
+    ResponseEntity<ProductInformationDto> getProductInfo(@PathVariable long productId) {
         return productService.getProductInfo(productId);
     }
 
