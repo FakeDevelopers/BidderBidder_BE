@@ -15,9 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @RequiredArgsConstructor
 @Configuration
-// 아래는 실제 로직 작성 후 주석 해제
 @EnableWebSecurity
-
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private FirebaseAuth firebaseAuth; // Firebase 토큰 정보

@@ -3,8 +3,10 @@ package com.fakedevelopers.bidderbidder.filter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
+import lombok.RequiredArgsConstructor;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
-import org.springframework.lang.NonNullApi;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,19 +17,14 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.NoSuchElementException;
-
+@RequiredArgsConstructor
 public class FirebaseTokenFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
     private final FirebaseAuth firebaseAuth;
 
-    public FirebaseTokenFilter(UserDetailsService userDetailsService, FirebaseAuth firebaseAuth) {
-        this.userDetailsService = userDetailsService;
-        this.firebaseAuth = firebaseAuth;
-    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -35,7 +32,7 @@ public class FirebaseTokenFilter extends OncePerRequestFilter {
         // Request에 포함된 token을 저장
         FirebaseToken decodedToken;
 
-        String header = request.getHeader("Authorization");
+        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
         // Authorization: Bearer ${token} 라는 Header를 포함하는 요청에 대한 필터
         // https://www.ssemi.net/what-is-the-bearer-authentication/
 
@@ -72,7 +69,7 @@ public class FirebaseTokenFilter extends OncePerRequestFilter {
     private void setUnauthorizedResponseMessage(HttpServletResponse responseMessage,
                                                 String typeOfError) throws IOException {
         responseMessage.setStatus(HttpStatus.SC_UNAUTHORIZED);
-        responseMessage.setContentType("application/json");
+        responseMessage.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
         // client에게 반환할 출력 스트림에 error type 표시
         PrintWriter writer = responseMessage.getWriter();
