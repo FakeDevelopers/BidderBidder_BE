@@ -6,7 +6,6 @@ spring:
     # 새로 생긴 Program argumetn 칸에 밑의 정보 입력
     # --datasource.url={~~~} --datasource.username={~~~} --datasource.password={~~~}
     # ~~~에는 각 정보를 입력, 및 {}(중괄호) 제거
-    url: ${datasource.url}
     username: ${datasource.username}
     password: ${datasource.password}
   jpa:
