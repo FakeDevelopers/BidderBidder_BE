@@ -36,6 +36,9 @@ spring:
     activate:
       on-profile: prod
 
+  datasource:
+    url: ${real.url}
+
   jpa:
     hibernate:
       ddl-auto: validate
@@ -48,6 +51,9 @@ spring:
   config:
     activate:
       on-profile: dev
+
+  datasource:
+    url: ${sandbox.url}
 
   jpa:
     hibernate:
