@@ -9,8 +9,10 @@ spring:
     # 새로 생긴 Program argumetn 칸에 밑의 정보 입력
     # --datasource.url={~~~} --datasource.username={~~~} --datasource.password={~~~}
     # ~~~에는 각 정보를 입력, 및 {}(중괄호) 제거
+    url: ${datasource.url}
     username: ${datasource.username}
     password: ${datasource.password}
+
   jpa:
     hibernate:
       ddl-auto: update # 운영시에는 validate 추천
@@ -36,9 +38,6 @@ spring:
     activate:
       on-profile: prod
 
-  datasource:
-    url: ${real.url}
-
   jpa:
     hibernate:
       ddl-auto: validate
@@ -51,9 +50,6 @@ spring:
   config:
     activate:
       on-profile: dev
-
-  datasource:
-    url: ${sandbox.url}
 
   jpa:
     hibernate:
