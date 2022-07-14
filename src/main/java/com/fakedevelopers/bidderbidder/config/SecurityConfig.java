@@ -1,27 +1,24 @@
 package com.fakedevelopers.bidderbidder.config;
 
+import com.fakedevelopers.bidderbidder.filter.FirebaseTokenFilter;
 import com.google.firebase.auth.FirebaseAuth;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+@RequiredArgsConstructor
 @Configuration
-// 아래는 실제 로직 작성 후 주석 해제
-// @EnableWebSecurity
-
+@EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    /*
-        아래는 Custom Filter의 매개변수로 넘길 예정
-     */
-    @Autowired
     private FirebaseAuth firebaseAuth; // Firebase 토큰 정보
-    @Autowired
     private UserDetailsService userDetailsService;
 
     /*
@@ -43,12 +40,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+
         http.csrf().disable()
                 .authorizeRequests()
                 .anyRequest().authenticated()
                 .and()
-                // .addFilterBefore(커스텀 필터 , UsernamePasswordAuthenticationFilter.class)
-
+                .addFilterBefore(new FirebaseTokenFilter(userDetailsService, firebaseAuth), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling()
                 .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
     }
