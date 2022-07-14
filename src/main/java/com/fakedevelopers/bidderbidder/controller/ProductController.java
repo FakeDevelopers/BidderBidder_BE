@@ -6,7 +6,6 @@ import com.fakedevelopers.bidderbidder.dto.ProductListDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListRequestDto;
 import com.fakedevelopers.bidderbidder.dto.ProductWriteDto;
 import com.fakedevelopers.bidderbidder.model.ProductEntity;
-import com.fakedevelopers.bidderbidder.repository.RedisRepository;
 import com.fakedevelopers.bidderbidder.service.ProductService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -81,8 +80,4 @@ public class ProductController {
     List<ProductEntity> getAllProducts() {
         return productService.getAllProducts();
     }
-
-    // redis 연결 확인용 테스트 api
-    @PostMapping("/redisTest")
-    void redisTest(String str){ redisRepository.save(str); }
 }
