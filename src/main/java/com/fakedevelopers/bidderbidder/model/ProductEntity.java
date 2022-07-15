@@ -3,7 +3,7 @@ package com.fakedevelopers.bidderbidder.model;
 import com.fakedevelopers.bidderbidder.dto.ProductWriteDto;
 import com.fakedevelopers.bidderbidder.exception.InvalidCategoryException;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.data.annotation.CreatedDate;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.UUID;
 
 
-@Data
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
@@ -42,11 +42,11 @@ public class ProductEntity {
     private long productId;
 
     // 게시글 제목
-    @Column(nullable = false, length = 300)
+    @Column(nullable = false, length = 400)
     private String productTitle;
 
     // 게시글 내용
-    @Column(nullable = false, length = 3000)
+    @Column(nullable = false, length = 4000)
     private String productContent;
 
     // 시작가
