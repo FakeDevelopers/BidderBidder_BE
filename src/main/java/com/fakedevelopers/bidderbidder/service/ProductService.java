@@ -98,7 +98,7 @@ public class ProductService {
 
     // 경매 마감 날짜가 지금 날짜보다 나중인지 확인
     private void compareDate(LocalDateTime expirationDate) {
-        long betweenHour = ChronoUnit.HOURS.between(LocalDateTime.now(), expirationDate);
+        long betweenHour = ChronoUnit.HOURS.between(LocalDateTime.now(), expirationDate) - 9;
         long betweenMinute = ChronoUnit.MINUTES.between(LocalDateTime.now(), expirationDate);
         if (expirationDate.isBefore(LocalDateTime.now())) {
             throw new InvalidExpirationDateException("마감 날짜가 지금 날짜보다 빨라요");
