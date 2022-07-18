@@ -23,8 +23,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     /*
         Firebase token을 인증하는 커스텀 필터 적용
-        Consists of) UserDetailsService, firebaseAuth
-          UserDetailsService -> 인증 성공 시, 인증된 사용자 정보 얻기 위함
+        Consists of) OAuth2UserService, firebaseAuth
+          OAuth2UserService -> 인증 성공 시, 인증된 사용자 정보 얻기 위함
           firebaseAuth -> 이것을 이용하여, token 검증
      */
 
