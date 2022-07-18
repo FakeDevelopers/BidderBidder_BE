@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 
 @Getter
 @RequiredArgsConstructor
-public class UserRegisterDto {
+public class OAuth2UserRegisterDto {
     @Email(message = "이메일의 형식을 따라야 합니다.")
     @NotNull(message = "이메일 필드가 정의되어있지않습니다.")
     @NotEmpty(message = "이메일을 입력해주세요")
@@ -24,8 +24,4 @@ public class UserRegisterDto {
     @Length(min = 3, max = 12)
     private final String nickname;
 
-    @NotNull(message = "비밀번호 필드가 정의되어있지않습니다.")
-    @NotEmpty(message = "비밀번호를 입력해주세요")
-    @NotBlank(message = "비밀번호에 빈칸은 입력불가 입니다.")
-    private final String password;
 }
