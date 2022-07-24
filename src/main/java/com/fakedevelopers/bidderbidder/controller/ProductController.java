@@ -75,11 +75,6 @@ public class ProductController {
         return productService.getProductImage(imageId);
     }
 
-    @PostMapping("/saveSearchWord")
-    String saveSearchWord(String searchWord) {
-        return productService.saveSearchWord(searchWord);
-    }
-
     @GetMapping("/getSearchRank")
     List<String> searchRankList(int listCount) {
         return productService.getPopularSearchWord(listCount);
