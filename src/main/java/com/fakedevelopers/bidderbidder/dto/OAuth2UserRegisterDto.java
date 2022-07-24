@@ -23,5 +23,4 @@ public class OAuth2UserRegisterDto {
     @NotBlank(message = "닉네임에 빈칸은 입력불가 입니다.")
     @Length(min = 3, max = 12)
     private final String nickname;
-
 }

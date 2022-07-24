@@ -1,5 +1,6 @@
 package com.fakedevelopers.bidderbidder.filter;
 
+import com.fakedevelopers.bidderbidder.util.RequestUtil;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
@@ -32,20 +33,13 @@ public class FirebaseTokenFilter extends OncePerRequestFilter {
         // Request에 포함된 token을 저장
         FirebaseToken decodedToken;
 
-        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
         // Authorization: Bearer ${token} 라는 Header를 포함하는 요청에 대한 필터
         // https://www.ssemi.net/what-is-the-bearer-authentication/
 
-        if (header == null || !header.startsWith("Bearer ")) {
-            setUnauthorizedResponseMessage(response, "INVALID_HEADER");
-            return;
-        }
-        String token = header.substring(7);
-
         try {
-            // service provider가 token을 검증
-            decodedToken = firebaseAuth.verifyIdToken(token);
-        } catch (FirebaseAuthException e) {
+            String header = RequestUtil.getAuthorizationToken(request);
+            decodedToken = firebaseAuth.verifyIdToken(header);
+        } catch (FirebaseAuthException | IllegalArgumentException e) {
             setUnauthorizedResponseMessage(response, "INVALID_TOKEN");
             return;
         }

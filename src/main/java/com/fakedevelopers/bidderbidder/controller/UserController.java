@@ -1,18 +1,17 @@
 package com.fakedevelopers.bidderbidder.controller;
 
 import com.fakedevelopers.bidderbidder.dto.OAuth2UserRegisterDto;
-import com.fakedevelopers.bidderbidder.dto.UserLoginDto;
 import com.fakedevelopers.bidderbidder.dto.UserRegisterDto;
 import com.fakedevelopers.bidderbidder.message.request.RegisterInfo;
 import com.fakedevelopers.bidderbidder.message.response.UserInfo;
 import com.fakedevelopers.bidderbidder.model.UserEntity;
 import com.fakedevelopers.bidderbidder.service.OAuth2UserService;
+import com.fakedevelopers.bidderbidder.util.RequestUtil;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -40,18 +39,14 @@ public class UserController {
                                        @RequestBody RegisterInfo registerInfo) {
         // Authorization: Bearer <token> 형식
         FirebaseToken decodedToken;
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("Header 형식 오류");
-        }
-
-        String token = authorization.substring(7);
         try {
+            String token = RequestUtil.getAuthorizationToken(authorization);
             decodedToken = firebaseAuth.verifyIdToken(token);
-        } catch (FirebaseAuthException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                    "{error : \" 유효하지 않은 토큰\"\n" + e.getMessage());
+        } catch (FirebaseAuthException | IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰");
         }
 
+        // token을 이용하여 가져온 사용자 정보를 통하여, 회원가입 및 로그인 절차를 진행한다.
         UserEntity userEntity;
         try {
             userEntity = (UserEntity) oAuth2UserService.loadUserByUsername(decodedToken.getEmail());
