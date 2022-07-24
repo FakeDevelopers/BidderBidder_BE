@@ -6,6 +6,9 @@ import javax.servlet.http.HttpServletRequest;
 
 public class RequestUtil {
     // Request 메세지를 검증하고, 토큰 값을 가져온다.
+    private RequestUtil() {
+        throw new IllegalStateException("Utility 클래스는 인스턴스를 생성할 수 없습니다.");
+    }
     public static String getAuthorizationToken(String header) {
         // Authorization: [Bearer <token>]
         // @Param: [Bearer <token>]
