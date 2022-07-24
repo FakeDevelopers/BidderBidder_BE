@@ -213,7 +213,7 @@ public class ProductService {
   // 검색어 있을 때 페이지네이션으로 상품 리스트 만들기
   private PageListResponseDto makeProductList(
       String searchWord, int searchType, Pageable pageable) {
-    redisRepository.saveSearchWord(searchWord);
+
     ProductSearchCountDto productList = searchProduct(searchWord, searchType, pageable);
 
     return new PageListResponseDto(
@@ -223,7 +223,6 @@ public class ProductService {
   // 검색어 있을 때 무한스크롤로 상품 리스트 만들기
   private List<ProductListDto> makeProductList(
       String searchWord, int searchType, int size, long startNumber) {
-    redisRepository.saveSearchWord(searchWord);
     Pageable pageable = PageRequest.of(0, size);
     List<ProductEntity> productList = searchProduct(searchWord, searchType, startNumber, pageable);
     return addItemList(productList, false);
@@ -362,14 +361,17 @@ public class ProductService {
    */
   public ProductSearchCountDto searchProduct(String searchWord, int searchType, Pageable pageable) {
     switch (searchType) {
+        // 제목에서 searchWord 포함하는 상품 검색
       case 0:
         return new ProductSearchCountDto(
             productRepository.countAllByProductTitleContainingIgnoreCase(searchWord),
             productRepository.findAllByProductTitleContainingIgnoreCase(searchWord, pageable));
+        // 내용에서 searchWord 포함하는 상품 검색
       case 1:
         return new ProductSearchCountDto(
             productRepository.countAllByProductContentContainingIgnoreCase(searchWord),
             productRepository.findAllByProductContentContainingIgnoreCase(searchWord, pageable));
+        // 제목+내용에서 searchWord 포함하는 상품 검색
       case 2:
         return new ProductSearchCountDto(
             productRepository
