@@ -25,6 +25,8 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +45,10 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static java.lang.Math.min;
 
@@ -55,12 +60,15 @@ public class ProductService {
     private final ResourceLoader resourceLoader;
     private final ProductRepository productRepository;
     private final FileRepository fileRepository;
+    private final StringRedisTemplate redisTemplate;
     private final ArrayList<String> extensionList = new ArrayList<>(Arrays.asList("jpg", "jpeg", "png"));
 
-    ProductService(ProductRepository productRepository, ResourceLoader resourceLoader, FileRepository fileRepository) {
+    ProductService(ProductRepository productRepository, ResourceLoader resourceLoader, FileRepository fileRepository,
+                   StringRedisTemplate redisTemplate) {
         this.productRepository = productRepository;
         this.resourceLoader = resourceLoader;
         this.fileRepository = fileRepository;
+        this.redisTemplate = redisTemplate;
     }
 
     // 게시글 저장
@@ -189,6 +197,7 @@ public class ProductService {
     // 검색어 있을 때 페이지네이션으로 상품 리스트 만들기
     private PageListResponseDto makeProductList(String searchWord, int searchType, Pageable pageable) {
 
+        saveSearchWord(searchWord);
         ProductSearchCountDto productList = searchProduct(searchWord, searchType, pageable);
 
         return new PageListResponseDto(productList.getItemCount(), addItemList(productList.getItems(), true));
@@ -196,6 +205,7 @@ public class ProductService {
 
     // 검색어 있을 때 무한스크롤로 상품 리스트 만들기
     private List<ProductListDto> makeProductList(String searchWord, int searchType, int size, long startNumber) {
+        saveSearchWord(searchWord);
         Pageable pageable = PageRequest.of(0, size);
         List<ProductEntity> productList = searchProduct(searchWord, searchType, startNumber, pageable);
         return addItemList(productList, false);
@@ -357,6 +367,42 @@ public class ProductService {
                 throw new InvalidSearchTypeException("검색 타입이 잘못되었습니다.");
 
         }
+    }
+
+    public void saveSearchWord(String searchWord) {
+        ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
+        String noSpaceWord = searchWord.replace(" ", "");
+        zSetOperations.incrementScore("searchWord:" + noSpaceWord, searchWord, 1);
+    }
+
+    public List<String> getPopularSearchWord(int listCount) {
+        ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
+        Double sum;
+        List<String> rank = new ArrayList<>();
+        Map<String, Double> map = new HashMap<>();
+        Set<String> range = redisTemplate.keys("searchWord:*");
+
+        if (range != null) {
+            for (String keyWord : range) {
+                sum = 0d;
+                for (String valueWord : zSetOperations.range(keyWord, 0, -1)) {
+                    sum += zSetOperations.score(keyWord, valueWord);
+                }
+                map.put(keyWord, sum);
+            }
+        }
+        List<String> keySet = new ArrayList<>(map.keySet());
+        keySet.sort((o1, o2) -> map.get(o2).compareTo(map.get(o1)));
+
+        int i = 0;
+        for (String key : keySet) {
+            rank.add(String.valueOf(zSetOperations.reverseRange(key, 0, 0)));
+            i++;
+            if (i == listCount) {
+                break;
+            }
+        }
+        return rank;
     }
 
     // 게시글 검색
