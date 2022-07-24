@@ -6,7 +6,6 @@ import com.fakedevelopers.bidderbidder.dto.ProductListDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListRequestDto;
 import com.fakedevelopers.bidderbidder.dto.ProductWriteDto;
 import com.fakedevelopers.bidderbidder.model.ProductEntity;
-import com.fakedevelopers.bidderbidder.repository.RedisRepository;
 import com.fakedevelopers.bidderbidder.service.ProductService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -74,6 +73,16 @@ public class ProductController {
     @GetMapping("/getImage/{imageId}")
     ResponseEntity<Resource> getProductImage(@PathVariable long imageId) throws IOException {
         return productService.getProductImage(imageId);
+    }
+
+    @PostMapping("/saveSearchWord")
+    String saveSearchWord(String searchWord) {
+        return productService.saveSearchWord(searchWord);
+    }
+
+    @GetMapping("/getSearchRank")
+    List<String> searchRankList(int listCount) {
+        return productService.getPopularSearchWord(listCount);
     }
 
     // 게시글 전체 찾기
