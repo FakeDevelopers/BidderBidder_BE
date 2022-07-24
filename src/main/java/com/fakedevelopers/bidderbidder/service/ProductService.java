@@ -48,7 +48,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import static java.lang.Math.min;
@@ -198,6 +197,7 @@ public class ProductService {
     // 검색어 있을 때 페이지네이션으로 상품 리스트 만들기
     private PageListResponseDto makeProductList(String searchWord, int searchType, Pageable pageable) {
 
+        saveSearchWord(searchWord);
         ProductSearchCountDto productList = searchProduct(searchWord, searchType, pageable);
 
         return new PageListResponseDto(productList.getItemCount(), addItemList(productList.getItems(), true));
@@ -205,6 +205,7 @@ public class ProductService {
 
     // 검색어 있을 때 무한스크롤로 상품 리스트 만들기
     private List<ProductListDto> makeProductList(String searchWord, int searchType, int size, long startNumber) {
+        saveSearchWord(searchWord);
         Pageable pageable = PageRequest.of(0, size);
         List<ProductEntity> productList = searchProduct(searchWord, searchType, startNumber, pageable);
         return addItemList(productList, false);
@@ -368,12 +369,10 @@ public class ProductService {
         }
     }
 
-    public String saveSearchWord(String searchWord) {
+    public void saveSearchWord(String searchWord) {
         ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
-        String noSpaceWord = searchWord.replaceAll(" ", "");
+        String noSpaceWord = searchWord.replace(" ", "");
         zSetOperations.incrementScore("searchWord:" + noSpaceWord, searchWord, 1);
-
-        return "success";
     }
 
     public List<String> getPopularSearchWord(int listCount) {
@@ -386,7 +385,7 @@ public class ProductService {
         if (range != null) {
             for (String keyWord : range) {
                 sum = 0d;
-                for (String valueWord : Objects.requireNonNull(zSetOperations.range(keyWord, 0, -1))) {
+                for (String valueWord : zSetOperations.range(keyWord, 0, -1)) {
                     sum += zSetOperations.score(keyWord, valueWord);
                 }
                 map.put(keyWord, sum);
