@@ -10,63 +10,63 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.validation.constraints.Email;
 import java.util.Collection;
 
 @NoArgsConstructor
 @Data
 @Entity
 public class UserEntity implements UserDetails {
-    @Id
-    private String email;
 
-    @Column
-    private String nickname;
+  @Id
+  private String email;
 
-    @Column
-    private String password;
+  @Column
+  private String nickname;
 
-    @Builder
-    public UserEntity(String email, String nickname, String password) {
-        this.email = email;
-        this.nickname = nickname;
-        this.password = password;
-    }
+  @Column
+  private String password;
 
-    /* 아래는 firebase와 관련된 내용 */
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
-    }
+  @Builder
+  public UserEntity(String email, String nickname, String password) {
+    this.email = email;
+    this.nickname = nickname;
+    this.password = password;
+  }
 
-    @Override
-    public String getPassword() {
-        return null;
-    }
+  /* 아래는 firebase와 관련된 내용 */
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return null;
+  }
 
-    @Override
-    public String getUsername() {
-        //
-        return this.email;
-    }
+  @Override
+  public String getPassword() {
+    return null;
+  }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return false;
-    }
+  @Override
+  public String getUsername() {
+    // User Identifier
+    return this.email;
+  }
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return false;
-    }
+  @Override
+  public boolean isAccountNonExpired() {
+    return false;
+  }
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return false;
-    }
+  @Override
+  public boolean isAccountNonLocked() {
+    return false;
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return false;
-    }
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return false;
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return false;
+  }
 }
