@@ -32,7 +32,7 @@ public class UserController {
 
 
     @PostMapping("/login")
-    String userLogin(@Validated UserRegisterDto userRegisterDto) {
+    String userLogin(@Validated UserLoginDto userLoginDto) {
         return "success";
     }
     @PostMapping("/signin-google")
