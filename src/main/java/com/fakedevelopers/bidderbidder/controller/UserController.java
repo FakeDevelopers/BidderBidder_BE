@@ -3,16 +3,15 @@ package com.fakedevelopers.bidderbidder.controller;
 import com.fakedevelopers.bidderbidder.dto.OAuth2UserRegisterDto;
 import com.fakedevelopers.bidderbidder.dto.UserLoginDto;
 import com.fakedevelopers.bidderbidder.dto.UserRegisterDto;
-import com.fakedevelopers.bidderbidder.message.request.RegisterInfo;
 import com.fakedevelopers.bidderbidder.message.response.UserInfo;
 import com.fakedevelopers.bidderbidder.model.UserEntity;
 import com.fakedevelopers.bidderbidder.service.OAuth2UserService;
+import com.fakedevelopers.bidderbidder.util.RequestUtil;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,17 +43,13 @@ public class UserController {
   UserInfo oAuth2GoogleLoginOrRegister(@RequestHeader("Authorization") String authorization) {
     // Authorization: Bearer <token> 형식
     FirebaseToken decodedToken;
-    final String UNINITIALIZED_NICKNAME = "신규 유저";
-    if (authorization == null || !authorization.startsWith("Bearer ")) {
-      throw new IllegalArgumentException("Header 형식 오류");
-    }
+    final String INIT_NICK_NAME = "신규 유저";
 
-    String token = authorization.substring(7);
     try {
+      String token = RequestUtil.getAuthorizationToken(authorization);
       decodedToken = firebaseAuth.verifyIdToken(token);
-    } catch (FirebaseAuthException e) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-          "{error : \" 유효하지 않은 토큰\"\n" + e.getMessage());
+    } catch (FirebaseAuthException | IllegalArgumentException e) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰" + e.getMessage());
     }
 
     UserEntity userEntity;
@@ -63,7 +58,7 @@ public class UserController {
       if (oAuth2UserService.findByEmail(userEntity.getEmail()) == null) {
         // 이전에 등록된 적이 없는 경우, 등록 과정 수행
         userEntity = oAuth2UserService.register(
-            new OAuth2UserRegisterDto(decodedToken.getEmail(), UNINITIALIZED_NICKNAME)
+            new OAuth2UserRegisterDto(decodedToken.getEmail(), INIT_NICK_NAME)
         );
       } else {
         userEntity = oAuth2UserService.findByEmail(userEntity.getEmail());

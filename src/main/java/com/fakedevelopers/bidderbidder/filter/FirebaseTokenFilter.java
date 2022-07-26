@@ -4,14 +4,14 @@ import com.fakedevelopers.bidderbidder.util.RequestUtil;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
-import lombok.RequiredArgsConstructor;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.NoSuchElementException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.NoSuchElementException;
+import lombok.RequiredArgsConstructor;
 import org.apache.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,11 +26,9 @@ public class FirebaseTokenFilter extends OncePerRequestFilter {
   private final UserDetailsService userDetailsService;
   private final FirebaseAuth firebaseAuth;
 
-
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-      FilterChain filterChain)
-      throws ServletException, IOException {
+      FilterChain filterChain) throws ServletException, IOException {
     // Request에 포함된 token을 저장
     FirebaseToken decodedToken;
 
@@ -41,7 +39,7 @@ public class FirebaseTokenFilter extends OncePerRequestFilter {
       String header = RequestUtil.getAuthorizationToken(request);
       decodedToken = firebaseAuth.verifyIdToken(header);
     } catch (FirebaseAuthException | IllegalArgumentException e) {
-      setUnauthorizedResponseMessage(response, "INVALID_TOKEN");
+      setUnauthorizedResponseMessage(response, "[Filter]: INVALID_TOKEN");
       return;
     }
 
@@ -49,8 +47,8 @@ public class FirebaseTokenFilter extends OncePerRequestFilter {
     try {
       // 자원을 요청하는 User의 {고유 ID}를 통해 userDetails를 가져온다.
       UserDetails userDetails = userDetailsService.loadUserByUsername(decodedToken.getUid());
-      UsernamePasswordAuthenticationToken authentication =
-          new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+      UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+          userDetails, null, userDetails.getAuthorities());
       // 최종 인증 결과를 Security Context에 저장, 이후에는 인증 객체를 전역적으로 사용 가능
       SecurityContextHolder.getContext().setAuthentication(authentication);
     } catch (NoSuchElementException e) {

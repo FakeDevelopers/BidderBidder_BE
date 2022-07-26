@@ -1,7 +1,6 @@
 package com.fakedevelopers.bidderbidder.service;
 
 import com.fakedevelopers.bidderbidder.dto.OAuth2UserRegisterDto;
-import com.fakedevelopers.bidderbidder.dto.UserRegisterDto;
 import com.fakedevelopers.bidderbidder.model.UserEntity;
 import com.fakedevelopers.bidderbidder.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +18,8 @@ public class OAuth2UserService implements UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    UserDetails userDetails = userRepository.findById(username)
-        .orElseThrow(() -> new UsernameNotFoundException("신규 유저입니다"));
-    return userDetails;
+    return userRepository.findById(username)
+        .orElseThrow(() -> new UsernameNotFoundException("Username Not Found!"));
   }
 
   @Transactional
