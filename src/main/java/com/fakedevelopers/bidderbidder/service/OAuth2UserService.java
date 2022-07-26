@@ -14,22 +14,27 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Service
 public class OAuth2UserService implements UserDetailsService {
-    UserRepository userRepository;
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        if (userRepository.findById(username).isPresent())
-            return userRepository.findById(username).get();
-        return null;
-    }
 
-    @Transactional
-    public UserEntity register(OAuth2UserRegisterDto dto) {
-        UserEntity userEntity  = UserEntity.builder()
-                .email(dto.getEmail())
-                .nickname(dto.getNickname())
-                .build();
-        userRepository.save(userEntity);
-        return userEntity;
-    }
+  private final UserRepository userRepository;
 
+  @Override
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    UserDetails userDetails = userRepository.findById(username)
+        .orElseThrow(() -> new UsernameNotFoundException("신규 유저입니다"));
+    return userDetails;
+  }
+
+  @Transactional
+  public UserEntity register(OAuth2UserRegisterDto dto) {
+    UserEntity userEntity = UserEntity.builder()
+        .email(dto.getEmail())
+        .nickname(dto.getNickname())
+        .build();
+    userRepository.save(userEntity);
+    return userEntity;
+  }
+
+  public UserEntity findByEmail(String email) {
+    return userRepository.findById(email).orElse(null);
+  }
 }
