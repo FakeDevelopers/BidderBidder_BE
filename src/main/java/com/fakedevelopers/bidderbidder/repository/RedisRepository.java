@@ -1,14 +1,14 @@
 package com.fakedevelopers.bidderbidder.repository;
 
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
 public class RedisRepository {
 
-    RedisTemplate<String, String> redisTemplate;
+    StringRedisTemplate redisTemplate;
 
-    RedisRepository(RedisTemplate<String, String> redisTemplate) {
+    RedisRepository(StringRedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 }

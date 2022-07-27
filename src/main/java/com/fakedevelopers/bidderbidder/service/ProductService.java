@@ -27,9 +27,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.data.util.Pair;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -45,10 +47,10 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import static java.lang.Math.min;
 
@@ -62,6 +64,7 @@ public class ProductService {
     private final FileRepository fileRepository;
     private final StringRedisTemplate redisTemplate;
     private final ArrayList<String> extensionList = new ArrayList<>(Arrays.asList("jpg", "jpeg", "png"));
+    private List<String> searchRank = new ArrayList<>();
 
     ProductService(ProductRepository productRepository, ResourceLoader resourceLoader, FileRepository fileRepository,
                    StringRedisTemplate redisTemplate) {
@@ -369,17 +372,30 @@ public class ProductService {
         }
     }
 
+    // 검색어 레디스에 저장 및 score 올리기
     public void saveSearchWord(String searchWord) {
         ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
         String noSpaceWord = searchWord.replace(" ", "");
-        zSetOperations.incrementScore("searchWord:" + noSpaceWord, searchWord, 1);
+        if (!noSpaceWord.equals("")) {
+            zSetOperations.incrementScore("searchWord:" + noSpaceWord, searchWord, 1);
+        }
     }
 
-    public List<String> getPopularSearchWord(int listCount) {
+    // 검색이 많은 검색어를 listCount 개수만큼 리스트로 받아옴
+    public List<String> getPopularSearchWord() {
         ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
         Double sum;
-        List<String> rank = new ArrayList<>();
-        Map<String, Double> map = new HashMap<>();
+        ArrayList<String> rank = new ArrayList<>();
+        SortedSet<Pair<String, Double>> keySet = new TreeSet<>((o1, o2) -> {
+            if (o2.getSecond() - o1.getSecond() == 0) {
+                if (o2.getFirst().equals(o1.getFirst()))
+                    return 1;
+                else {
+                    return o2.getFirst().compareTo(o1.getFirst());
+                }
+            }
+            return (int) (o2.getSecond() - o1.getSecond());
+        });
         Set<String> range = redisTemplate.keys("searchWord:*");
 
         if (range != null) {
@@ -388,21 +404,35 @@ public class ProductService {
                 for (String valueWord : zSetOperations.range(keyWord, 0, -1)) {
                     sum += zSetOperations.score(keyWord, valueWord);
                 }
-                map.put(keyWord, sum);
+                keySet.add(Pair.of(keyWord, sum));
             }
         }
-        List<String> keySet = new ArrayList<>(map.keySet());
-        keySet.sort((o1, o2) -> map.get(o2).compareTo(map.get(o1)));
 
-        int i = 0;
-        for (String key : keySet) {
-            rank.add(String.valueOf(zSetOperations.reverseRange(key, 0, 0)));
-            i++;
-            if (i == listCount) {
-                break;
-            }
+        for (Pair<String, Double> key : keySet) {
+            String tmp = zSetOperations.reverseRange(key.getFirst(), 0, 0).toString();
+            rank.add(tmp.substring(1, tmp.length() - 1));
         }
         return rank;
+    }
+
+    public List<String> getPopularSearchWord(int listCount){
+        if(listCount < searchRank.size()) {
+            return searchRank.subList(0, listCount);
+        }
+        else
+            return searchRank;
+    }
+
+
+    // 테스트를 위해 모든 시간 30초 마다 실행되게 했음
+    // 리얼로 보낼 때는 매일 00시에 실행하게 할 예정
+    @Scheduled(cron = "30 * * * * ?")
+    private void deleteSearchWords() {
+        // listCount를 입력을 받기 애매해서 임의로 10을 넣음
+        // 이는 조장님의 추후 지시에 따라 바뀔 예정
+        searchRank = getPopularSearchWord();
+        Set<String> words = redisTemplate.keys("searchWord:*");
+        redisTemplate.delete(words);
     }
 
     // 게시글 검색
