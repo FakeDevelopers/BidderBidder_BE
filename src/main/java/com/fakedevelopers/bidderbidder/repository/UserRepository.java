@@ -3,8 +3,10 @@ package com.fakedevelopers.bidderbidder.repository;
 import com.fakedevelopers.bidderbidder.model.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import javax.swing.text.html.Option;
-import java.util.Optional;
-
+/** UserRepository: {email, nickname, password} 로 구성된 유저 정보에 대한 CRUD.
+ *  <br>
+ *  초기 닉네임은 미정(#33 기준)
+ */
 public interface UserRepository extends JpaRepository<UserEntity, String> {
+
 }
