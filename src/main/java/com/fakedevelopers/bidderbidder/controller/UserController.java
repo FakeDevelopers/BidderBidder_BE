@@ -23,19 +23,16 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
- * User와 관련된 컨트롤러 정의
- * 1. 회원가입
- * 2. 로그인
- * 3. Oauth 로그인
- *
+ * User와 관련된 컨트롤러 정의 1. 회원가입 2. 로그인 3. Oauth 로그인
  */
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/user")
 public class UserController {
 
-  FirebaseAuth firebaseAuth;
-  OAuth2UserService oAuth2UserService; // OAuth2에서 사용자 정보를 얻기 위함
+  private final FirebaseAuth firebaseAuth;
+  private final OAuth2UserService oAuth2UserService; // OAuth2에서 사용자 정보를 얻기 위함
+
 
   @PostMapping("/register")
   String userRegister(@Validated UserRegisterDto userRegisterDto) {
