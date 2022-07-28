@@ -1,6 +1,7 @@
 package com.fakedevelopers.bidderbidder.controller;
 
 import com.fakedevelopers.bidderbidder.dto.OAuth2UserRegisterDto;
+import com.fakedevelopers.bidderbidder.dto.UserLoginDto;
 import com.fakedevelopers.bidderbidder.dto.UserRegisterDto;
 import com.fakedevelopers.bidderbidder.message.request.RegisterInfo;
 import com.fakedevelopers.bidderbidder.message.response.UserInfo;
@@ -10,11 +11,15 @@ import com.fakedevelopers.bidderbidder.util.RequestUtil;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 @RequiredArgsConstructor
@@ -31,6 +36,7 @@ public class UserController {
 
 
     @PostMapping("/login")
+
     String userLogin(@Validated UserLoginDto userLoginDto) {
         return "success";
     }
