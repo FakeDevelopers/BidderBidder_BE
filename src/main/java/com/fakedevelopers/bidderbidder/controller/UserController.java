@@ -22,46 +22,55 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+/**
+ * User와 관련된 컨트롤러 정의
+ * 1. 회원가입
+ * 2. 로그인
+ * 3. Oauth 로그인
+ *
+ */
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/user")
 public class UserController {
-    FirebaseAuth firebaseAuth;
-    OAuth2UserService oAuth2UserService; // OAuth2에서 사용자 정보를 얻기 위함
 
-    @PostMapping("/register")
-    String userRegister(@Validated UserRegisterDto userRegisterDto) {
-        return "success";
+  FirebaseAuth firebaseAuth;
+  OAuth2UserService oAuth2UserService; // OAuth2에서 사용자 정보를 얻기 위함
+
+  @PostMapping("/register")
+  String userRegister(@Validated UserRegisterDto userRegisterDto) {
+    return "success";
+  }
+
+
+  @PostMapping("/login")
+  String userLogin(@Validated UserLoginDto userLoginDto) {
+    return "success";
+  }
+
+
+  @PostMapping("/signin-google")
+  UserInfo oAuth2GoogleLoginOrRegister(@RequestHeader("Authorization") String authorization,
+      @RequestBody RegisterInfo registerInfo) {
+    // Authorization: Bearer <token> 형식
+    FirebaseToken decodedToken;
+    try {
+      String token = RequestUtil.getAuthorizationToken(authorization);
+      decodedToken = firebaseAuth.verifyIdToken(token);
+    } catch (FirebaseAuthException | IllegalArgumentException e) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰");
     }
 
-
-    @PostMapping("/login")
-
-    String userLogin(@Validated UserLoginDto userLoginDto) {
-        return "success";
+    // token을 이용하여 가져온 사용자 정보를 통하여, 회원가입 및 로그인 절차를 진행한다.
+    UserEntity userEntity;
+    try {
+      userEntity = (UserEntity) oAuth2UserService.loadUserByUsername(decodedToken.getEmail());
+    } catch (UsernameNotFoundException e) {
+      // 이전에 등록된 적이 없는 경우, 등록 과정 수행
+      userEntity = oAuth2UserService.register(
+          new OAuth2UserRegisterDto(decodedToken.getEmail(), registerInfo.getNickname())
+      );
     }
-    @PostMapping("/signin-google")
-    UserInfo oAuth2GoogleLoginOrRegister(@RequestHeader("Authorization") String authorization,
-                                       @RequestBody RegisterInfo registerInfo) {
-        // Authorization: Bearer <token> 형식
-        FirebaseToken decodedToken;
-        try {
-            String token = RequestUtil.getAuthorizationToken(authorization);
-            decodedToken = firebaseAuth.verifyIdToken(token);
-        } catch (FirebaseAuthException | IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰");
-        }
-
-        // token을 이용하여 가져온 사용자 정보를 통하여, 회원가입 및 로그인 절차를 진행한다.
-        UserEntity userEntity;
-        try {
-            userEntity = (UserEntity) oAuth2UserService.loadUserByUsername(decodedToken.getEmail());
-        } catch (UsernameNotFoundException e) {
-            // 이전에 등록된 적이 없는 경우, 등록 과정 수행
-            userEntity = oAuth2UserService.register(
-                    new OAuth2UserRegisterDto(decodedToken.getEmail(), registerInfo.getNickname())
-            );
-        }
-        return new UserInfo(userEntity.getEmail(), userEntity.getNickname());
-    }
+    return new UserInfo(userEntity.getEmail(), userEntity.getNickname());
+  }
 }
