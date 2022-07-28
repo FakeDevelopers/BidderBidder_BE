@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class RedisRepository {
 
-    RedisTemplate<String, String> redisTemplate;
+    RedisTemplate<String, Object> redisTemplate;
 
-    RedisRepository(RedisTemplate<String, String> redisTemplate) {
+    RedisRepository(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 }
