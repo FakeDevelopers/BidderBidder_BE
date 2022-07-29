@@ -363,14 +363,12 @@ public class ProductService {
 
     // 인기 검색어 가져오기
     public List<String> getPopularSearchWord(int listCount) {
-        System.out.println("ProductService.getPopularSearchWord");
         return redisRepository.getPopularSearchWord(listCount);
     }
 
     // 매일 00시마다 메모리에 리스트 저장 및 레디스 초기화
     @Scheduled(cron = "0 0 0 * * *")
     private void deleteSearchWords() {
-        System.out.println("ProductService.deleteSearchWords");
         redisRepository.deleteSearchWords();
     }
 

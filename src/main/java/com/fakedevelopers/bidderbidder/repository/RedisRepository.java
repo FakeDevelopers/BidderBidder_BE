@@ -28,7 +28,7 @@ public class RedisRepository {
     public void saveSearchWord(String searchWord) {
         ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
         String noSpaceWord = searchWord.replace(" ", "");
-        zSetOperations.incrementScore("searchWord:" + LocalDateTime.now().format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT_FOR_REDIS))
+        zSetOperations.incrementScore(Constants.SEARCH_WORD_REDIS + LocalDateTime.now().format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT_FOR_REDIS))
                 + ":" + noSpaceWord, searchWord, 1);
     }
 
@@ -47,7 +47,7 @@ public class RedisRepository {
             }
             return (int) (o2.getSecond() - o1.getSecond());
         });
-        Set<String> range = redisTemplate.keys("searchWord:" +
+        Set<String> range = redisTemplate.keys(Constants.SEARCH_WORD_REDIS +
                 LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT_FOR_REDIS)) + ":*");
 
         if (range != null) {
@@ -69,18 +69,16 @@ public class RedisRepository {
 
     public List<String> getPopularSearchWord(int listCount) {
         if (listCount < yesterdaySearchRank.size()) {
-            System.out.println(yesterdaySearchRank);
             return yesterdaySearchRank.subList(0, listCount);
-        } else {
-            System.out.println(yesterdaySearchRank);
-            return yesterdaySearchRank;
         }
+        else
+            return yesterdaySearchRank;
     }
 
     public void deleteSearchWords() {
         yesterdaySearchRank = getPopularSearchWord();
         System.out.println(yesterdaySearchRank);
-        Set<String> words = redisTemplate.keys("searchWord:" +
+        Set<String> words = redisTemplate.keys(Constants.SEARCH_WORD_REDIS +
                 LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT_FOR_REDIS)) + ":*");
         redisTemplate.delete(words);
     }
