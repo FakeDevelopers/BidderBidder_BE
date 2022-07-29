@@ -16,6 +16,7 @@ import com.fakedevelopers.bidderbidder.model.FileEntity;
 import com.fakedevelopers.bidderbidder.model.ProductEntity;
 import com.fakedevelopers.bidderbidder.repository.FileRepository;
 import com.fakedevelopers.bidderbidder.repository.ProductRepository;
+import com.fakedevelopers.bidderbidder.repository.RedisRepository;
 import imageUtil.Image;
 import imageUtil.ImageLoader;
 import org.apache.commons.io.FilenameUtils;
@@ -25,9 +26,6 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ZSetOperations;
-import org.springframework.data.util.Pair;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,9 +46,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import static java.lang.Math.min;
 
@@ -62,16 +57,15 @@ public class ProductService {
     private final ResourceLoader resourceLoader;
     private final ProductRepository productRepository;
     private final FileRepository fileRepository;
-    private final StringRedisTemplate redisTemplate;
+    private final RedisRepository redisRepository;
     private final ArrayList<String> extensionList = new ArrayList<>(Arrays.asList("jpg", "jpeg", "png"));
-    private List<String> searchRank = new ArrayList<>();
 
     ProductService(ProductRepository productRepository, ResourceLoader resourceLoader, FileRepository fileRepository,
-                   StringRedisTemplate redisTemplate) {
+                   RedisRepository redisRepository) {
         this.productRepository = productRepository;
         this.resourceLoader = resourceLoader;
         this.fileRepository = fileRepository;
-        this.redisTemplate = redisTemplate;
+        this.redisRepository = redisRepository;
     }
 
     // 게시글 저장
@@ -165,7 +159,7 @@ public class ProductService {
         String searchWord = productListRequestDto.getSearchWord();
         int searchType = productListRequestDto.getSearchType();
 
-        return searchWord == null ? makeProductList(pageable) : makeProductList(searchWord, searchType, pageable);
+        return searchWord == null || searchWord.trim().equals("") ? makeProductList(pageable) : makeProductList(searchWord, searchType, pageable);
     }
 
     // 요청받은 내용을 기반으로 무한스크롤 상품리스트 생성 및 프론트에 반환
@@ -179,12 +173,11 @@ public class ProductService {
         String searchWord = productListRequestDto.getSearchWord();
         int searchType = productListRequestDto.getSearchType();
 
-        return searchWord == null ? makeProductList(size, startNumber) : makeProductList(searchWord, searchType, size, startNumber);
+        return searchWord == null || searchWord.trim().equals("") ? makeProductList(size, startNumber) : makeProductList(searchWord, searchType, size, startNumber);
     }
 
     // 검색어 없을 때 페이지네이션으로 상품 리스트 만들기
     private PageListResponseDto makeProductList(Pageable pageable) {
-
         List<ProductEntity> productList = productRepository.findAllBy(pageable);
 
         return new PageListResponseDto(productRepository.count(), addItemList(productList, true));
@@ -192,15 +185,13 @@ public class ProductService {
 
     // 검색어 없을 때 무한스크롤로 상품 리스트 만들기
     private List<ProductListDto> makeProductList(int size, long startNumber) {
-
         List<ProductEntity> productList = productRepository.findAllByProductIdIsLessThanOrderByProductIdDesc(startNumber, PageRequest.of(0, size));
         return addItemList(productList, false);
     }
 
     // 검색어 있을 때 페이지네이션으로 상품 리스트 만들기
     private PageListResponseDto makeProductList(String searchWord, int searchType, Pageable pageable) {
-
-        saveSearchWord(searchWord);
+        redisRepository.saveSearchWord(searchWord);
         ProductSearchCountDto productList = searchProduct(searchWord, searchType, pageable);
 
         return new PageListResponseDto(productList.getItemCount(), addItemList(productList.getItems(), true));
@@ -208,7 +199,7 @@ public class ProductService {
 
     // 검색어 있을 때 무한스크롤로 상품 리스트 만들기
     private List<ProductListDto> makeProductList(String searchWord, int searchType, int size, long startNumber) {
-        saveSearchWord(searchWord);
+        redisRepository.saveSearchWord(searchWord);
         Pageable pageable = PageRequest.of(0, size);
         List<ProductEntity> productList = searchProduct(searchWord, searchType, startNumber, pageable);
         return addItemList(productList, false);
@@ -217,7 +208,6 @@ public class ProductService {
     // 상품 리스트 만들어줌
     private ArrayList<ProductListDto> addItemList(List<ProductEntity> productList, Boolean isWeb) {
         ArrayList<ProductListDto> itemList = new ArrayList<>();
-
         SecureRandom random = new SecureRandom();
         for (ProductEntity productEntity : productList) {
             int randomZeroNine = random.nextInt(10);
@@ -231,7 +221,6 @@ public class ProductService {
     // 실제 이미지 리사이징 후, 프론트에 보내줌
     // 이미지가 없다면 X표 이미지가 나옴
     public ResponseEntity<Resource> getThumbnail(Long productId, boolean isWeb) throws IOException {
-
         InputStream inputStream;
         String imagePath = UPLOAD_FOLDER + File.separator + (isWeb ? "resize_web" : "resize_app");
         File image = new File(imagePath + "/resize_" + productId + ".jpg");
@@ -372,67 +361,17 @@ public class ProductService {
         }
     }
 
-    // 검색어 레디스에 저장 및 score 올리기
-    public void saveSearchWord(String searchWord) {
-        ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
-        String noSpaceWord = searchWord.replace(" ", "");
-        if (!noSpaceWord.equals("")) {
-            zSetOperations.incrementScore("searchWord:" + noSpaceWord, searchWord, 1);
-        }
+    // 인기 검색어 가져오기
+    public List<String> getPopularSearchWord(int listCount) {
+        System.out.println("ProductService.getPopularSearchWord");
+        return redisRepository.getPopularSearchWord(listCount);
     }
 
-    // 검색이 많은 검색어를 listCount 개수만큼 리스트로 받아옴
-    public List<String> getPopularSearchWord() {
-        ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
-        Double sum;
-        ArrayList<String> rank = new ArrayList<>();
-        SortedSet<Pair<String, Double>> keySet = new TreeSet<>((o1, o2) -> {
-            if (o2.getSecond() - o1.getSecond() == 0) {
-                if (o2.getFirst().equals(o1.getFirst()))
-                    return 1;
-                else {
-                    return o2.getFirst().compareTo(o1.getFirst());
-                }
-            }
-            return (int) (o2.getSecond() - o1.getSecond());
-        });
-        Set<String> range = redisTemplate.keys("searchWord:*");
-
-        if (range != null) {
-            for (String keyWord : range) {
-                sum = 0d;
-                for (String valueWord : zSetOperations.range(keyWord, 0, -1)) {
-                    sum += zSetOperations.score(keyWord, valueWord);
-                }
-                keySet.add(Pair.of(keyWord, sum));
-            }
-        }
-
-        for (Pair<String, Double> key : keySet) {
-            String tmp = zSetOperations.reverseRange(key.getFirst(), 0, 0).toString();
-            rank.add(tmp.substring(1, tmp.length() - 1));
-        }
-        return rank;
-    }
-
-    public List<String> getPopularSearchWord(int listCount){
-        if(listCount < searchRank.size()) {
-            return searchRank.subList(0, listCount);
-        }
-        else
-            return searchRank;
-    }
-
-
-    // 테스트를 위해 모든 시간 30초 마다 실행되게 했음
-    // 리얼로 보낼 때는 매일 00시에 실행하게 할 예정
-    @Scheduled(cron = "30 * * * * ?")
+    // 매일 00시마다 메모리에 리스트 저장 및 레디스 초기화
+    @Scheduled(cron = "0 0 0 * * *")
     private void deleteSearchWords() {
-        // listCount를 입력을 받기 애매해서 임의로 10을 넣음
-        // 이는 조장님의 추후 지시에 따라 바뀔 예정
-        searchRank = getPopularSearchWord();
-        Set<String> words = redisTemplate.keys("searchWord:*");
-        redisTemplate.delete(words);
+        System.out.println("ProductService.deleteSearchWords");
+        redisRepository.deleteSearchWords();
     }
 
     // 게시글 검색
