@@ -162,7 +162,7 @@ public class ProductService {
     return createPageProductLists(productListRequestDto, page);
   }
 
-  // 요청받은 내용을 기반으로 페이지네이션 상품리스트 생성
+  /** . 요청받은 내용을 기반으로 페이지네이션 상품리스트 생성 */
   public PageListResponseDto createPageProductLists(
       ProductListRequestDto productListRequestDto, int page) {
     Pageable pageable =
@@ -176,7 +176,7 @@ public class ProductService {
         : makeProductList(searchWord, searchType, pageable);
   }
 
-  // 요청받은 내용을 기반으로 무한스크롤 상품리스트 생성 및 프론트에 반환
+  /** . 요청받은 내용을 기반으로 무한스크롤 상품리스트 생성 및 프론트에 반환 */
   public List<ProductListDto> createInfiniteProductLists(
       ProductListRequestDto productListRequestDto, long startNumber) {
     int size = productListRequestDto.getListCount();
@@ -363,17 +363,14 @@ public class ProductService {
    */
   public ProductSearchCountDto searchProduct(String searchWord, int searchType, Pageable pageable) {
     switch (searchType) {
-        // 제목에서 searchWord 포함하는 상품 검색
       case 0:
         return new ProductSearchCountDto(
             productRepository.countAllByProductTitleContainingIgnoreCase(searchWord),
             productRepository.findAllByProductTitleContainingIgnoreCase(searchWord, pageable));
-        // 내용에서 searchWord 포함하는 상품 검색
       case 1:
         return new ProductSearchCountDto(
             productRepository.countAllByProductContentContainingIgnoreCase(searchWord),
             productRepository.findAllByProductContentContainingIgnoreCase(searchWord, pageable));
-        // 제목+내용에서 searchWord 포함하는 상품 검색
       case 2:
         return new ProductSearchCountDto(
             productRepository
