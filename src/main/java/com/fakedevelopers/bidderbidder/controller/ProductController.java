@@ -27,63 +27,68 @@ import java.util.List;
 @RequestMapping("/product")
 public class ProductController {
 
-    private final ProductService productService;
+  private final ProductService productService;
 
-    ProductController(ProductService productService) {
-        this.productService = productService;
-    }
+  ProductController(ProductService productService) {
+    this.productService = productService;
+  }
 
-    // 게시글 작성
-    @PostMapping(value = "/write", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    String productWrite(@Validated ProductWriteDto productWriteDto,
-                        @RequestPart(required = false) List<MultipartFile> files) throws Exception {
-        productService.saveProduct(productWriteDto, files);
-        return "success";
-    }
+  // 게시글 작성
+  @PostMapping(
+      value = "/write",
+      consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+  String productWrite(
+      @Validated ProductWriteDto productWriteDto,
+      @RequestPart(required = false) List<MultipartFile> files)
+      throws Exception {
+    productService.saveProduct(productWriteDto, files);
+    return "success";
+  }
 
-    @GetMapping("/getPageProductList")
-    PageListResponseDto getPageProductList(ProductListRequestDto productListRequestDto,
-                                           @RequestParam(required = false, defaultValue = "1") int page) {
+  @GetMapping("/getPageProductList")
+  PageListResponseDto getPageProductList(
+      ProductListRequestDto productListRequestDto,
+      @RequestParam(required = false, defaultValue = "1") int page) {
 
-        return productService.makePageListResponseDto(productListRequestDto, page);
-    }
+    return productService.makePageListResponseDto(productListRequestDto, page);
+  }
 
-    @GetMapping("/getInfiniteProductList")
-    List<ProductListDto> getInfiniteProductList(ProductListRequestDto productListRequestDto,
-                                                @RequestParam(required = false, defaultValue = "-1") int startNumber) {
+  @GetMapping("/getInfiniteProductList")
+  List<ProductListDto> getInfiniteProductList(
+      ProductListRequestDto productListRequestDto,
+      @RequestParam(required = false, defaultValue = "-1") int startNumber) {
 
-        return productService.createInfiniteProductLists(productListRequestDto, startNumber);
-    }
+    return productService.createInfiniteProductLists(productListRequestDto, startNumber);
+  }
 
-    @GetMapping("/checkResizedImage")
-    ResponseEntity<Resource> getResizedImage(int width) throws IOException {
-        return productService.checkResizeImage(width);
-    }
+  @GetMapping("/checkResizedImage")
+  ResponseEntity<Resource> getResizedImage(int width) throws IOException {
+    return productService.checkResizeImage(width);
+  }
 
-    @GetMapping("/getThumbnail")
-    ResponseEntity<Resource> getThumbnail(Long productId, Boolean isWeb) throws IOException {
-        return productService.getThumbnail(productId, isWeb);
-    }
+  @GetMapping("/getThumbnail")
+  ResponseEntity<Resource> getThumbnail(Long productId, Boolean isWeb) throws IOException {
+    return productService.getThumbnail(productId, isWeb);
+  }
 
-    @GetMapping("/getProductInfo/{productId}")
-    ResponseEntity<ProductInformationDto> getProductInfo(@PathVariable long productId) {
-        return productService.getProductInfo(productId);
-    }
+  @GetMapping("/getProductInfo/{productId}")
+  ResponseEntity<ProductInformationDto> getProductInfo(@PathVariable long productId) {
+    return productService.getProductInfo(productId);
+  }
 
-    @GetMapping("/getImage/{imageId}")
-    ResponseEntity<Resource> getProductImage(@PathVariable long imageId) throws IOException {
-        return productService.getProductImage(imageId);
-    }
+  @GetMapping("/getImage/{imageId}")
+  ResponseEntity<Resource> getProductImage(@PathVariable long imageId) throws IOException {
+    return productService.getProductImage(imageId);
+  }
 
-    @GetMapping("/getSearchRank")
-    List<String> searchRankList(int listCount) {
-        return productService.getPopularSearchWord(listCount);
-    }
+  @GetMapping("/getSearchRank")
+  List<String> searchRankList(int listCount) {
+    return productService.getPopularSearchWord(listCount);
+  }
 
-    // 게시글 전체 찾기
-    @GetMapping("/getAll")
-    List<ProductEntity> getAllProducts() {
-        return productService.getAllProducts();
-    }
-
+  // 게시글 전체 찾기
+  @GetMapping("/getAll")
+  List<ProductEntity> getAllProducts() {
+    return productService.getAllProducts();
+  }
 }
