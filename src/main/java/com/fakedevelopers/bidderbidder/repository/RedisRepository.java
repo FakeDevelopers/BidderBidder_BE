@@ -77,7 +77,6 @@ public class RedisRepository {
 
     public void deleteSearchWords() {
         yesterdaySearchRank = getPopularSearchWord();
-        System.out.println(yesterdaySearchRank);
         Set<String> words = redisTemplate.keys(Constants.SEARCH_WORD_REDIS +
                 LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT_FOR_REDIS)) + ":*");
         redisTemplate.delete(words);
