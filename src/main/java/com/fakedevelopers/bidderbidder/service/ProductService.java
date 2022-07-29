@@ -171,7 +171,7 @@ public class ProductService {
     String searchWord = productListRequestDto.getSearchWord();
     int searchType = productListRequestDto.getSearchType();
 
-    return searchWord == null
+    return searchWord == null || searchWord.trim().equals("")
         ? makeProductList(pageable)
         : makeProductList(searchWord, searchType, pageable);
   }
@@ -188,14 +188,13 @@ public class ProductService {
     String searchWord = productListRequestDto.getSearchWord();
     int searchType = productListRequestDto.getSearchType();
 
-    return searchWord == null
+    return searchWord == null || searchWord.trim().equals("")
         ? makeProductList(size, startNumber)
         : makeProductList(searchWord, searchType, size, startNumber);
   }
 
   // 검색어 없을 때 페이지네이션으로 상품 리스트 만들기
   private PageListResponseDto makeProductList(Pageable pageable) {
-
     List<ProductEntity> productList = productRepository.findAllBy(pageable);
 
     return new PageListResponseDto(productRepository.count(), addItemList(productList, true));
@@ -203,7 +202,6 @@ public class ProductService {
 
   // 검색어 없을 때 무한스크롤로 상품 리스트 만들기
   private List<ProductListDto> makeProductList(int size, long startNumber) {
-
     List<ProductEntity> productList =
         productRepository.findAllByProductIdIsLessThanOrderByProductIdDesc(
             startNumber, PageRequest.of(0, size));
@@ -232,7 +230,6 @@ public class ProductService {
   // 상품 리스트 만들어줌
   private ArrayList<ProductListDto> addItemList(List<ProductEntity> productList, Boolean isWeb) {
     ArrayList<ProductListDto> itemList = new ArrayList<>();
-
     SecureRandom random = new SecureRandom();
     for (ProductEntity productEntity : productList) {
       int randomZeroNine = random.nextInt(10);
