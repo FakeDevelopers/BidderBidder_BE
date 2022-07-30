@@ -43,7 +43,7 @@ public class RedisRepository {
   public List<String> getPopularSearchWord() {
     ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
     Double sum;
-    List rank = new ArrayList<>();
+    List<String> rank = new ArrayList<>();
     Set<Pair<String, Double>> keySet =
         new TreeSet<>(
             (wordAndScore1, wordAndScore2) -> {
