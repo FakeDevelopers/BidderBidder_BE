@@ -17,8 +17,6 @@ public class InitService implements ApplicationListener<ContextRefreshedEvent> {
 	}
 
 	public void onApplicationEvent(ContextRefreshedEvent event) {
-
 		redisRepository.getPopularSearchWord();
-		productService.getPopularSearchWord(10);
 	}
 }
