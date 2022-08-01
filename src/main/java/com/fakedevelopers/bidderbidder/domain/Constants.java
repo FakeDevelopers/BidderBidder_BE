@@ -1,5 +1,8 @@
 package com.fakedevelopers.bidderbidder.domain;
 
+/**
+ * The type Constants.
+ */
 public class Constants {
 
   public static final int APP_RESIZE_SIZE = 100;
