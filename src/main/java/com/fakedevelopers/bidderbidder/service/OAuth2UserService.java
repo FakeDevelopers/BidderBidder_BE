@@ -1,8 +1,11 @@
 package com.fakedevelopers.bidderbidder.service;
 
+import com.fakedevelopers.bidderbidder.domain.Constants;
 import com.fakedevelopers.bidderbidder.dto.OAuth2UserRegisterDto;
 import com.fakedevelopers.bidderbidder.model.UserEntity;
 import com.fakedevelopers.bidderbidder.repository.UserRepository;
+import com.google.firebase.auth.FirebaseToken;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -10,6 +13,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * The type OAuth2 User Service.
+ */
 @RequiredArgsConstructor
 @Service
 public class OAuth2UserService implements UserDetailsService {
@@ -18,21 +24,54 @@ public class OAuth2UserService implements UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    return userRepository.findById(username)
+    return userRepository.findByEmail(username)
         .orElseThrow(() -> new UsernameNotFoundException("Username Not Found!"));
   }
 
+  /**
+   * Load user or register user entity.
+   *
+   * @param token token을 이용하여, 사용자 검증 이후 기존의 등록된 사용자라면 정보를 load 하고 그렇지 않을 경우, 회원가입 후 정보를 load 한다.
+   * @return the user entity
+   */
   @Transactional
+  public UserEntity loadUserOrRegister(FirebaseToken token) {
+    UserEntity user;
+    try {
+      user = (UserEntity) loadUserByUsername(token.getEmail());
+    } catch (UsernameNotFoundException e) {
+      OAuth2UserRegisterDto dto = OAuth2UserRegisterDto.builder().email(token.getEmail())
+          .nickname(Constants.INIT_NICKNAME).build();
+      user = register(dto);
+      // nickname 필드의 postfix에 identifier 추가 (닉네임 중복 방지)
+      // UID가 존재하지 않는 경우, IllegalAccessError 예외(사용자가 이전에 로그인한 구글 계정이 더 이상 존재하지 않을 경우)
+      Long uid = findByEmail(dto.getEmail()).orElseThrow(IllegalAccessError::new).getId();
+      user.setNickname(user.getNickname() + uid);
+    }
+    return user;
+  }
+
+  /**
+   * Register user entity.
+   *
+   * @param dto 회원가입에 필수적인 정보(email, nickname) <br> OAuth2 회원가입은 패스워드를 요구하지 않는다.
+   * @return the user entity
+   */
   public UserEntity register(OAuth2UserRegisterDto dto) {
-    UserEntity userEntity = UserEntity.builder()
-        .email(dto.getEmail())
-        .nickname(dto.getNickname())
+    UserEntity userEntity = UserEntity.builder().email(dto.getEmail()).nickname(dto.getNickname())
         .build();
     userRepository.save(userEntity);
     return userEntity;
   }
 
-  public UserEntity findByEmail(String email) {
-    return userRepository.findById(email).orElse(null);
+  /**
+   * Find by email optional.
+   *
+   * @param email the email
+   * @return 이메일에 해당하는 Entity를 반환한다(Optional)
+   */
+  public Optional<UserEntity> findByEmail(String email) {
+    return Optional.ofNullable(userRepository.findByEmail(email).orElse(null));
   }
+
 }
