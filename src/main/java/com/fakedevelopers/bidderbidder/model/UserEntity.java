@@ -7,7 +7,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,11 +30,10 @@ public class UserEntity implements UserDetails {
   private Long id;
 
   @Email
-  @Column(unique = true)
-  @NotNull
+  @Column(unique = true, nullable = false)
   private String email;
 
-  @Column
+  @Column(nullable = false)
   private String nickname;
 
   @Column(nullable = true)
