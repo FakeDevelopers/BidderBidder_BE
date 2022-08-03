@@ -17,82 +17,86 @@ import java.util.TreeSet;
 @Component
 public class RedisRepository {
 
-	private final StringRedisTemplate redisTemplate;
-	private List<String> yesterdaySearchRank = new ArrayList<>();
+  private final StringRedisTemplate redisTemplate;
+  private List<String> yesterdaySearchRank = new ArrayList<>();
 
-	RedisRepository(StringRedisTemplate redisTemplate) {
-		this.redisTemplate = redisTemplate;
-	}
+  RedisRepository(StringRedisTemplate redisTemplate) {
+    this.redisTemplate = redisTemplate;
+  }
 
-	// 검색어 레디스에 저장 및 score 올리기
-	public void saveSearchWord(String searchWord) {
-		ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
-		String noSpaceWord = searchWord.replace(" ", "");
-		zSetOperations.incrementScore(
-			Constants.SEARCH_WORD_REDIS
-				+ LocalDateTime.now()
-				.format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT_FOR_REDIS))
-				+ ":"
-				+ noSpaceWord,
-			searchWord,
-			1);
-	}
+  // 검색어 레디스에 저장 및 score 올리기
+  public void saveSearchWord(String searchWord) {
+    ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
+    String noSpaceWord = searchWord.replace(" ", "");
+    zSetOperations.incrementScore(
+        Constants.SEARCH_WORD_REDIS
+            + LocalDateTime.now()
+                .format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT_FOR_REDIS))
+            + ":"
+            + noSpaceWord,
+        searchWord,
+        1);
+  }
 
-	// 검색이 많은 검색어를 listCount 개수만큼 리스트로 받아옴
-	public List<String> getPopularSearchWord() {
-		ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
-		Double sum;
-		List<String> rank = new ArrayList<>();
-		Set<Pair<String, Double>> keySet =
-			new TreeSet<>(
-				(wordAndScore1, wordAndScore2) -> {
-					int compare = wordAndScore2.getSecond().compareTo(wordAndScore1.getSecond());
-					if (compare == 0) {
-						return wordAndScore2.getFirst().compareTo(wordAndScore1.getFirst());
-					}
-					return compare;
-				});
-		Set<String> range =
-			redisTemplate.keys(
-				Constants.SEARCH_WORD_REDIS
-					+ LocalDateTime.now()
-					.minusMinutes(1)
-					.format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT_FOR_REDIS))
-					+ ":*");
+  // 검색이 많은 검색어를 listCount 개수만큼 리스트로 받아옴
+  public List<String> getPopularSearchWord() {
+    ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
+    Double sum;
+    List<String> rank = new ArrayList<>();
+    Set<Pair<String, Double>> keySet =
+        new TreeSet<>(
+            (wordAndScore1, wordAndScore2) -> {
+              int compare = wordAndScore2.getSecond().compareTo(wordAndScore1.getSecond());
+              if (compare == 0) {
+                return wordAndScore2.getFirst().compareTo(wordAndScore1.getFirst());
+              }
+              return compare;
+            });
+    Set<String> range =
+        redisTemplate.keys(
+            Constants.SEARCH_WORD_REDIS
+                + LocalDateTime.now()
+                    .minusDays(1)
+                    .format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT_FOR_REDIS))
+                + ":*");
 
-		if (range != null) {
-			for (String keyWord : range) {
-				List<Double> scoreList =
-					zSetOperations.score(keyWord, zSetOperations.range(keyWord, 0, -1).toArray());
-				sum = scoreList.stream().mapToDouble(Double::doubleValue).sum();
+    if (range != null) {
+      for (String keyWord : range) {
+        List<Double> scoreList =
+            zSetOperations.score(keyWord, zSetOperations.range(keyWord, 0, -1).toArray());
+        sum = scoreList.stream().mapToDouble(Double::doubleValue).sum();
 
-				keySet.add(Pair.of(keyWord, sum));
-			}
-		}
+        keySet.add(Pair.of(keyWord, sum));
+      }
+    }
 
-		for (Pair<String, Double> key : keySet) {
-			String tmp = zSetOperations.reverseRange(key.getFirst(), 0, 0).toString();
-			rank.add(tmp.substring(1, tmp.length() - 1));
-		}
-		return rank;
-	}
+    for (Pair<String, Double> key : keySet) {
+      String tmp = zSetOperations.reverseRange(key.getFirst(), 0, 0).toString();
+      rank.add(tmp.substring(1, tmp.length() - 1));
+    }
+    return rank;
+  }
 
-	public List<String> getPopularSearchWord(int listCount) {
-		return listCount < yesterdaySearchRank.size()
-			? yesterdaySearchRank.subList(0, listCount)
-			: yesterdaySearchRank;
-	}
+  public List<String> getPopularSearchWord(int listCount) {
+    return listCount < yesterdaySearchRank.size()
+        ? yesterdaySearchRank.subList(0, listCount)
+        : yesterdaySearchRank;
+  }
 
-	@Scheduled(cron = "0 * * * * *")
-	public void getAndDeleteSearchWords() {
-		yesterdaySearchRank = getPopularSearchWord();
-		Set<String> words =
-			redisTemplate.keys(
-				Constants.SEARCH_WORD_REDIS
-					+ LocalDateTime.now()
-					.minusMinutes(1)
-					.format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT_FOR_REDIS))
-					+ ":*");
-		redisTemplate.delete(words);
-	}
+  public void getSearchWords() {
+    yesterdaySearchRank = getPopularSearchWord();
+  }
+
+  @Scheduled(cron = "0 * * * * *")
+  public void deleteSearchWords() {
+    getSearchWords();
+    Set<String> words =
+        redisTemplate.keys(
+            Constants.SEARCH_WORD_REDIS
+                + LocalDateTime.now()
+                    .minusDays(2)
+                    .format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT_FOR_REDIS))
+                + ":*");
+    redisTemplate.delete(words);
+  }
 }
