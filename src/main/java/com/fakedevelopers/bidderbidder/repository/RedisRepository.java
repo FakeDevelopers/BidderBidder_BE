@@ -74,7 +74,8 @@ public class RedisRepository {
       String tmp = zSetOperations.reverseRange(key.getFirst(), 0, 0).toString();
       rank.add(tmp.substring(1, tmp.length() - 1));
     }
-    return yesterdaySearchRank = rank;
+    yesterdaySearchRank = rank;
+    return rank;
   }
 
   public List<String> getPopularSearchWord(int listCount) {
