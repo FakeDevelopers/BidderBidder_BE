@@ -74,7 +74,7 @@ public class RedisRepository {
       String tmp = zSetOperations.reverseRange(key.getFirst(), 0, 0).toString();
       rank.add(tmp.substring(1, tmp.length() - 1));
     }
-    return rank;
+    return yesterdaySearchRank = rank;
   }
 
   public List<String> getPopularSearchWord(int listCount) {
@@ -83,13 +83,9 @@ public class RedisRepository {
         : yesterdaySearchRank;
   }
 
-  public void getSearchWords() {
-    yesterdaySearchRank = getPopularSearchWord();
-  }
-
-  @Scheduled(cron = "0 * * * * *")
+  @Scheduled(cron = "0 0 0 * * *")
   public void deleteSearchWords() {
-    getSearchWords();
+    getPopularSearchWord();
     Set<String> words =
         redisTemplate.keys(
             Constants.SEARCH_WORD_REDIS

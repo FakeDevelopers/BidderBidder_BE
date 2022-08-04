@@ -8,16 +8,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class InitService implements ApplicationListener<ContextRefreshedEvent> {
 
-  private final ProductService productService;
   private final RedisRepository redisRepository;
 
-  InitService(ProductService productService, RedisRepository redisRepository) {
-    this.productService = productService;
+  InitService(RedisRepository redisRepository) {
     this.redisRepository = redisRepository;
   }
 
   public void onApplicationEvent(ContextRefreshedEvent event) {
-    redisRepository.getSearchWords();
-    productService.getPopularSearchWord(10);
+    redisRepository.getPopularSearchWord();
   }
 }
