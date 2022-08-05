@@ -13,40 +13,44 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Spring Security Framework 설정 파일 1. Web Security 설정 2. Http Security 설정, 필터링 관련 규칙들을 여기에 정의
+ */
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private FirebaseAuth firebaseAuth; // Firebase 토큰 정보
-    private UserDetailsService userDetailsService;
+  private FirebaseAuth firebaseAuth; // Firebase 토큰 정보
+  private UserDetailsService userDetailsService;
+  /*
+   *  Firebase token을 인증하는 커스텀 필터 적용
+   *  Consists of) OAuth2UserService, firebaseAuth
+   *  OAuth2UserService -> 인증 성공 시, 인증된 사용자 정보 얻기 위함
+   *  firebaseAuth -> 이것을 이용하여, token 검증
+   */
 
-    /*
-        Firebase token을 인증하는 커스텀 필터 적용
-        Consists of) UserDetailsService, firebaseAuth
-          UserDetailsService -> 인증 성공 시, 인증된 사용자 정보 얻기 위함
-          firebaseAuth -> 이것을 이용하여, token 검증
-     */
+  @Override
+  public void configure(WebSecurity web) throws Exception {
+    // 1. static resource에 대한 Filter 적용 X
+    // 2. 로그인, 회원가입에 대한 Filter 적용 X
+    web.ignoring()
+        .antMatchers("/resources/static/**")
+        .antMatchers("/user/**")
+        .antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/product/**");
+  }
 
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        // 1. static resource에 대한 Filter 적용 X
-        // 2. 로그인, 회원가입에 대한 Filter 적용 X
-        web.ignoring()
-                .antMatchers("/resources/static/**")
-                .antMatchers("/user/**")
-                .antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/product/**");
-    }
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    http.csrf().disable()
+        .authorizeRequests()
+        .anyRequest().permitAll() // 현재 모든 인증은 수행되지 않는다.
+        .and()
+        .addFilterBefore(new FirebaseTokenFilter(userDetailsService, firebaseAuth),
+            UsernamePasswordAuthenticationFilter.class)
+        .exceptionHandling()
+        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
 
-        http.csrf().disable()
-                .authorizeRequests()
-                .anyRequest().authenticated()
-                .and()
-                .addFilterBefore(new FirebaseTokenFilter(userDetailsService, firebaseAuth), UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling()
-                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
-    }
+  }
 }
