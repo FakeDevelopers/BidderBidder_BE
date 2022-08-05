@@ -214,7 +214,7 @@ public class ProductService {
   private PageListResponseDto makeProductList(
       String searchWord, int searchType, Pageable pageable) {
 
-    saveSearchWord(searchWord);
+    redisRepository.saveSearchWord(searchWord);
     ProductSearchCountDto productList = searchProduct(searchWord, searchType, pageable);
 
     return new PageListResponseDto(
@@ -224,7 +224,7 @@ public class ProductService {
   // 검색어 있을 때 무한스크롤로 상품 리스트 만들기
   private List<ProductListDto> makeProductList(
       String searchWord, int searchType, int size, long startNumber) {
-    saveSearchWord(searchWord);
+    redisRepository.saveSearchWord(searchWord);
     Pageable pageable = PageRequest.of(0, size);
     List<ProductEntity> productList = searchProduct(searchWord, searchType, startNumber, pageable);
     return addItemList(productList, false);
