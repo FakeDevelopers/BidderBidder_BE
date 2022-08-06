@@ -1,6 +1,5 @@
 package com.fakedevelopers.bidderbidder.filter;
 
-
 import com.fakedevelopers.bidderbidder.util.RequestUtil;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;

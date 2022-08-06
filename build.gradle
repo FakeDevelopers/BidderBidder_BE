@@ -42,6 +42,8 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis:2.7.1'
+    // https://mvnrepository.com/artifact/io.lettuce/lettuce-core
+    implementation 'io.lettuce:lettuce-core:6.2.0.RELEASE'
     implementation 'com.google.firebase:firebase-admin:8.0.1'
     implementation 'org.springframework.boot:spring-boot-starter-security'
 }
