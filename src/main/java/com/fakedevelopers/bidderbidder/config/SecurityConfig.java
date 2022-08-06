@@ -30,18 +30,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
    *  firebaseAuth -> 이것을 이용하여, token 검증
    */
 
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        // 1. static resource에 대한 Filter 적용 X
-        // 2. 로그인, 회원가입에 대한 Filter 적용 X
-        web.ignoring()
-                .antMatchers("/resources/static/**")
-                .antMatchers("/user/**")
-                .antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/product/**");
-    }
+  @Override
+  public void configure(WebSecurity web) throws Exception {
+    // 1. static resource에 대한 Filter 적용 X
+    // 2. 로그인, 회원가입에 대한 Filter 적용 X
+    web.ignoring()
+        .antMatchers("/resources/static/**")
+        .antMatchers("/user/**")
+        .antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/product/**");
+  }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
 
     http.csrf().disable()
         .authorizeRequests()

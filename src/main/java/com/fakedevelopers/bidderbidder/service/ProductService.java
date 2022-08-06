@@ -171,7 +171,7 @@ public class ProductService {
     String searchWord = productListRequestDto.getSearchWord();
     int searchType = productListRequestDto.getSearchType();
 
-    return searchWord == null
+    return searchWord == null || searchWord.trim().equals("")
         ? makeProductList(pageable)
         : makeProductList(searchWord, searchType, pageable);
   }
@@ -188,7 +188,7 @@ public class ProductService {
     String searchWord = productListRequestDto.getSearchWord();
     int searchType = productListRequestDto.getSearchType();
 
-    return searchWord == null
+    return searchWord == null || searchWord.trim().equals("")
         ? makeProductList(size, startNumber)
         : makeProductList(searchWord, searchType, size, startNumber);
   }
