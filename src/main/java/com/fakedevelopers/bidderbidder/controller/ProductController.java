@@ -5,6 +5,7 @@ import com.fakedevelopers.bidderbidder.dto.ProductInformationDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListRequestDto;
 import com.fakedevelopers.bidderbidder.dto.ProductWriteDto;
+import com.fakedevelopers.bidderbidder.model.CategoryEntity;
 import com.fakedevelopers.bidderbidder.model.ProductEntity;
 import com.fakedevelopers.bidderbidder.service.ProductService;
 import org.springframework.core.io.Resource;
@@ -84,6 +85,17 @@ public class ProductController {
   @GetMapping("/getSearchRank")
   List<String> searchRankList(int listCount) {
     return productService.getPopularSearchWord(listCount);
+  }
+
+  // 카테고리가 무엇이 있는지 스웨거에서 확인하기 위한 임시 코드
+  @GetMapping("/getAllCategory")
+  List<CategoryEntity> getCategories() {
+    return productService.category();
+  }
+
+  @PostMapping("/setCategory")
+  void setCategory(long cateId, String cateName, Long parentCateId) {
+    productService.setCategory(cateId, cateName, parentCateId);
   }
 
   // 게시글 전체 찾기
