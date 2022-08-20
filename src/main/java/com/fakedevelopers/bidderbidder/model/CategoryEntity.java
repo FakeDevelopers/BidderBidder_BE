@@ -16,22 +16,23 @@ import java.util.List;
 public class CategoryEntity {
 
   // 카테고리 번호
-  @Id private long cateId;
+  @Id
+  private long categoryId;
 
   // 카테고리 이름
   @Column(nullable = false)
-  private String cateName;
+  private String categoryName;
 
   // 상위 카테고리 번호
-  @Column private Long parentCateId;
+  private Long parentCategoryId;
 
   @Column
-  @OneToMany(mappedBy = "parentCateId")
+  @OneToMany(mappedBy = "parentCategoryId")
   private List<CategoryEntity> subCategories = new ArrayList<>();
 
-  public CategoryEntity(long cateId, String cateName, Long parentCateId) {
-    this.cateId = cateId;
-    this.cateName = cateName;
-    this.parentCateId = parentCateId;
+  public CategoryEntity(long categoryId, String categoryName, Long parentCategoryId) {
+    this.categoryId = categoryId;
+    this.categoryName = categoryName;
+    this.parentCategoryId = parentCategoryId;
   }
 }

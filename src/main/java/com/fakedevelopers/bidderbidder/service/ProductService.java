@@ -417,10 +417,8 @@ public class ProductService {
     return redisRepository.getPopularSearchWord(listCount);
   }
 
-  public List<CategoryEntity> category() {
-    List<CategoryEntity> categoryEntities = categoryRepository.findAllLevel1();
-
-    return categoryEntities;
+  public List<CategoryEntity> getCategoryLevel1() {
+    return categoryRepository.findAllByParentCategoryIdIsNull();
   }
 
   public void setCategory(long cateId, String cateName, Long parentCateId) {
