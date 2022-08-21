@@ -421,7 +421,7 @@ public class ProductService {
     return categoryRepository.findAllByParentCategoryIdIsNull();
   }
 
-  public void setCategory(String cateName, Long parentCateId) {
+  public void addCategory(String cateName, Long parentCateId) {
     CategoryEntity categoryEntity = new CategoryEntity(cateName, parentCateId);
     categoryRepository.save(categoryEntity);
   }

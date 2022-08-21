@@ -92,9 +92,9 @@ public class ProductController {
     return productService.getCategoryLevel1();
   }
 
-  @PostMapping("/setCategory")
+  @PostMapping("/addCategory")
   void addCategory(String cateName, Long parentCateId) {
-    productService.setCategory(cateName, parentCateId);
+    productService.addCategory(cateName, parentCateId);
   }
 
   // 게시글 전체 찾기
