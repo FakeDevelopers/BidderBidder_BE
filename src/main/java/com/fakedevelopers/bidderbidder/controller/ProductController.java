@@ -87,14 +87,13 @@ public class ProductController {
     return productService.getPopularSearchWord(listCount);
   }
 
-  // 카테고리가 무엇이 있는지 스웨거에서 확인하기 위한 임시 코드
   @GetMapping("/getAllCategory")
   List<CategoryEntity> getCategories() {
     return productService.getCategoryLevel1();
   }
 
   @PostMapping("/setCategory")
-  void setCategory(String cateName, Long parentCateId) {
+  void addCategory(String cateName, Long parentCateId) {
     productService.setCategory(cateName, parentCateId);
   }
 
