@@ -1,18 +1,17 @@
 package com.fakedevelopers.bidderbidder.repository;
 
 import com.fakedevelopers.bidderbidder.domain.Constants;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ZSetOperations;
-import org.springframework.data.util.Pair;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.data.util.Pair;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 @Component
 public class RedisRepository {
@@ -31,7 +30,7 @@ public class RedisRepository {
     zSetOperations.incrementScore(
         Constants.SEARCH_WORD_REDIS
             + LocalDateTime.now()
-                .format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT_FOR_REDIS))
+            .format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT_FOR_REDIS))
             + ":"
             + noSpaceWord,
         searchWord,
@@ -56,8 +55,8 @@ public class RedisRepository {
         redisTemplate.keys(
             Constants.SEARCH_WORD_REDIS
                 + LocalDateTime.now()
-                    .minusDays(1)
-                    .format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT_FOR_REDIS))
+                .minusDays(1)
+                .format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT_FOR_REDIS))
                 + ":*");
 
     if (range != null) {
@@ -91,8 +90,8 @@ public class RedisRepository {
         redisTemplate.keys(
             Constants.SEARCH_WORD_REDIS
                 + LocalDateTime.now()
-                    .minusDays(2)
-                    .format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT_FOR_REDIS))
+                .minusDays(2)
+                .format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT_FOR_REDIS))
                 + ":*");
     redisTemplate.delete(words);
   }

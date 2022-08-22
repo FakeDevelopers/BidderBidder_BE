@@ -7,13 +7,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductListDto {
 
-    private final long productId;
-    private final String thumbnail;
-    private final String productTitle;
-    private final Long hopePrice;
-    private final long openingBid;
-    private final long tick;
-    private final String expirationDate;
-    private final int bidderCount;
+  private final long productId;
+  private final String thumbnail;
+  private final String productTitle;
+  private final Long hopePrice;
+  private final long openingBid;
+  private final long tick;
+  private final String expirationDate;
+  private final int bidderCount;
 
 }

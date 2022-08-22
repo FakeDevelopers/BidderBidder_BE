@@ -1,5 +1,7 @@
 package com.fakedevelopers.bidderbidder.service;
 
+import static java.lang.Math.min;
+
 import com.fakedevelopers.bidderbidder.domain.Constants;
 import com.fakedevelopers.bidderbidder.dto.PageListResponseDto;
 import com.fakedevelopers.bidderbidder.dto.ProductInformationDto;
@@ -19,19 +21,6 @@ import com.fakedevelopers.bidderbidder.repository.ProductRepository;
 import com.fakedevelopers.bidderbidder.repository.RedisRepository;
 import imageUtil.Image;
 import imageUtil.ImageLoader;
-import org.apache.commons.io.FilenameUtils;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -45,10 +34,22 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.io.FilenameUtils;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import static java.lang.Math.min;
-
-/** . */
+/**
+ * .
+ */
 @Service
 public class ProductService {
 
@@ -72,7 +73,9 @@ public class ProductService {
     this.redisRepository = redisRepository;
   }
 
-  /** . 게시글 저장 */
+  /**
+   * . 게시글 저장
+   */
   public void saveProduct(ProductWriteDto productWriteDto, List<MultipartFile> files)
       throws Exception {
 
@@ -252,7 +255,9 @@ public class ProductService {
     return itemList;
   }
 
-  /** . 실제 이미지 리사이징 후, 프론트에 보내줌 이미지가 없다면 X표 이미지가 나옴 */
+  /**
+   * . 실제 이미지 리사이징 후, 프론트에 보내줌 이미지가 없다면 X표 이미지가 나옴
+   */
   public ResponseEntity<Resource> getThumbnail(Long productId, boolean isWeb) throws IOException {
     InputStream inputStream;
     String imagePath = UPLOAD_FOLDER + File.separator + (isWeb ? "resize_web" : "resize_app");
@@ -271,7 +276,9 @@ public class ProductService {
     return new ResponseEntity<>(resource, headers, HttpStatus.OK);
   }
 
-  /** . 이미지 ID를 통해 이미지 확인 */
+  /**
+   * . 이미지 ID를 통해 이미지 확인
+   */
   public ResponseEntity<Resource> getProductImage(Long fileId) throws IOException {
     FileEntity fileEntity = fileRepository.findByFileId(fileId);
     if (fileEntity == null) {
@@ -288,7 +295,9 @@ public class ProductService {
     return new ResponseEntity<>(resource, headers, HttpStatus.OK);
   }
 
-  /** . 중고 자전거.jpg로 리사이징 후 프론트에 보내줌 */
+  /**
+   * . 중고 자전거.jpg로 리사이징 후 프론트에 보내줌
+   */
   public ResponseEntity<Resource> checkResizeImage(int width) throws IOException {
 
     InputStream file =
@@ -304,7 +313,9 @@ public class ProductService {
     return new ResponseEntity<>(resource, headers, HttpStatus.OK);
   }
 
-  /** . 실제 이미지 리사이징 후 저장 */
+  /**
+   * . 실제 이미지 리사이징 후 저장
+   */
   private void resizeImage(String imageName, String path, int width, File file) throws IOException {
     InputStream inputStream = new FileInputStream(file);
     Image img = ImageLoader.fromStream(inputStream);
@@ -320,7 +331,9 @@ public class ProductService {
     resizedImg.writeToFile(resizedFile);
   }
 
-  /** 중고 자전거.jpg로 리사이징 크기 확인 */
+  /**
+   * 중고 자전거.jpg로 리사이징 크기 확인
+   */
   private File resizeImage(String imageName, int width, InputStream file) throws IOException {
     Image img = ImageLoader.fromStream(file);
 
@@ -335,7 +348,9 @@ public class ProductService {
     return resizedImg.writeToFile(resizedFile);
   }
 
-  /** . 게시글 상세 내용 얻어오기 */
+  /**
+   * . 게시글 상세 내용 얻어오기
+   */
   public ResponseEntity<ProductInformationDto> getProductInfo(long productId) {
 
     ProductEntity productEntity = productRepository.findByProductId(productId);
@@ -407,12 +422,16 @@ public class ProductService {
     }
   }
 
-  /** . 인기 검색어 가져오기 */
+  /**
+   * . 인기 검색어 가져오기
+   */
   public List<String> getPopularSearchWord(int listCount) {
     return redisRepository.getPopularSearchWord(listCount);
   }
 
-  /** . 게시글 검색 */
+  /**
+   * . 게시글 검색
+   */
   public List<ProductEntity> getAllProducts() {
     return productRepository.findAll();
   }

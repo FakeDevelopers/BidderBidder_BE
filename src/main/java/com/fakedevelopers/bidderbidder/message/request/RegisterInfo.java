@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class RegisterInfo {
-    private String nickname;
+
+  private String nickname;
 }

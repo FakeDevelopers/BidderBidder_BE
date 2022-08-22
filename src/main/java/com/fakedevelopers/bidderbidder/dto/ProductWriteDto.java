@@ -1,37 +1,37 @@
 package com.fakedevelopers.bidderbidder.dto;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
+import java.time.LocalDateTime;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.LocalDateTime;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
 public class ProductWriteDto {
-    @NotBlank(message = "제목에 빈칸은 입력불가입니다.")
-    @Size(max = 400)
-    private final String productTitle;
 
-    @NotBlank(message = "내용에 빈칸은 입력불가입니다.")
-    @Size(max = 4000)
-    private final String productContent;
+  @NotBlank(message = "제목에 빈칸은 입력불가입니다.")
+  @Size(max = 400)
+  private final String productTitle;
 
-    private final long openingBid;
+  @NotBlank(message = "내용에 빈칸은 입력불가입니다.")
+  @Size(max = 4000)
+  private final String productContent;
 
-    @Min(1)
-    private final long tick;
+  private final long openingBid;
 
-    private final Long hopePrice;
+  @Min(1)
+  private final long tick;
 
-    private final int representPicture;
+  private final Long hopePrice;
 
-    @NotNull
-    private final int category;
+  private final int representPicture;
 
-    private final LocalDateTime expirationDate;
+  @NotNull
+  private final int category;
+
+  private final LocalDateTime expirationDate;
 
 }
