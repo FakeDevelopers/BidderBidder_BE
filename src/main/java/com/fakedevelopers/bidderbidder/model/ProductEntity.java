@@ -74,8 +74,8 @@ public class ProductEntity {
     private int representPicture;
 
     // 카테고리
-    @Column(nullable = false)
-    private Category category;
+    /*@Column(nullable = false)
+    private Category category;*/
 
     // 경매 만료일
     @Column(nullable = false)
@@ -97,7 +97,7 @@ public class ProductEntity {
         hopePrice = productWriteDto.getHopePrice();
         tick = productWriteDto.getTick();
         representPicture = productWriteDto.getRepresentPicture();
-        category = findCategory(productWriteDto.getCategory());
+        //category = findCategory(productWriteDto.getCategory());
         expirationDate = productWriteDto.getExpirationDate();
         fileEntities = makeFileEntityList(path, files);
     }
