@@ -9,18 +9,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/product/{id}/bid")
+@RequestMapping("/product/{productId}/bid")
 public class BidController {
 
   private final BidService bidService;
 
-  BidController(BidService service) {
-    bidService = service;
+  BidController(BidService bidService) {
+    this.bidService = bidService;
   }
 
   @PostMapping
-  String addBid(@PathVariable long id, @RequestParam long userId, @RequestParam @Min(0) long bid) {
-    bidService.addBid(id, userId, bid);
+  String addBid(@PathVariable long productId, @RequestParam long userId, @RequestParam @Min(0) long bid) {
+    bidService.addBid(productId, userId, bid);
     return "success";
   }
 }
