@@ -12,8 +12,10 @@ import com.fakedevelopers.bidderbidder.exception.InvalidExtensionException;
 import com.fakedevelopers.bidderbidder.exception.InvalidHopePriceException;
 import com.fakedevelopers.bidderbidder.exception.InvalidRepresentPictureIndexException;
 import com.fakedevelopers.bidderbidder.exception.InvalidSearchTypeException;
+import com.fakedevelopers.bidderbidder.model.CategoryEntity;
 import com.fakedevelopers.bidderbidder.model.FileEntity;
 import com.fakedevelopers.bidderbidder.model.ProductEntity;
+import com.fakedevelopers.bidderbidder.repository.CategoryRepository;
 import com.fakedevelopers.bidderbidder.repository.FileRepository;
 import com.fakedevelopers.bidderbidder.repository.ProductRepository;
 import com.fakedevelopers.bidderbidder.repository.RedisRepository;
@@ -58,6 +60,7 @@ public class ProductService {
   private final ProductRepository productRepository;
   private final FileRepository fileRepository;
   private final RedisRepository redisRepository;
+  private final CategoryRepository categoryRepository;
   private final ArrayList<String> extensionList =
       new ArrayList<>(Arrays.asList("jpg", "jpeg", "png"));
 
@@ -65,11 +68,13 @@ public class ProductService {
       ProductRepository productRepository,
       ResourceLoader resourceLoader,
       FileRepository fileRepository,
-      RedisRepository redisRepository) {
+      RedisRepository redisRepository,
+      CategoryRepository categoryRepository) {
     this.productRepository = productRepository;
     this.resourceLoader = resourceLoader;
     this.fileRepository = fileRepository;
     this.redisRepository = redisRepository;
+    this.categoryRepository = categoryRepository;
   }
 
   /** . 게시글 저장 */
@@ -410,6 +415,15 @@ public class ProductService {
   /** . 인기 검색어 가져오기 */
   public List<String> getPopularSearchWord(int listCount) {
     return redisRepository.getPopularSearchWord(listCount);
+  }
+
+  public List<CategoryEntity> getCategoryLevel1() {
+    return categoryRepository.findAllByParentCategoryIdIsNull();
+  }
+
+  public void addCategory(String cateName, Long parentCateId) {
+    CategoryEntity categoryEntity = new CategoryEntity(cateName, parentCateId);
+    categoryRepository.save(categoryEntity);
   }
 
   /** . 게시글 검색 */

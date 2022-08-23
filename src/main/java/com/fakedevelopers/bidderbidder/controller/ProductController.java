@@ -5,6 +5,7 @@ import com.fakedevelopers.bidderbidder.dto.ProductInformationDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListRequestDto;
 import com.fakedevelopers.bidderbidder.dto.ProductWriteDto;
+import com.fakedevelopers.bidderbidder.model.CategoryEntity;
 import com.fakedevelopers.bidderbidder.model.ProductEntity;
 import com.fakedevelopers.bidderbidder.service.ProductService;
 import org.springframework.core.io.Resource;
@@ -84,6 +85,16 @@ public class ProductController {
   @GetMapping("/getSearchRank")
   List<String> searchRankList(int listCount) {
     return productService.getPopularSearchWord(listCount);
+  }
+
+  @GetMapping("/getAllCategory")
+  List<CategoryEntity> getCategories() {
+    return productService.getCategoryLevel1();
+  }
+
+  @PostMapping("/addCategory")
+  void addCategory(String cateName, Long parentCateId) {
+    productService.addCategory(cateName, parentCateId);
   }
 
   // 게시글 전체 찾기
