@@ -1,5 +1,7 @@
 package com.fakedevelopers.bidderbidder.service;
 
+import static java.lang.Math.min;
+
 import com.fakedevelopers.bidderbidder.domain.Constants;
 import com.fakedevelopers.bidderbidder.dto.PageListResponseDto;
 import com.fakedevelopers.bidderbidder.dto.ProductInformationDto;
@@ -13,14 +15,29 @@ import com.fakedevelopers.bidderbidder.exception.InvalidHopePriceException;
 import com.fakedevelopers.bidderbidder.exception.InvalidRepresentPictureIndexException;
 import com.fakedevelopers.bidderbidder.exception.InvalidSearchTypeException;
 import com.fakedevelopers.bidderbidder.model.CategoryEntity;
+import com.fakedevelopers.bidderbidder.model.BidEntity;
 import com.fakedevelopers.bidderbidder.model.FileEntity;
 import com.fakedevelopers.bidderbidder.model.ProductEntity;
 import com.fakedevelopers.bidderbidder.repository.CategoryRepository;
+import com.fakedevelopers.bidderbidder.repository.BidRepository;
 import com.fakedevelopers.bidderbidder.repository.FileRepository;
 import com.fakedevelopers.bidderbidder.repository.ProductRepository;
 import com.fakedevelopers.bidderbidder.repository.RedisRepository;
 import imageUtil.Image;
 import imageUtil.ImageLoader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -34,23 +51,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.SecureRandom;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
-import static java.lang.Math.min;
-
-/** . */
 @Service
 public class ProductService {
 
@@ -61,6 +62,7 @@ public class ProductService {
   private final FileRepository fileRepository;
   private final RedisRepository redisRepository;
   private final CategoryRepository categoryRepository;
+  private final BidRepository bidRepository;
   private final ArrayList<String> extensionList =
       new ArrayList<>(Arrays.asList("jpg", "jpeg", "png"));
 
@@ -69,12 +71,14 @@ public class ProductService {
       ResourceLoader resourceLoader,
       FileRepository fileRepository,
       RedisRepository redisRepository,
-      CategoryRepository categoryRepository) {
+      CategoryRepository categoryRepository,
+      BidRepository bidRepository) {
     this.productRepository = productRepository;
     this.resourceLoader = resourceLoader;
     this.fileRepository = fileRepository;
     this.redisRepository = redisRepository;
     this.categoryRepository = categoryRepository;
+    this.bidRepository = bidRepository;
   }
 
   /** . 게시글 저장 */
@@ -235,26 +239,17 @@ public class ProductService {
   }
 
   // 상품 리스트 만들어줌
-  private ArrayList<ProductListDto> addItemList(List<ProductEntity> productList, Boolean isWeb) {
-    ArrayList<ProductListDto> itemList = new ArrayList<>();
-
-    SecureRandom random = new SecureRandom();
-    for (ProductEntity productEntity : productList) {
-      int randomZeroNine = random.nextInt(10);
-      itemList.add(
-          new ProductListDto(
-              productEntity.getProductId(),
-              "/product/getThumbnail?productId=" + productEntity.getProductId() + "&isWeb=" + isWeb,
-              productEntity.getProductTitle(),
-              productEntity.getHopePrice(),
-              productEntity.getOpeningBid(),
-              productEntity.getTick(),
-              productEntity
-                  .getExpirationDate()
-                  .format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT)),
-              randomZeroNine * 3));
-    }
-    return itemList;
+  private List<ProductListDto> addItemList(List<ProductEntity> productList, Boolean isWeb) {
+    return productList.stream().map((it) -> new ProductListDto(
+        it.getProductId(),
+        "/product/getThumbnail?productId=" + it.getProductId() + "&isWeb=" + isWeb,
+        it.getProductTitle(),
+        it.getHopePrice(),
+        it.getOpeningBid(),
+        it.getTick(),
+        it.getExpirationDate()
+            .format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT)),
+        bidRepository.getBidsByProductId(it.getProductId()).size())).collect(Collectors.toList());
   }
 
   /** . 실제 이미지 리사이징 후, 프론트에 보내줌 이미지가 없다면 X표 이미지가 나옴 */
@@ -353,11 +348,9 @@ public class ProductService {
     for (FileEntity fileEntity : fileEntities) {
       images.add(url + fileEntity.getFileId());
     }
-
-    SecureRandom random = new SecureRandom();
-    int randomZeroNine = random.nextInt(10);
+    List<BidEntity> bids = bidRepository.getBidsByProductId(productId);
     ProductInformationDto productInformationDto =
-        new ProductInformationDto(productEntity, randomZeroNine * 3, images);
+        new ProductInformationDto(productEntity, images, bids);
     return new ResponseEntity<>(productInformationDto, HttpStatus.OK);
   }
 
