@@ -39,7 +39,7 @@ public class ProductInformationDto {
         int len = bidEntities.size();
         for (int i = 0; i < len; i++) {
             BidEntity bid = bidEntities.get(i);
-            bids.add(new BidDto(i + 1, bid.getUser().getNickname(), Long.toString(bid.getBid())));
+            bids.add(new BidDto(i + 1, bid.getUser().getNickname(), bid.getBid()));
         }
     }
 }
