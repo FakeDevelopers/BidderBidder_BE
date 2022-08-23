@@ -12,7 +12,7 @@ public class BidDto {
   BidDto(int index, String userNickName, String bid) {
     this.index = index;
     this.userNickName = userNickName;
-    if (index < 3) {
+    if (index < 4) {
       this.bid = "비공개";
     } else {
       this.bid = bid;
