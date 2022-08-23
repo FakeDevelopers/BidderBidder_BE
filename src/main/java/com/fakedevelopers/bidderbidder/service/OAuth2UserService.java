@@ -14,9 +14,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * The type OAuth2 User Service.
- */
+import javax.validation.constraints.NotNull;
+
+/** The type OAuth2 User Service. */
 @RequiredArgsConstructor
 @Service
 public class OAuth2UserService implements UserDetailsService {
@@ -25,7 +25,8 @@ public class OAuth2UserService implements UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    return userRepository.findByEmail(username)
+    return userRepository
+        .findByEmail(username)
         .orElseThrow(() -> new UsernameNotFoundException("Username Not Found!"));
   }
 
@@ -40,8 +41,11 @@ public class OAuth2UserService implements UserDetailsService {
     try {
       user = (UserEntity) loadUserByUsername(token.getEmail());
     } catch (UsernameNotFoundException e) {
-      OAuth2UserRegisterDto dto = OAuth2UserRegisterDto.builder().email(token.getEmail())
-          .nickname(Constants.INIT_NICKNAME).build();
+      OAuth2UserRegisterDto dto =
+          OAuth2UserRegisterDto.builder()
+              .email(token.getEmail())
+              .nickname(Constants.INIT_NICKNAME)
+              .build();
       user = register(dto);
     }
     return user;
@@ -50,7 +54,8 @@ public class OAuth2UserService implements UserDetailsService {
   /**
    * Register user entity.
    *
-   * @param dto 회원가입에 필수적인 정보(email, nickname) <br> OAuth2 회원가입은 패스워드를 요구하지 않는다.
+   * @param dto 회원가입에 필수적인 정보(email, nickname) <br>
+   *     OAuth2 회원가입은 패스워드를 요구하지 않는다.
    * @return the user entity
    */
   @Transactional
@@ -69,5 +74,4 @@ public class OAuth2UserService implements UserDetailsService {
   public void initNickname(@NotNull UserEntity user, String nickname) {
     user.setNickname(nickname);
   }
-
 }
