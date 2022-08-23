@@ -5,6 +5,7 @@ import com.fakedevelopers.bidderbidder.dto.OAuth2UserRegisterDto;
 import com.fakedevelopers.bidderbidder.model.UserEntity;
 import com.fakedevelopers.bidderbidder.repository.UserRepository;
 import com.google.firebase.auth.FirebaseToken;
+import javax.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,8 +13,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.validation.constraints.NotNull;
 
 /** The type OAuth2 User Service. */
 @RequiredArgsConstructor
