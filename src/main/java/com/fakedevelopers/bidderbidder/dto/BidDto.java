@@ -7,13 +7,13 @@ public class BidDto {
 
   private final int index;
   private final String userNickName;
-  private final String bid;
+  private final long bid;
 
-  BidDto(int index, String userNickName, String bid) {
+  BidDto(int index, String userNickName, long bid) {
     this.index = index;
     this.userNickName = userNickName;
     if (index < 4) {
-      this.bid = "비공개";
+      this.bid = -1L;
     } else {
       this.bid = bid;
     }
