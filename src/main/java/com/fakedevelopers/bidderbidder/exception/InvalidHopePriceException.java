@@ -1,7 +1,10 @@
 package com.fakedevelopers.bidderbidder.exception;
 
-public class InvalidHopePriceException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class InvalidHopePriceException extends HttpException {
+
     public InvalidHopePriceException(String message) {
-        super(message);
+        super(HttpStatus.BAD_REQUEST, message);
     }
 }

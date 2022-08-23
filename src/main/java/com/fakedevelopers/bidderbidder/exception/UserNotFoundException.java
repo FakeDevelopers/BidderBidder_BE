@@ -1,8 +1,10 @@
 package com.fakedevelopers.bidderbidder.exception;
 
-public class UserNotFoundException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class UserNotFoundException extends HttpException {
 
   public UserNotFoundException(long id) {
-    super("user not found userId : " + id);
+    super(HttpStatus.NOT_FOUND, "user not found userId : " + id);
   }
 }
