@@ -12,10 +12,6 @@ public class BidDto {
   BidDto(int index, String userNickName, long bid) {
     this.index = index;
     this.userNickName = userNickName;
-    if (index < 4) {
-      this.bid = -1L;
-    } else {
-      this.bid = bid;
-    }
+    this.bid = (index < 4)? -1L : bid;
   }
 }
