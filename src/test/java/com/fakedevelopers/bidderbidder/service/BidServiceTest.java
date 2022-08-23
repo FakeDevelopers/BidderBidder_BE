@@ -14,9 +14,13 @@ import com.fakedevelopers.bidderbidder.model.ProductEntity;
 import com.fakedevelopers.bidderbidder.repository.ProductRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,37 +49,20 @@ class BidServiceTest {
     productID = productRepository.save(product).getProductId();
   }
 
-  @Test
-  @DisplayName("이상한 유저id 값을 넣는다")
-  void invalidUser() {
-    long userID = -1;
-    long bid = 1000000;
-    assertThrows(UserNotFoundException.class, () -> sut.addBid(productID, userID, bid));
+  private static Stream<Arguments> parameterGenerator() {
+    return Stream.of(
+        Arguments.of(productID, -1, 1000000, UserNotFoundException.class), // 이상한 유저정보가 넘어옴
+        Arguments.of(-1, 1, 1000000, ProductNotFoundException.class), // 이상한 상품ID를 입력함
+        Arguments.of(productID, 1, 1000000000, InvalidBidException.class), // 희망가를 뛰어넘는 값을 입력함
+        Arguments.of(productID, 1, 10, InvalidBidException.class) // 시작가 보다 낮은 값을 입력함
+    );
   }
 
-  @Test
-  @DisplayName("이상한 게시글id 값을 넣는다")
-  void invalidProduct() {
-    long productID = -1;
-    long userID = 1;
-    long bid = 1000000;
-    assertThrows(ProductNotFoundException.class, () -> sut.addBid(productID, userID, bid));
-  }
-
-  @Test
-  @DisplayName("hopePrice보다 높은 가격을 응찰한다")
-  void overHopePrice() {
-    long userID = 1;
-    long bid = 1000000000;
-    assertThrows(InvalidBidException.class, () -> sut.addBid(productID, userID, bid));
-  }
-
-  @Test
-  @DisplayName("openingBid보다 낮은 가격을 응찰한다")
-  void underOpeningBid() {
-    long userID = 1;
-    long bid = 10;
-    assertThrows(InvalidBidException.class, () -> sut.addBid(productID, userID, bid));
+  @ParameterizedTest
+  @MethodSource("parameterGenerator")
+  @DisplayName("이상한 값을 넣는다")
+  void invalidValues(long productID, long userID, long bid, Class<RuntimeException> errorClass) {
+    assertThrows(errorClass, () -> sut.addBid(productID, userID, bid));
   }
 
   @Test
@@ -121,7 +108,7 @@ class BidServiceTest {
     long bid = 10000;
     BidEntity bidEntity = sut.addBid(productID, userID, bid);
 
-    assertThat(bidEntity.getId()).isGreaterThan(0);
+    assertThat(bidEntity.getId()).isPositive();
     assertThat(bidEntity.getBid()).isEqualTo(bid);
   }
 }

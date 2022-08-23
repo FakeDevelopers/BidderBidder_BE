@@ -30,10 +30,6 @@ public class BidService {
     ProductEntity product = productRepository.findById(productId)
         .orElseThrow(() -> new ProductNotFoundException(productId));
 
-    if (product.getExpirationDate().isBefore(LocalDateTime.now())) {
-      throw new AlreadyExpiredException("경매가 이미 끝났습니다.");
-    }
-
     validateBid(product, bid);
 
     BidEntity bidEntity = new BidEntity(user, product, bid);
@@ -53,6 +49,8 @@ public class BidService {
       throw new InvalidBidException("최소 금액(" + minimumBid + ") 이상을 입력해주세요.");
     } else if ((bid - product.getOpeningBid()) % product.getTick() != 0) {
       throw new InvalidBidException("호가(" + product.getTick() + ")에 맞게 응찰해주세요.");
+    }else if (product.getExpirationDate().isBefore(LocalDateTime.now())) {
+      throw new AlreadyExpiredException("경매가 이미 끝났습니다.");
     }
   }
 }
