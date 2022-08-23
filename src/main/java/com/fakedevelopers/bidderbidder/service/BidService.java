@@ -1,5 +1,6 @@
 package com.fakedevelopers.bidderbidder.service;
 
+import com.fakedevelopers.bidderbidder.exception.AlreadyExpiredException;
 import com.fakedevelopers.bidderbidder.exception.InvalidBidException;
 import com.fakedevelopers.bidderbidder.exception.ProductNotFoundException;
 import com.fakedevelopers.bidderbidder.exception.UserNotFoundException;
@@ -9,6 +10,7 @@ import com.fakedevelopers.bidderbidder.model.UserEntity;
 import com.fakedevelopers.bidderbidder.repository.BidRepository;
 import com.fakedevelopers.bidderbidder.repository.ProductRepository;
 import com.fakedevelopers.bidderbidder.repository.UserRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,10 @@ public class BidService {
 
     ProductEntity product = productRepository.findById(productId)
         .orElseThrow(() -> new ProductNotFoundException(productId));
+
+    if (product.getExpirationDate().isBefore(LocalDateTime.now())) {
+      throw new AlreadyExpiredException("경매가 이미 끝났습니다.");
+    }
 
     validateBid(product, bid);
 

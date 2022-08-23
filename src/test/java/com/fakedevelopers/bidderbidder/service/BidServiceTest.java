@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.fakedevelopers.bidderbidder.dto.ProductWriteDto;
+import com.fakedevelopers.bidderbidder.exception.AlreadyExpiredException;
 import com.fakedevelopers.bidderbidder.exception.InvalidBidException;
 import com.fakedevelopers.bidderbidder.exception.ProductNotFoundException;
 import com.fakedevelopers.bidderbidder.exception.UserNotFoundException;
@@ -31,6 +32,8 @@ class BidServiceTest {
 
   @Autowired // 테스트 할때는 어쩔수 없이 Autowired를 사용합니다
   BidService sut;
+  @Autowired
+  ProductRepository productRepository;
 
   static long productID;
 
@@ -94,6 +97,21 @@ class BidServiceTest {
     long userID = 1;
     long bid = 99999;
     assertThrows(InvalidBidException.class, () -> sut.addBid(productID, userID, bid));
+  }
+
+  @Test
+  @DisplayName("이미 끝난 경매에 응찰을 한다.")
+  void alreadyExpired() throws Exception {
+
+    ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10, 1000000L, 0, 1,
+        LocalDateTime.now().minusHours(1));
+    ProductEntity product = new ProductEntity(".", productWriteDto, new ArrayList<>());
+
+    long productID = productRepository.save(product).getProductId();
+    long userID = 1;
+    long bid = 100000;
+
+    assertThrows(AlreadyExpiredException.class, () -> sut.addBid(productID, userID, bid));
   }
 
   @Test
