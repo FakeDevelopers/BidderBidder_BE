@@ -1,8 +1,10 @@
 package com.fakedevelopers.bidderbidder.exception;
 
-public class AlreadyExpiredException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class AlreadyExpiredException extends HttpException {
 
   public AlreadyExpiredException(String message) {
-    super(message);
+    super(HttpStatus.BAD_REQUEST, message);
   }
 }

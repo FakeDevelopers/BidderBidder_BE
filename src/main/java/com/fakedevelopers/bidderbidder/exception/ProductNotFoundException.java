@@ -1,8 +1,10 @@
 package com.fakedevelopers.bidderbidder.exception;
 
-public class ProductNotFoundException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class ProductNotFoundException extends HttpException {
 
   public ProductNotFoundException(long id) {
-    super("product not found productId : " + id);
+    super(HttpStatus.NOT_FOUND, "product not found productId : " + id);
   }
 }

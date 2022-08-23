@@ -405,7 +405,9 @@ public class ProductService {
     }
   }
 
-  /** . 인기 검색어 가져오기 */
+  /**
+   * . 인기 검색어 가져오기
+   */
   public List<String> getPopularSearchWord(int listCount) {
     return redisRepository.getPopularSearchWord(listCount);
   }
@@ -419,7 +421,9 @@ public class ProductService {
     categoryRepository.save(categoryEntity);
   }
 
-  /** . 게시글 검색 */
+  /**
+   * . 게시글 검색
+   */
   public List<ProductEntity> getAllProducts() {
     return productRepository.findAll();
   }
