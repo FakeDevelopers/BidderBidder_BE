@@ -11,16 +11,15 @@ public class ControllerExceptionHandler {
 
   @ExceptionHandler(Exception.class)
   protected ResponseEntity<ErrorResponse> exceptionHandler(Exception e) {
-    return new ResponseEntity<>(
-        new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), null, e.getMessage()),
-        HttpStatus.INTERNAL_SERVER_ERROR);
+
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body( new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), null, e.getMessage()));
   }
 
   @ExceptionHandler(HttpException.class)
-  protected ResponseEntity<ErrorResponse> httpExceptionHandler(HttpException e) {
-    return new ResponseEntity<>(
-        new ErrorResponse(e.status.value(), e.code, e.getMessage()),
-        e.status);
+  protected ResponseEntity<ErrorResponse>  httpExceptionHandler(HttpException e) {
+    return ResponseEntity.status(e.status)
+        .body(new ErrorResponse(e.status.value(), e.code, e.getMessage()));
   }
 
   private static class ErrorResponse {
