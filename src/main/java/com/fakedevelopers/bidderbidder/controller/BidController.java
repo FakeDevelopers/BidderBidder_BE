@@ -5,6 +5,7 @@ import javax.validation.constraints.Min;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -18,7 +19,7 @@ public class BidController {
   }
 
   @PostMapping
-  String addBid(@PathVariable long id, long userId, @Min(0) long bid) {
+  String addBid(@PathVariable long id, @RequestParam long userId, @RequestParam @Min(0) long bid) {
     bidService.addBid(id, userId, bid);
     return "success";
   }
