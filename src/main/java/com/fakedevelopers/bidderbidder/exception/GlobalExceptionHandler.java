@@ -1,35 +1,38 @@
-package com.fakedevelopers.bidderbidder.controller;
+package com.fakedevelopers.bidderbidder.exception;
 
-import com.fakedevelopers.bidderbidder.exception.HttpException;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
-public class ControllerExceptionHandler {
+public class GlobalExceptionHandler {
 
   @ExceptionHandler(Exception.class)
   protected ResponseEntity<ErrorResponse> exceptionHandler(Exception e) {
 
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body( new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), null, e.getMessage()));
+        .body(new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), null, e.getMessage()));
   }
 
   @ExceptionHandler(HttpException.class)
-  protected ResponseEntity<ErrorResponse>  httpExceptionHandler(HttpException e) {
+  protected ResponseEntity<ErrorResponse> httpExceptionHandler(HttpException e) {
     return ResponseEntity.status(e.status)
         .body(new ErrorResponse(e.status.value(), e.code, e.getMessage()));
   }
 
+  @Getter
+  @JsonInclude(Include.NON_NULL)
   private static class ErrorResponse {
 
-    final int status;
-    final String message;
+    private final int status;
+    private final String message;
+    private final String code;
 
-    final String code;
-
-    ErrorResponse(int status, String message, String code) {
+    ErrorResponse(int status, String code, String message) {
       this.status = status;
       this.message = message;
       this.code = code;
