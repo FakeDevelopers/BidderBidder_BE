@@ -6,12 +6,12 @@ import lombok.Getter;
 public class BidDto {
 
   private final int index;
-  private final String userNickName;
+  private final String userNickname;
   private final long bid;
 
-  BidDto(int index, String userNickName, long bid) {
+  BidDto(int index, String userNickname, long bid) {
     this.index = index;
-    this.userNickName = userNickName;
+    this.userNickname = userNickname;
     this.bid = (index < 4)? -1L : bid; // 1등부터 3등까진 응찰금액을 가린다
   }
 }
