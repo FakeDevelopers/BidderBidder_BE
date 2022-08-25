@@ -7,7 +7,6 @@ import com.fakedevelopers.bidderbidder.repository.UserRepository;
 import com.google.firebase.auth.FirebaseToken;
 import javax.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -58,17 +57,19 @@ public class OAuth2UserService implements UserDetailsService {
    */
   @Transactional
   public UserEntity register(OAuth2UserRegisterDto dto) {
-    UserEntity userEntity = UserEntity.builder().email(dto.getEmail()).build();
+    UserEntity userEntity = UserEntity.builder()
+        .email(dto.getEmail())
+        .nickname(dto.getNickname())
+        .build();
+
     userEntity = userRepository.save(userEntity);
     // nickname 필드의 postfix에 identifier 추가 (닉네임 중복 방지)
-    // UID가 존재하지 않는 경우, IllegalAccessError 예외(사용자가 이전에 로그인한 구글 계정이 더 이상 존재하지 않을 경우)
     Long uid = userEntity.getId();
     initNickname(userEntity, dto.getNickname() + uid);
     userRepository.save(userEntity);
     return userEntity;
   }
 
-  @Modifying
   public void initNickname(@NotNull UserEntity user, String nickname) {
     user.setNickname(nickname);
   }
