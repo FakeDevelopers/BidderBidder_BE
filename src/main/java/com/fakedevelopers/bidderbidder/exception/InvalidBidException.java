@@ -1,8 +1,10 @@
 package com.fakedevelopers.bidderbidder.exception;
 
-public class InvalidBidException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class InvalidBidException extends HttpException {
 
   public InvalidBidException(String message) {
-    super(message);
+    super(HttpStatus.BAD_REQUEST, message);
   }
 }

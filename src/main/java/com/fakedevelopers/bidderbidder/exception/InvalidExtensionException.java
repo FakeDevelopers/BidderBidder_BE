@@ -1,7 +1,10 @@
 package com.fakedevelopers.bidderbidder.exception;
 
-public class InvalidExtensionException extends RuntimeException{
-    public InvalidExtensionException(String message){
-        super(message);
+import org.springframework.http.HttpStatus;
+
+public class InvalidExtensionException extends HttpException {
+
+    public InvalidExtensionException(String message) {
+        super(HttpStatus.BAD_REQUEST, message);
     }
 }

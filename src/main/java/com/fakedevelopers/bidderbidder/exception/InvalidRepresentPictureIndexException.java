@@ -1,7 +1,10 @@
 package com.fakedevelopers.bidderbidder.exception;
 
-public class InvalidRepresentPictureIndexException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class InvalidRepresentPictureIndexException extends HttpException {
+
     public InvalidRepresentPictureIndexException(String message) {
-        super(message);
+        super(HttpStatus.BAD_REQUEST, message);
     }
 }

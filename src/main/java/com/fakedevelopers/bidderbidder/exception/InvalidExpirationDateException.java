@@ -1,7 +1,10 @@
 package com.fakedevelopers.bidderbidder.exception;
 
-public class InvalidExpirationDateException extends RuntimeException{
-    public InvalidExpirationDateException(String message){
-        super(message);
+import org.springframework.http.HttpStatus;
+
+public class InvalidExpirationDateException extends HttpException {
+
+    public InvalidExpirationDateException(String message) {
+        super(HttpStatus.BAD_REQUEST, message);
     }
 }
