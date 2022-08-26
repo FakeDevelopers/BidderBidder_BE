@@ -246,7 +246,6 @@ public class ProductService {
 
   // 검색어 없을 때 무한스크롤로 상품 리스트 만들기
   private List<ProductListDto> makeProductList(long category, int size, long startNumber) {
-    List<ProductEntity> productList;
 
     if (category == 0) {
       return addItemList(
@@ -457,34 +456,25 @@ public class ProductService {
       long category, String searchWord, int searchType, Pageable pageable) {
     List<Long> subCategoryId = categoryRepository.findAllSubCategoryId(category);
     List<ProductEntity> productList = new ArrayList<>();
-    switch (searchType) {
-      case 0:
-        for (Long subCategory : subCategoryId) {
-          if (categoryRepository.getById(subCategory).getSubCategories().isEmpty()) {
+    for (Long subCategory : subCategoryId) {
+      if (categoryRepository.getById(subCategory).getSubCategories().isEmpty())
+        switch (searchType) {
+          case 0:
             productList.addAll(
                 productRepository.findCateProductTitle(subCategory, searchWord, pageable));
-          }
-        }
-        break;
-      case 1:
-        for (Long subCategory : subCategoryId) {
-          if (categoryRepository.getById(subCategory).getSubCategories().isEmpty()) {
+            break;
+          case 1:
             productList.addAll(
                 productRepository.findCateProductContent(subCategory, searchWord, pageable));
-          }
-        }
-        break;
-      case 2:
-        for (Long subCategory : subCategoryId) {
-          if (categoryRepository.getById(subCategory).getSubCategories().isEmpty()) {
+            break;
+          case 2:
             productList.addAll(
                 productRepository.findCateProductTitleAndContent(
                     subCategory, searchWord, pageable));
-          }
+            break;
+          default:
+            throw new InvalidSearchTypeException("검색 타입이 잘못되었습니다.");
         }
-        break;
-      default:
-        throw new InvalidSearchTypeException("검색 타입이 잘못되었습니다.");
     }
     return new ProductSearchCountDto(productList.size(), productList);
   }
@@ -521,36 +511,28 @@ public class ProductService {
       long category, String searchWord, int searchType, long startNumber, Pageable pageable) {
     List<Long> subCategoryId = categoryRepository.findAllSubCategoryId(category);
     List<ProductEntity> productList = new ArrayList<>();
-    switch (searchType) {
-      case 0:
-        for (Long subCategory : subCategoryId) {
-          if (categoryRepository.getById(subCategory).getSubCategories().isEmpty()) {
+    for (Long subCategory : subCategoryId) {
+      if (categoryRepository.getById(subCategory).getSubCategories().isEmpty()) {
+        switch (searchType) {
+          case 0:
             productList.addAll(
                 productRepository.searchProductByCategoryAndTitleInInfiniteScroll(
                     subCategory, searchWord, startNumber, pageable));
-          }
-        }
-        break;
-      case 1:
-        for (Long subCategory : subCategoryId) {
-          if (categoryRepository.getById(subCategory).getSubCategories().isEmpty()) {
+            break;
+          case 1:
             productList.addAll(
                 productRepository.searchProductByCategoryAndContentInInfiniteScroll(
                     subCategory, searchWord, startNumber, pageable));
-          }
-        }
-        break;
-      case 2:
-        for (Long subCategory : subCategoryId) {
-          if (categoryRepository.getById(subCategory).getSubCategories().isEmpty()) {
+            break;
+          case 2:
             productList.addAll(
                 productRepository.searchProductByCategoryAndTitleAndContentInInfiniteScroll(
                     subCategory, searchWord, startNumber, pageable));
-          }
+            break;
+          default:
+            throw new InvalidSearchTypeException("검색 타입이 잘못되었습니다.");
         }
-        break;
-      default:
-        throw new InvalidSearchTypeException("검색 타입이 잘못되었습니다.");
+      }
     }
     return productList;
   }
