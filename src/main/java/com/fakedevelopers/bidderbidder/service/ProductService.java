@@ -1,7 +1,5 @@
 package com.fakedevelopers.bidderbidder.service;
 
-import static java.lang.Math.min;
-
 import com.fakedevelopers.bidderbidder.domain.Constants;
 import com.fakedevelopers.bidderbidder.dto.PageListResponseDto;
 import com.fakedevelopers.bidderbidder.dto.ProductInformationDto;
@@ -9,6 +7,7 @@ import com.fakedevelopers.bidderbidder.dto.ProductListDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListRequestDto;
 import com.fakedevelopers.bidderbidder.dto.ProductSearchCountDto;
 import com.fakedevelopers.bidderbidder.dto.ProductWriteDto;
+import com.fakedevelopers.bidderbidder.exception.InvalidCategoryException;
 import com.fakedevelopers.bidderbidder.exception.InvalidExpirationDateException;
 import com.fakedevelopers.bidderbidder.exception.InvalidExtensionException;
 import com.fakedevelopers.bidderbidder.exception.InvalidHopePriceException;
@@ -25,19 +24,6 @@ import com.fakedevelopers.bidderbidder.repository.ProductRepository;
 import com.fakedevelopers.bidderbidder.repository.RedisRepository;
 import imageUtil.Image;
 import imageUtil.ImageLoader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -51,6 +37,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static java.lang.Math.min;
 
 @Service
 public class ProductService {
@@ -87,12 +88,15 @@ public class ProductService {
 
     compareBids(productWriteDto.getHopePrice(), productWriteDto.getOpeningBid());
     compareDate(productWriteDto.getExpirationDate());
+    checkCategory(productWriteDto.getCategory());
     if (files != null) {
       compareExtension(files);
       imageCount(productWriteDto.getRepresentPicture(), files);
     }
     List<String> pathList = createPathIfNeed();
-    ProductEntity productEntity = new ProductEntity(pathList.get(0), productWriteDto, files);
+    CategoryEntity categoryEntity = categoryRepository.getById(productWriteDto.getCategory());
+    ProductEntity productEntity =
+        new ProductEntity(pathList.get(0), productWriteDto, files, categoryEntity);
     ProductEntity savedProductEntity = productRepository.save(productEntity);
     if (files != null) {
       FileEntity representFileEntity =
@@ -155,6 +159,17 @@ public class ProductService {
     }
   }
 
+  // 카테고리 id가 유효한지 체크
+  private void checkCategory(long categoryId) {
+    if (categoryId > categoryRepository.count() || categoryId < 0) {
+      throw new InvalidCategoryException("카테고리 번호가 너무 크거나 음수입니다.");
+    }
+    CategoryEntity category = categoryRepository.getById(categoryId);
+    if (!category.getSubCategories().isEmpty()) {
+      throw new InvalidCategoryException("최하위 카테고리가 아닙니다.");
+    }
+  }
+
   // 파일 경로 생성
   private List<String> createPathIfNeed() throws IOException {
     String realPath = UPLOAD_FOLDER;
@@ -179,10 +194,11 @@ public class ProductService {
             page - 1, productListRequestDto.getListCount(), Sort.Direction.DESC, "productId");
     String searchWord = productListRequestDto.getSearchWord();
     int searchType = productListRequestDto.getSearchType();
+    long category = productListRequestDto.getCategory();
 
     return searchWord == null || searchWord.trim().equals("")
-        ? makeProductList(pageable)
-        : makeProductList(searchWord, searchType, pageable);
+        ? makeProductList(pageable, category)
+        : makeProductList(searchWord, searchType, category, pageable);
   }
 
   // 요청받은 내용을 기반으로 무한스크롤 상품리스트 생성 및 프론트에 반환
@@ -196,60 +212,112 @@ public class ProductService {
     }
     String searchWord = productListRequestDto.getSearchWord();
     int searchType = productListRequestDto.getSearchType();
+    long category = productListRequestDto.getCategory();
 
     return searchWord == null || searchWord.trim().equals("")
-        ? makeProductList(size, startNumber)
-        : makeProductList(searchWord, searchType, size, startNumber);
+        ? makeProductList(category, size, startNumber)
+        : makeProductList(searchWord, searchType, category, size, startNumber);
   }
 
   // 검색어 없을 때 페이지네이션으로 상품 리스트 만들기
-  private PageListResponseDto makeProductList(Pageable pageable) {
+  private PageListResponseDto makeProductList(Pageable pageable, long category) {
 
-    List<ProductEntity> productList = productRepository.findAllBy(pageable);
+    // 카테고리가 선택되지 않았을 때,
+    if (category == 0) {
+      return new PageListResponseDto(
+          productRepository.count(), addItemList(productRepository.findAllBy(pageable), true));
+    } else {
+      return getSubCategories(category, pageable);
+    }
+  }
 
-    return new PageListResponseDto(productRepository.count(), addItemList(productList, true));
+  // 페이지네이션 서브카테고리 찾아서 리스트 반환
+  private PageListResponseDto getSubCategories(long category, Pageable pageable) {
+    List<Long> subCategoryId = categoryRepository.findAllSubCategoryId(category);
+    List<ProductEntity> productList = new ArrayList<>();
+
+    for (Long subCategory : subCategoryId) {
+      if (categoryRepository.getById(subCategory).getSubCategories().isEmpty()) {
+        productList.addAll(productRepository.findAllByCategory(subCategory, pageable));
+      }
+    }
+    return new PageListResponseDto(productList.size(), addItemList(productList, true));
   }
 
   // 검색어 없을 때 무한스크롤로 상품 리스트 만들기
-  private List<ProductListDto> makeProductList(int size, long startNumber) {
+  private List<ProductListDto> makeProductList(long category, int size, long startNumber) {
+    List<ProductEntity> productList;
 
-    List<ProductEntity> productList =
-        productRepository.findAllByProductIdIsLessThanOrderByProductIdDesc(
-            startNumber, PageRequest.of(0, size));
+    if (category == 0) {
+      return addItemList(
+          productRepository.findAllByProductIdIsLessThanOrderByProductIdDesc(
+              startNumber, PageRequest.of(0, size)),
+          false);
+    } else {
+      return getSubCategoriesInInfiniteScroll(category, startNumber, PageRequest.of(0, size));
+    }
+  }
+
+  // 무한스크롤 서브 카테고리 찾아서 리스트 반환
+  private List<ProductListDto> getSubCategoriesInInfiniteScroll(
+      long category, long startNumber, Pageable pageable) {
+    List<Long> subCategoryId = categoryRepository.findAllSubCategoryId(category);
+    List<ProductEntity> productList = new ArrayList<>();
+
+    for (Long subCategory : subCategoryId) {
+      if (categoryRepository.getById(subCategory).getSubCategories().isEmpty()) {
+        productList.addAll(
+            productRepository.findAllByCategoryAndProductIdIsLessThanOrderByProductIdDesc(
+                subCategory, startNumber, pageable));
+      }
+    }
     return addItemList(productList, false);
   }
 
   // 검색어 있을 때 페이지네이션으로 상품 리스트 만들기
   private PageListResponseDto makeProductList(
-      String searchWord, int searchType, Pageable pageable) {
+      String searchWord, int searchType, long category, Pageable pageable) {
+    ProductSearchCountDto productList;
     redisRepository.saveSearchWord(searchWord);
-    ProductSearchCountDto productList = searchProduct(searchWord, searchType, pageable);
-
+    if (category == 0) {
+      productList = searchProduct(searchWord, searchType, pageable);
+    } else {
+      productList = searchProduct(category, searchWord, searchType, pageable);
+    }
     return new PageListResponseDto(
         productList.getItemCount(), addItemList(productList.getItems(), true));
   }
 
   // 검색어 있을 때 무한스크롤로 상품 리스트 만들기
   private List<ProductListDto> makeProductList(
-      String searchWord, int searchType, int size, long startNumber) {
+      String searchWord, int searchType, long category, int size, long startNumber) {
+    List<ProductEntity> productList;
     redisRepository.saveSearchWord(searchWord);
     Pageable pageable = PageRequest.of(0, size);
-    List<ProductEntity> productList = searchProduct(searchWord, searchType, startNumber, pageable);
+    if (category == 0) {
+      productList = searchProduct(searchWord, searchType, startNumber, pageable);
+    } else {
+      productList = searchProduct(category, searchWord, searchType, startNumber, pageable);
+    }
     return addItemList(productList, false);
   }
 
   // 상품 리스트 만들어줌
   private List<ProductListDto> addItemList(List<ProductEntity> productList, Boolean isWeb) {
-    return productList.stream().map((it) -> new ProductListDto(
-        it.getProductId(),
-        "/product/getThumbnail?productId=" + it.getProductId() + "&isWeb=" + isWeb,
-        it.getProductTitle(),
-        it.getHopePrice(),
-        it.getOpeningBid(),
-        it.getTick(),
-        it.getExpirationDate()
-            .format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT)),
-        bidRepository.getBidsByProductId(it.getProductId()).size())).collect(Collectors.toList());
+    return productList.stream()
+        .map(
+            (it) ->
+                new ProductListDto(
+                    it.getProductId(),
+                    "/product/getThumbnail?productId=" + it.getProductId() + "&isWeb=" + isWeb,
+                    it.getProductTitle(),
+                    it.getHopePrice(),
+                    it.getOpeningBid(),
+                    it.getTick(),
+                    it.getExpirationDate()
+                        .format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT)),
+                    bidRepository.getBidsByProductId(it.getProductId()).size()))
+        .collect(Collectors.toList());
   }
 
   /** . 실제 이미지 리사이징 후, 프론트에 보내줌 이미지가 없다면 X표 이미지가 나옴 */
@@ -382,6 +450,46 @@ public class ProductService {
   }
 
   /**
+   * . 카테고리를 포함한 페이지네이션 searchProduct case 0 : 제목에서 searchWord 포함하는 상품 검색 case 1 : 내용에서 searchWord
+   * 포함하는 상품 검색 case 2 : 제목+내용에서 searchWord 포함하는 상품 검색
+   */
+  public ProductSearchCountDto searchProduct(
+      long category, String searchWord, int searchType, Pageable pageable) {
+    List<Long> subCategoryId = categoryRepository.findAllSubCategoryId(category);
+    List<ProductEntity> productList = new ArrayList<>();
+    switch (searchType) {
+      case 0:
+        for (Long subCategory : subCategoryId) {
+          if (categoryRepository.getById(subCategory).getSubCategories().isEmpty()) {
+            productList.addAll(
+                productRepository.findCateProductTitle(subCategory, searchWord, pageable));
+          }
+        }
+        break;
+      case 1:
+        for (Long subCategory : subCategoryId) {
+          if (categoryRepository.getById(subCategory).getSubCategories().isEmpty()) {
+            productList.addAll(
+                productRepository.findCateProductContent(subCategory, searchWord, pageable));
+          }
+        }
+        break;
+      case 2:
+        for (Long subCategory : subCategoryId) {
+          if (categoryRepository.getById(subCategory).getSubCategories().isEmpty()) {
+            productList.addAll(
+                productRepository.findCateProductTitleAndContent(
+                    subCategory, searchWord, pageable));
+          }
+        }
+        break;
+      default:
+        throw new InvalidSearchTypeException("검색 타입이 잘못되었습니다.");
+    }
+    return new ProductSearchCountDto(productList.size(), productList);
+  }
+
+  /**
    * . 무한 스크롤 searchProduct case 0 : 제목에서 searchWord 포함하는 상품 검색 case 1 : 내용에서 searchWord 포함하는 상품 검색
    * case 2 : 제목+내용에서 searchWord 포함하는 상품 검색
    */
@@ -406,8 +514,48 @@ public class ProductService {
   }
 
   /**
-   * . 인기 검색어 가져오기
+   * . 카테고리를 포함한 무한 스크롤 searchProduct case 0 : 제목에서 searchWord 포함하는 상품 검색 case 1 : 내용에서 searchWord
+   * 포함하는 상품 검색 case 2 : 제목+내용에서 searchWord 포함하는 상품 검색
    */
+  public List<ProductEntity> searchProduct(
+      long category, String searchWord, int searchType, long startNumber, Pageable pageable) {
+    List<Long> subCategoryId = categoryRepository.findAllSubCategoryId(category);
+    List<ProductEntity> productList = new ArrayList<>();
+    switch (searchType) {
+      case 0:
+        for (Long subCategory : subCategoryId) {
+          if (categoryRepository.getById(subCategory).getSubCategories().isEmpty()) {
+            productList.addAll(
+                productRepository.searchProductByCategoryAndTitleInInfiniteScroll(
+                    subCategory, searchWord, startNumber, pageable));
+          }
+        }
+        break;
+      case 1:
+        for (Long subCategory : subCategoryId) {
+          if (categoryRepository.getById(subCategory).getSubCategories().isEmpty()) {
+            productList.addAll(
+                productRepository.searchProductByCategoryAndContentInInfiniteScroll(
+                    subCategory, searchWord, startNumber, pageable));
+          }
+        }
+        break;
+      case 2:
+        for (Long subCategory : subCategoryId) {
+          if (categoryRepository.getById(subCategory).getSubCategories().isEmpty()) {
+            productList.addAll(
+                productRepository.searchProductByCategoryAndTitleAndContentInInfiniteScroll(
+                    subCategory, searchWord, startNumber, pageable));
+          }
+        }
+        break;
+      default:
+        throw new InvalidSearchTypeException("검색 타입이 잘못되었습니다.");
+    }
+    return productList;
+  }
+
+  /** . 인기 검색어 가져오기 */
   public List<String> getPopularSearchWord(int listCount) {
     return redisRepository.getPopularSearchWord(listCount);
   }
@@ -421,9 +569,7 @@ public class ProductService {
     categoryRepository.save(categoryEntity);
   }
 
-  /**
-   * . 게시글 검색
-   */
+  /** . 게시글 검색 */
   public List<ProductEntity> getAllProducts() {
     return productRepository.findAll();
   }
