@@ -450,6 +450,8 @@ public class ProductService {
                 .findAllByProductTitleContainingIgnoreCaseOrProductContentContainingIgnoreCase(
                     searchWord, searchWord, pageable);
         break;
+      default:
+        checkSearchType(searchType);
     }
     return new ProductSearchCountDto(productList.size(), productList);
   }
@@ -478,6 +480,8 @@ public class ProductService {
                 productRepository.findCateProductTitleAndContent(
                     subCategory, searchWord, pageable));
             break;
+          default:
+            checkSearchType(searchType);
         }
     }
     return new ProductSearchCountDto(productList.size(), productList);
@@ -508,6 +512,8 @@ public class ProductService {
             productRepository.searchProductByTitleAndContentInInfiniteScroll(
                 searchWord, startNumber, pageable);
         break;
+      default:
+        checkSearchType(searchType);
     }
     return productList;
   }
@@ -538,6 +544,8 @@ public class ProductService {
                 productRepository.searchProductByCategoryAndTitleAndContentInInfiniteScroll(
                     subCategory, searchWord, startNumber, pageable));
             break;
+          default:
+            checkSearchType(searchType);
         }
       }
     }
