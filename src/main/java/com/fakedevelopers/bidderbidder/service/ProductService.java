@@ -194,7 +194,6 @@ public class ProductService {
             page - 1, productListRequestDto.getListCount(), Sort.Direction.DESC, "productId");
     String searchWord = productListRequestDto.getSearchWord();
     int searchType = productListRequestDto.getSearchType();
-    checkSearchType(searchType);
     long category = productListRequestDto.getCategory();
 
     return searchWord == null || searchWord.trim().equals("")
@@ -219,7 +218,6 @@ public class ProductService {
     }
     String searchWord = productListRequestDto.getSearchWord();
     int searchType = productListRequestDto.getSearchType();
-    checkSearchType(searchType);
     long category = productListRequestDto.getCategory();
 
     return searchWord == null || searchWord.trim().equals("")
