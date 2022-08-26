@@ -194,11 +194,18 @@ public class ProductService {
             page - 1, productListRequestDto.getListCount(), Sort.Direction.DESC, "productId");
     String searchWord = productListRequestDto.getSearchWord();
     int searchType = productListRequestDto.getSearchType();
+    checkSearchType(searchType);
     long category = productListRequestDto.getCategory();
 
     return searchWord == null || searchWord.trim().equals("")
         ? makeProductList(pageable, category)
         : makeProductList(searchWord, searchType, category, pageable);
+  }
+
+  private void checkSearchType(int searchType) {
+    if (searchType < 0 || searchType > 2) {
+      throw new InvalidSearchTypeException("검색 타입이 잘못되었습니다.");
+    }
   }
 
   // 요청받은 내용을 기반으로 무한스크롤 상품리스트 생성 및 프론트에 반환
@@ -212,6 +219,7 @@ public class ProductService {
     }
     String searchWord = productListRequestDto.getSearchWord();
     int searchType = productListRequestDto.getSearchType();
+    checkSearchType(searchType);
     long category = productListRequestDto.getCategory();
 
     return searchWord == null || searchWord.trim().equals("")
@@ -426,26 +434,24 @@ public class ProductService {
    * case 2 : 제목+내용에서 searchWord 포함하는 상품 검색
    */
   public ProductSearchCountDto searchProduct(String searchWord, int searchType, Pageable pageable) {
+    List<ProductEntity> productList = new ArrayList<>();
     switch (searchType) {
       case 0:
-        return new ProductSearchCountDto(
-            productRepository.countAllByProductTitleContainingIgnoreCase(searchWord),
-            productRepository.findAllByProductTitleContainingIgnoreCase(searchWord, pageable));
+        productList =
+            productRepository.findAllByProductTitleContainingIgnoreCase(searchWord, pageable);
+        break;
       case 1:
-        return new ProductSearchCountDto(
-            productRepository.countAllByProductContentContainingIgnoreCase(searchWord),
-            productRepository.findAllByProductContentContainingIgnoreCase(searchWord, pageable));
+        productList =
+            productRepository.findAllByProductContentContainingIgnoreCase(searchWord, pageable);
+        break;
       case 2:
-        return new ProductSearchCountDto(
-            productRepository
-                .countAllByProductTitleContainingIgnoreCaseOrProductContentContainingIgnoreCase(
-                    searchWord, searchWord),
+        productList =
             productRepository
                 .findAllByProductTitleContainingIgnoreCaseOrProductContentContainingIgnoreCase(
-                    searchWord, searchWord, pageable));
-      default:
-        throw new InvalidSearchTypeException("검색 타입이 잘못되었습니다.");
+                    searchWord, searchWord, pageable);
+        break;
     }
+    return new ProductSearchCountDto(productList.size(), productList);
   }
 
   /**
@@ -472,8 +478,6 @@ public class ProductService {
                 productRepository.findCateProductTitleAndContent(
                     subCategory, searchWord, pageable));
             break;
-          default:
-            throw new InvalidSearchTypeException("검색 타입이 잘못되었습니다.");
         }
     }
     return new ProductSearchCountDto(productList.size(), productList);
@@ -485,22 +489,27 @@ public class ProductService {
    */
   public List<ProductEntity> searchProduct(
       String searchWord, int searchType, long startNumber, Pageable pageable) {
-
+    List<ProductEntity> productList = new ArrayList<>();
     switch (searchType) {
       case 0:
-        return productRepository
-            .findAllByProductTitleContainingIgnoreCaseAndProductIdIsLessThanOrderByProductIdDesc(
-                searchWord, startNumber, pageable);
+        productList =
+            productRepository
+                .findAllByProductTitleContainingIgnoreCaseAndProductIdIsLessThanOrderByProductIdDesc(
+                    searchWord, startNumber, pageable);
+        break;
       case 1:
-        return productRepository
-            .findAllByProductContentContainingIgnoreCaseAndProductIdIsLessThanOrderByProductIdDesc(
-                searchWord, startNumber, pageable);
+        productList =
+            productRepository
+                .findAllByProductContentContainingIgnoreCaseAndProductIdIsLessThanOrderByProductIdDesc(
+                    searchWord, startNumber, pageable);
+        break;
       case 2:
-        return productRepository.searchProductByTitleAndContentInInfiniteScroll(
-            searchWord, startNumber, pageable);
-      default:
-        throw new InvalidSearchTypeException("검색 타입이 잘못되었습니다.");
+        productList =
+            productRepository.searchProductByTitleAndContentInInfiniteScroll(
+                searchWord, startNumber, pageable);
+        break;
     }
+    return productList;
   }
 
   /**
@@ -529,8 +538,6 @@ public class ProductService {
                 productRepository.searchProductByCategoryAndTitleAndContentInInfiniteScroll(
                     subCategory, searchWord, startNumber, pageable));
             break;
-          default:
-            throw new InvalidSearchTypeException("검색 타입이 잘못되었습니다.");
         }
       }
     }
