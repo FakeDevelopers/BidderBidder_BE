@@ -17,8 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class TermService {
 
-	static private final String TERM_FOLDER = "./terms";
-	static private final String TERM_EXTENSION = ".md";
+	private static final String TERM_FOLDER = "./terms";
+	private static final String TERM_EXTENSION = ".md";
 
 	@Cacheable(value = "terms", key = "#termName")
 	public String getTerm(String termName) {

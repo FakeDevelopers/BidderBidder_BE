@@ -12,14 +12,14 @@ import org.springframework.context.annotation.Configuration;
 public class CacheConfig {
 
 	@Bean
-	public Caffeine caffeineConfig() {
+	public Caffeine<Object,Object> caffeineConfig() {
 		return Caffeine
 				.newBuilder()
 				.maximumSize(10_000);
 	}
 
 	@Bean
-	public CacheManager cacheManager(Caffeine caffeine) {
+	public CacheManager cacheManager(Caffeine<Object,Object> caffeine) {
 		CaffeineCacheManager cacheManager = new CaffeineCacheManager();
 		cacheManager.setCaffeine(caffeine);
 		return cacheManager;
