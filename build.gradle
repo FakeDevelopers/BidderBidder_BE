@@ -4,6 +4,9 @@ plugins {
     id 'java'
 }
 
+ext {
+    springVersion = '2.6.5'
+}
 group = 'com.fakedevelopers'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
@@ -15,6 +18,7 @@ configurations {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
@@ -23,28 +27,28 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test$springVersion'
 
-    implementation 'org.springframework.boot:spring-boot-starter-validation:2.6.5'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'io.springfox:springfox-boot-starter:3.0.0'
 
     //아래 두 라이브러리는 나중에 하이버네이트 연결할때 주석해제할것
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-jpa
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.6.5'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
     // https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
     implementation 'org.mariadb.jdbc:mariadb-java-client:3.0.4'
 
-    implementation 'commons-io:commons-io:2.6'
+    implementation 'commons-io:commons-io:2.7'
 
     implementation 'com.mortennobel:java-image-scaling:0.8.6'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-redis
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis:2.7.1'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     // https://mvnrepository.com/artifact/io.lettuce/lettuce-core
     implementation 'io.lettuce:lettuce-core:6.2.0.RELEASE'
-    implementation 'com.google.firebase:firebase-admin:8.0.1'
+    implementation 'com.google.firebase:firebase-admin:9.0.0'
     implementation 'org.springframework.boot:spring-boot-starter-security'
 
     // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
@@ -52,6 +56,10 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.assertj/assertj-core
     testImplementation 'org.assertj:assertj-core:3.23.1'
+
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-cache
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+
 
 }
 
