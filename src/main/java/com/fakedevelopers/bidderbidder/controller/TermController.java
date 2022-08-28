@@ -1,7 +1,9 @@
 package com.fakedevelopers.bidderbidder.controller;
 
 import com.fakedevelopers.bidderbidder.service.TermService;
+import java.util.List;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +22,11 @@ public class TermController {
 		this.termService = termService;
 	}
 
+	@GetMapping("/list/")
+	List<String> getTerms() {
+		return termService.getTerms();
+	}
+
 	@GetMapping("/{termName}")
 	String getTerm(@PathVariable String termName) {
 		return termService.getTerm(termName);
@@ -31,4 +38,11 @@ public class TermController {
 		termService.addTerm(termName, term);
 		return "success";
 	}
+
+	@DeleteMapping(value = "/{termName}")
+	String deleteTerm(@PathVariable String termName) { // 나중에 요 API도 관리자만 접근하도록 해야 할것 같네요 ㅋㅋㅋ
+		termService.deleteTerm(termName);
+		return "success";
+	}
+
 }

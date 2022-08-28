@@ -8,6 +8,10 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
@@ -19,6 +23,15 @@ public class TermService {
 
 	private static final String TERM_FOLDER = "./terms";
 	private static final String TERM_EXTENSION = ".md";
+	private static final int TERM_EXTENSION_LENGTH = TERM_EXTENSION.length();
+
+	public List<String> getTerms() {
+		String path = TERM_FOLDER + File.separator;
+		File directory = new File(path);
+		return Arrays.stream(Objects.requireNonNull(directory.list()))
+				.map(it -> it.substring(0, it.length() - TERM_EXTENSION_LENGTH)).collect(
+						Collectors.toList());
+	}
 
 	@Cacheable(value = "terms", key = "#termName")
 	public String getTerm(String termName) {
@@ -45,4 +58,12 @@ public class TermService {
 		}
 	}
 
+	@CacheEvict(value = "terms", key = "#termName")
+	public void deleteTerm(String termName) {
+		String filePath = TERM_FOLDER + File.separator + termName + TERM_EXTENSION;
+		File term = new File(filePath);
+		if (term.exists()) {
+			term.delete();
+		}
+	}
 }
