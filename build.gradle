@@ -4,9 +4,6 @@ plugins {
     id 'java'
 }
 
-ext {
-    springVersion = '2.6.5'
-}
 group = 'com.fakedevelopers'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
