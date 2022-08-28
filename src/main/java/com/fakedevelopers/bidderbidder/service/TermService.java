@@ -59,11 +59,12 @@ public class TermService {
 	}
 
 	@CacheEvict(value = "terms", key = "#termName")
-	public void deleteTerm(String termName) {
+	public boolean deleteTerm(String termName) {
 		String filePath = TERM_FOLDER + File.separator + termName + TERM_EXTENSION;
 		File term = new File(filePath);
 		if (term.exists()) {
-			term.delete();
+			return term.delete();
 		}
+		return false;
 	}
 }

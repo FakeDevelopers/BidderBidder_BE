@@ -41,8 +41,10 @@ public class TermController {
 
 	@DeleteMapping(value = "/{termName}")
 	String deleteTerm(@PathVariable String termName) { // 나중에 요 API도 관리자만 접근하도록 해야 할것 같네요 ㅋㅋㅋ
-		termService.deleteTerm(termName);
-		return "success";
+		if (termService.deleteTerm(termName)) {
+			return "success";
+		}
+		return "fail";
 	}
 
 }
