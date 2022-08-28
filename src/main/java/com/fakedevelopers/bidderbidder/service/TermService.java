@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,6 +20,7 @@ public class TermService {
 	static private final String TERM_FOLDER = "./terms";
 	static private final String TERM_EXTENSION = ".md";
 
+	@Cacheable(value = "terms", key = "#termName")
 	public String getTerm(String termName) {
 		String filePath = TERM_FOLDER + File.separator + termName + TERM_EXTENSION;
 		File term = new File(filePath);
@@ -31,6 +34,7 @@ public class TermService {
 		throw new HttpException(HttpStatus.NOT_FOUND, "존재하지 않는 약관입니다.");
 	}
 
+	@CacheEvict(value = "terms", key = "#termName") // 약관이 업데이트 되면 해당 약관의 캐싱을 삭제합니다.
 	public void addTerm(String termName, MultipartFile file) throws Exception {
 		String filePath = TERM_FOLDER + File.separator + termName + TERM_EXTENSION;
 		File term = new File(filePath);
