@@ -36,7 +36,7 @@ public class TermController {
 
 	@PostMapping(value = "/{termName}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
 	String addTerm(@PathVariable String termName, @RequestPart MultipartFile term,
-			@RequestParam Boolean isRequired)
+			@RequestParam boolean isRequired)
 			throws Exception { // 나중에 요 API는 관리자만? 접근하도록 해야 할것 같네요 ㅋㅋㅋ
 		termService.addTerm(termName, isRequired, term);
 		return "success";

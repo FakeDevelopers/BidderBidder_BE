@@ -62,7 +62,7 @@ public class TermService {
 	}
 
 	@CacheEvict(value = "terms", key = "#termName") // 약관이 업데이트 되면 해당 약관의 캐싱을 삭제합니다.
-	public void addTerm(String termName, Boolean isRequired, MultipartFile file) throws Exception {
+	public void addTerm(String termName, boolean isRequired, MultipartFile file) throws Exception {
 		File saveFile = getTermFile((isRequired ? REQUIRED : OPTIONAL), termName);
 		File deleteFile = getTermFile((isRequired ? OPTIONAL : REQUIRED), termName);
 
