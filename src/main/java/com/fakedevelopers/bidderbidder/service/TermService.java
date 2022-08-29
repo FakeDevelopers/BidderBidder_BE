@@ -30,6 +30,7 @@ public class TermService {
 	private static final String OPTIONAL = "optional";
 	private static final String[] TERM_TYPES = {REQUIRED, OPTIONAL};
 
+	@Cacheable(value = "termList")
 	public Map<String, List<String>> getTerms() {
 		Map<String, List<String>> map = new HashMap<>();
 		for (String termType : TERM_TYPES) {
@@ -44,7 +45,7 @@ public class TermService {
 		return map;
 	}
 
-	@Cacheable(value = "terms", key = "#termName")
+	@Cacheable(value = "term", key = "#termName")
 	public String getTerm(String termName) {
 
 		for (String termType : TERM_TYPES) {
@@ -61,7 +62,8 @@ public class TermService {
 		throw new HttpException(HttpStatus.NOT_FOUND, "존재하지 않는 약관입니다.");
 	}
 
-	@CacheEvict(value = "terms", key = "#termName") // 약관이 업데이트 되면 해당 약관의 캐싱을 삭제합니다.
+
+	@CacheEvict(value = {"term","termList"}, key = "#termName") // 약관이 업데이트 되면 해당 약관의 캐싱을 삭제합니다.
 	public void addTerm(String termName, boolean isRequired, MultipartFile file) throws Exception {
 		File saveFile = getTermFile((isRequired ? REQUIRED : OPTIONAL), termName);
 		File deleteFile = getTermFile((isRequired ? OPTIONAL : REQUIRED), termName);
@@ -76,7 +78,7 @@ public class TermService {
 		}
 	}
 
-	@CacheEvict(value = "terms", key = "#termName")
+	@CacheEvict(value = {"term","termList"}, key = "#termName")
 	public boolean deleteTerm(String termName) {
 
 		for (String termType : TERM_TYPES) {
