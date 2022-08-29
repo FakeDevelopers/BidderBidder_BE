@@ -1,5 +1,6 @@
 package com.fakedevelopers.bidderbidder.service;
 
+import com.fakedevelopers.bidderbidder.domain.Constants;
 import com.fakedevelopers.bidderbidder.exception.HttpException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -75,15 +76,15 @@ public class TermService {
 		}
 	}
 
-	@CacheEvict(value = {"term","termList"}, key = "#termName")
-	public boolean deleteTerm(String termName) {
+	@CacheEvict(value = {"term", "termList"}, key = "#termName")
+	public String deleteTerm(String termName) {
 		for (String termType : TERM_TYPES) {
 			File termFile = getTermFile(termType, termName);
 			if (termFile.exists() && termFile.delete()) {
-				return true;
+				return Constants.SUCCESS;
 			}
 		}
-		return false;
+		return Constants.FAIL;
 	}
 
 	private File getTermFile(String termType, String termName) {

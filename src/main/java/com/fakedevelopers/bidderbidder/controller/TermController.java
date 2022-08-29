@@ -1,5 +1,6 @@
 package com.fakedevelopers.bidderbidder.controller;
 
+import com.fakedevelopers.bidderbidder.domain.Constants;
 import com.fakedevelopers.bidderbidder.service.TermService;
 import java.util.List;
 import java.util.Map;
@@ -39,15 +40,12 @@ public class TermController {
 			@RequestParam boolean isRequired)
 			throws Exception { // 나중에 요 API는 관리자만? 접근하도록 해야 할것 같네요 ㅋㅋㅋ
 		termService.addTerm(termName, isRequired, term);
-		return "success";
+		return Constants.SUCCESS;
 	}
 
 	@DeleteMapping(value = "/{termName}")
 	String deleteTerm(@PathVariable String termName) { // 나중에 요 API도 관리자만 접근하도록 해야 할것 같네요 ㅋㅋㅋ
-		if (termService.deleteTerm(termName)) {
-			return "success";
-		}
-		return "fail";
+		return termService.deleteTerm(termName);
 	}
 
 }
