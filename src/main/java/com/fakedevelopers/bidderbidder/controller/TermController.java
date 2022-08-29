@@ -2,6 +2,8 @@ package com.fakedevelopers.bidderbidder.controller;
 
 import com.fakedevelopers.bidderbidder.domain.Constants;
 import com.fakedevelopers.bidderbidder.service.TermService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.MediaType;
@@ -26,17 +28,27 @@ public class TermController {
 	}
 
 	@GetMapping("/list/")
+	@ApiOperation(value = "약관 리스트", notes = "필수 약관과 선택약관을 반환하는 API입니다.")
 	Map<String, List<String>> getTerms() {
 		return termService.getTerms();
 	}
 
 	@GetMapping("/{termName}")
-	String getTerm(@PathVariable String termName) {
+	@ApiOperation(value = "약관 다운로드", notes = "특정약관을 받아오는 API입니다.")
+	String getTerm(
+			@ApiParam(value = "가져올 약관이름", required = true, name = "termName")
+			@PathVariable String termName) {
 		return termService.getTerm(termName);
 	}
 
 	@PostMapping(value = "/{termName}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-	String addTerm(@PathVariable String termName, @RequestPart MultipartFile term,
+	@ApiOperation(value = "약관 등록", notes = "약관을 등록하는 API입니다.")
+	String addTerm(
+			@ApiParam(value = "등록할 약관이름", required = true, name = "termName")
+			@PathVariable String termName,
+			@ApiParam(value = "업로드할 약관파일", required = true, type = "file", name = "term")
+			@RequestPart MultipartFile term,
+			@ApiParam(value = "필수약관인지 여부", required = true, name = "isRequired")
 			@RequestParam boolean isRequired)
 			throws Exception { // 나중에 요 API는 관리자만? 접근하도록 해야 할것 같네요 ㅋㅋㅋ
 		termService.addTerm(termName, isRequired, term);
@@ -44,7 +56,10 @@ public class TermController {
 	}
 
 	@DeleteMapping(value = "/{termName}")
-	String deleteTerm(@PathVariable String termName) { // 나중에 요 API도 관리자만 접근하도록 해야 할것 같네요 ㅋㅋㅋ
+	@ApiOperation(value = "약관 삭제", notes = "약관을 삭제하는 API입니다.")
+	String deleteTerm(
+			@ApiParam(value = "삭제할 약관이름", required = true, name = "termName")
+			@PathVariable String termName) { // 나중에 요 API도 관리자만 접근하도록 해야 할것 같네요 ㅋㅋㅋ
 		return termService.deleteTerm(termName);
 	}
 
