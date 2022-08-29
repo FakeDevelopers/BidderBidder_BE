@@ -1,8 +1,6 @@
 package com.fakedevelopers.bidderbidder.service;
 
 import com.fakedevelopers.bidderbidder.exception.HttpException;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -10,7 +8,11 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -28,19 +30,18 @@ public class TermService {
 	private static final String OPTIONAL = "optional";
 	private static final String[] TERM_TYPES = {REQUIRED, OPTIONAL};
 
-	public JsonObject getTerms() {
-		JsonObject jsonObject = new JsonObject();
-
+	public Map<String, List<String>> getTerms() {
+		Map<String, List<String>> map = new HashMap<>();
 		for (String termType : TERM_TYPES) {
-			JsonArray termList = new JsonArray();
+			List<String> termList = new ArrayList<>();
 			Arrays.stream(Objects.requireNonNull(
 							new File(TERM_FOLDER + termType).list()))
 					.forEach(
 							it -> termList.add(it.substring(0, it.length() - TERM_EXTENSION_LENGTH)));
 
-			jsonObject.add(termType, termList);
+			map.put(termType, termList);
 		}
-		return jsonObject;
+		return map;
 	}
 
 	@Cacheable(value = "terms", key = "#termName")

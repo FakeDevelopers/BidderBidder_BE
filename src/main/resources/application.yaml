@@ -23,8 +23,6 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
-    converters:
-      preferred-json-mapper: gson
   redis:
     host: ${redis.host}
     password: ${redis.password}
