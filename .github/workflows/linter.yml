@@ -51,3 +51,4 @@ jobs:
           DEFAULT_BRANCH: develop
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_JAVA: false
+          VALIDATE_JSCPD: false
