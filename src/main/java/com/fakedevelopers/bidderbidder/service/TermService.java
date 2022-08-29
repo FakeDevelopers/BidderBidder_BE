@@ -35,11 +35,8 @@ public class TermService {
 		Map<String, List<String>> map = new HashMap<>();
 		for (String termType : TERM_TYPES) {
 			List<String> termList = new ArrayList<>();
-			Arrays.stream(Objects.requireNonNull(
-							new File(TERM_FOLDER + termType).list()))
-					.forEach(
-							it -> termList.add(it.substring(0, it.length() - TERM_EXTENSION_LENGTH)));
-
+			Arrays.stream(Objects.requireNonNull(new File(TERM_FOLDER + termType).list()))
+					.forEach(it -> termList.add(it.substring(0, it.length() - TERM_EXTENSION_LENGTH)));
 			map.put(termType, termList);
 		}
 		return map;
@@ -80,7 +77,6 @@ public class TermService {
 
 	@CacheEvict(value = {"term","termList"}, key = "#termName")
 	public boolean deleteTerm(String termName) {
-
 		for (String termType : TERM_TYPES) {
 			File termFile = getTermFile(termType, termName);
 			if (termFile.exists() && termFile.delete()) {
@@ -91,8 +87,7 @@ public class TermService {
 	}
 
 	private File getTermFile(String termType, String termName) {
-		String termFilePath =
-				TERM_FOLDER + termType + File.separator + termName + TERM_EXTENSION;
+		String termFilePath = TERM_FOLDER + termType + File.separator + termName + TERM_EXTENSION;
 		return new File(termFilePath);
 	}
 }
