@@ -1,5 +1,6 @@
 package com.fakedevelopers.bidderbidder.controller;
 
+import com.fakedevelopers.bidderbidder.domain.Constants;
 import com.fakedevelopers.bidderbidder.dto.UserLoginDto;
 import com.fakedevelopers.bidderbidder.dto.UserRegisterDto;
 import com.fakedevelopers.bidderbidder.message.response.UserInfo;
@@ -32,13 +33,13 @@ public class UserController {
 
   @PostMapping("/register")
   String userRegister(@Validated UserRegisterDto userRegisterDto) {
-    return "success";
+    return Constants.SUCCESS;
   }
 
 
   @PostMapping("/login")
   String userLogin(@Validated UserLoginDto userLoginDto) {
-    return "success";
+    return Constants.SUCCESS;
   }
 
 

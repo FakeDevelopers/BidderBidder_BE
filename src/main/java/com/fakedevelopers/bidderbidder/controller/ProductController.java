@@ -1,5 +1,6 @@
 package com.fakedevelopers.bidderbidder.controller;
 
+import com.fakedevelopers.bidderbidder.domain.Constants;
 import com.fakedevelopers.bidderbidder.dto.PageListResponseDto;
 import com.fakedevelopers.bidderbidder.dto.ProductInformationDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListDto;
@@ -42,7 +43,7 @@ public class ProductController {
       @RequestPart(required = false) List<MultipartFile> files)
       throws Exception {
     productService.saveProduct(productWriteDto, files);
-    return "success";
+    return Constants.SUCCESS;
   }
 
   @GetMapping("/getPageProductList")

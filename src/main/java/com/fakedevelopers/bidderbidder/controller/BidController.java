@@ -1,5 +1,6 @@
 package com.fakedevelopers.bidderbidder.controller;
 
+import com.fakedevelopers.bidderbidder.domain.Constants;
 import com.fakedevelopers.bidderbidder.service.BidService;
 import javax.validation.constraints.Min;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +22,6 @@ public class BidController {
   @PostMapping
   String addBid(@PathVariable long productId, @RequestParam long userId, @RequestParam @Min(0) long bid) {
     bidService.addBid(productId, userId, bid);
-    return "success";
+    return Constants.SUCCESS;
   }
 }
