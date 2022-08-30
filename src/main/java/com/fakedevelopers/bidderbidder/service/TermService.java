@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Objects;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,9 +30,12 @@ public class TermService {
 	private static final int TERM_EXTENSION_LENGTH = TERM_EXTENSION.length();
 	private static final String REQUIRED = "required";
 	private static final String OPTIONAL = "optional";
+	private static final String TERM_LIST = "termList";
+	private static final String TERM = "term";
 	private static final String[] TERM_TYPES = {REQUIRED, OPTIONAL};
 
-	@Cacheable(value = "termList")
+
+	@Cacheable(value = TERM_LIST)
 	public Map<String, List<String>> getTerms() {
 		Map<String, List<String>> map = new HashMap<>();
 		for (String termType : TERM_TYPES) {
@@ -43,7 +47,7 @@ public class TermService {
 		return map;
 	}
 
-	@Cacheable(value = "term", key = "#termName")
+	@Cacheable(value = TERM, key = "#termName")
 	public String getTerm(String termName) {
 
 		for (String termType : TERM_TYPES) {
@@ -61,8 +65,13 @@ public class TermService {
 	}
 
 
-	@CacheEvict(value = {"term","termList"}, key = "#termName") // 약관이 업데이트 되면 해당 약관의 캐싱을 삭제합니다.
+	@Caching(evict = {
+			@CacheEvict(value = TERM, key = "#termName"), // term이라는 이름의 캐시의 #termName값과
+			@CacheEvict(value = TERM_LIST, allEntries = true) //termList이름의 캐시를 지운다
+	})
 	public void addTerm(String termName, boolean isRequired, MultipartFile file) throws Exception {
+		// 한개의 termType에 새로운 약관이 생겼을때 다른 타입의 약관에 이미 같은 이름의 약관이 존재 할수있으므로
+		// 다른 타입의 약관에서 찾아서 지우려고 시도한다.
 		File saveFile = getTermFile((isRequired ? REQUIRED : OPTIONAL), termName);
 		File deleteFile = getTermFile((isRequired ? OPTIONAL : REQUIRED), termName);
 
@@ -76,11 +85,17 @@ public class TermService {
 		}
 	}
 
-	@CacheEvict(value = {"term", "termList"}, key = "#termName")
+
+
+	@Caching(evict = {
+			@CacheEvict(value = TERM, key = "#termName"), // term이라는 이름의 캐시의 #termName값과
+			@CacheEvict(value = TERM_LIST, allEntries = true) //termList이름의 캐시를 지운다
+  })
 	public String deleteTerm(String termName) {
-		for (String termType : TERM_TYPES) {
-			File termFile = getTermFile(termType, termName);
-			if (termFile.exists() && termFile.delete()) {
+		Map<String, List<String>> termListMap = getTerms(); // getTerms는 캐싱되어있으니 파일시스템에서 리스트를 가져오는것보다 빠를것이다
+
+		for (String termType : TERM_TYPES) { // 필수약관 한번, 선택 약관 한번 아래의 코드를 실행한다.
+			if (termListMap.get(termType).contains(termName) && getTermFile(termType, termName).delete()) {
 				return Constants.SUCCESS;
 			}
 		}

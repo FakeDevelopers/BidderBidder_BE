@@ -18,5 +18,5 @@ public class Constants {
   public static final String INIT_NICKNAME = "Bidder";
 
   public static final String SUCCESS = "success";
-  public static final String FAIL = "faile";
+  public static final String FAIL = "fail";
 }
