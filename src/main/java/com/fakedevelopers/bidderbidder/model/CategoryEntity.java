@@ -32,6 +32,9 @@ public class CategoryEntity {
   @OneToMany(mappedBy = "parentCategoryId")
   private List<CategoryEntity> subCategories = new ArrayList<>();
 
+  @OneToMany
+  private List<ProductEntity> productEntities;
+
   public CategoryEntity(String categoryName, Long parentCategoryId) {
     this.categoryName = categoryName;
     this.parentCategoryId = parentCategoryId;
