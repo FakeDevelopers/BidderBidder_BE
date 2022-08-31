@@ -1,19 +1,20 @@
 package com.fakedevelopers.bidderbidder.dto;
 
-import lombok.Getter;
-
 import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class ProductListRequestDto {
 
-  private final String searchWord;
+  private String searchWord;
 
-  private final Integer listCount;
+  private Integer listCount;
 
-  private final Integer searchType;
+  private Integer searchType;
 
-  private final Long category;
+  private Long category;
 
   ProductListRequestDto(String searchWord, Integer listCount, Integer searchType, Long category) {
     this.searchWord = searchWord;
