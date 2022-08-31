@@ -17,7 +17,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
   private final JPAQueryFactory jpaQueryFactory;
   private final RedisRepository redisRepository;
-  private final QProductEntity productEntity = QProductEntity.productEntity;
+  private static final QProductEntity productEntity = QProductEntity.productEntity;
 
   public ProductRepositoryImpl(JPAQueryFactory jpaQueryFactory, RedisRepository redisRepository) {
     this.jpaQueryFactory = jpaQueryFactory;

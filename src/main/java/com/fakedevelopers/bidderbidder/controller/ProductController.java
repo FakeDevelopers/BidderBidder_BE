@@ -51,7 +51,6 @@ public class ProductController {
       ProductListRequestDto productListRequestDto,
       @RequestParam(required = false, defaultValue = "1") int page) {
 
-    //    return productService.makePageListResponseDto(productListRequestDto, page);
     return productService.getProductListPagination(productListRequestDto, page);
   }
 
@@ -60,7 +59,6 @@ public class ProductController {
       ProductListRequestDto productListRequestDto,
       @RequestParam(required = false, defaultValue = "-1") int startNumber) {
 
-    //    return productService.createInfiniteProductLists(productListRequestDto, startNumber);
     return productService.getProductListInfiniteScroll(productListRequestDto, startNumber);
   }
 
