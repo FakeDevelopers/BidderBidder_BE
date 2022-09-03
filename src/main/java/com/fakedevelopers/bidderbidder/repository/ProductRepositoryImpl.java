@@ -7,8 +7,6 @@ import com.fakedevelopers.bidderbidder.dto.ProductListRequestDto;
 import com.fakedevelopers.bidderbidder.exception.InvalidSearchTypeException;
 import com.fakedevelopers.bidderbidder.model.ProductEntity;
 import com.fakedevelopers.bidderbidder.model.QProductEntity;
-import com.querydsl.core.types.Order;
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
@@ -40,7 +38,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                                 productListRequestDto.getSearchType()))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(new OrderSpecifier(Order.DESC, productEntity.productId))
+                .orderBy(productEntity.productId.desc())
                 .fetch();
     }
 
