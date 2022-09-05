@@ -13,6 +13,7 @@ public class ProductListDto {
   private final long productId;
   private final String thumbnail;
   private final String productTitle;
+  private final String category;
   private final Long hopePrice;
   private final long openingBid;
   private final long tick;
@@ -24,6 +25,7 @@ public class ProductListDto {
     thumbnail =
         "/product/getThumbnail?productId=" + productEntity.getProductId() + "&isWeb=" + isWeb;
     productTitle = productEntity.getProductTitle();
+    category = productEntity.getCategory().getCategoryName();
     hopePrice = productEntity.getHopePrice();
     openingBid = productEntity.getOpeningBid();
     tick = productEntity.getTick();

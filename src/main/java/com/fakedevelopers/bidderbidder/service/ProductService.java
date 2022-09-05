@@ -11,6 +11,8 @@ import com.fakedevelopers.bidderbidder.exception.InvalidCategoryException;
 import com.fakedevelopers.bidderbidder.exception.InvalidExpirationDateException;
 import com.fakedevelopers.bidderbidder.exception.InvalidExtensionException;
 import com.fakedevelopers.bidderbidder.exception.InvalidHopePriceException;
+import com.fakedevelopers.bidderbidder.exception.InvalidImageIdException;
+import com.fakedevelopers.bidderbidder.exception.InvalidProductIdException;
 import com.fakedevelopers.bidderbidder.exception.InvalidRepresentPictureIndexException;
 import com.fakedevelopers.bidderbidder.model.BidEntity;
 import com.fakedevelopers.bidderbidder.model.CategoryEntity;
@@ -60,7 +62,7 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final BidRepository bidRepository;
     private final ArrayList<String> extensionList =
-            new ArrayList<>(Arrays.asList("jpg", "jpeg", "png"));
+            new ArrayList<>(Arrays.asList("jpg", "jpeg", "png", "gif"));
 
     ProductService(
             ProductRepository productRepository,
@@ -184,6 +186,9 @@ public class ProductService {
 
     public PageListResponseDto getProductListPagination(
             ProductListRequestDto productListRequestDto, int page) {
+        if ( productListRequestDto.getCategory() != 0 && categoryRepository.findById(productListRequestDto.getCategory()).isEmpty()) {
+            throw new InvalidCategoryException("잘못된 카테고리 번호입니다.");
+        }
         Pageable pageable =
                 PageRequest.of(
                         page - 1, productListRequestDto.getListCount(), Sort.Direction.DESC,
@@ -196,6 +201,9 @@ public class ProductService {
 
     public List<ProductListDto> getProductListInfiniteScroll(
             ProductListRequestDto productListRequestDto, long startNumber) {
+        if ( productListRequestDto.getCategory() != 0 && categoryRepository.findById(productListRequestDto.getCategory()).isEmpty()) {
+            throw new InvalidCategoryException("잘못된 카테고리 번호입니다.");
+        }
         int size = productListRequestDto.getListCount();
         ProductEntity productEntity = productRepository.findTopByOrderByProductIdDesc();
         long maxCount = productEntity.getProductId();
@@ -277,7 +285,7 @@ public class ProductService {
     public ResponseEntity<Resource> getProductImage(Long fileId) throws IOException {
         FileEntity fileEntity = fileRepository.findByFileId(fileId);
         if (fileEntity == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new InvalidImageIdException("존재하지 않는 이미지 번호입니다.");
         }
         InputStream inputStream;
         File image = new File(UPLOAD_FOLDER + File.separator + fileEntity.getSavedFileName());
@@ -351,7 +359,7 @@ public class ProductService {
 
         ProductEntity productEntity = productRepository.findByProductId(productId);
         if (productEntity == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new InvalidProductIdException("존재하지 않는 게시글 번호입니다.");
         }
         List<FileEntity> fileEntities = productEntity.getFileEntities();
         ArrayList<String> images = new ArrayList<>();

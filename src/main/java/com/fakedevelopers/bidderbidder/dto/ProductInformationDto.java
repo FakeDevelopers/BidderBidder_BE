@@ -13,11 +13,12 @@ public class ProductInformationDto {
 
     private final String productTitle;
     private final String productContent;
+    private final String category;
     private final long openingBid;
     private final Long hopePrice;
     private final long tick;
     private final String expirationDate;
-    private final String createdTime;
+    private final String createdDate;
     private final int bidderCount;
     private final List<String> images;
 
@@ -27,12 +28,13 @@ public class ProductInformationDto {
         List<BidEntity> bidEntities) {
         this.productTitle = productEntity.getProductTitle();
         this.productContent = productEntity.getProductContent();
+        this.category = productEntity.getCategory().getCategoryName();
         this.openingBid = productEntity.getOpeningBid();
         this.hopePrice = productEntity.getHopePrice();
         this.tick = productEntity.getTick();
         this.expirationDate = productEntity.getExpirationDate()
             .format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT));
-        this.createdTime = productEntity.getCreatedTime()
+        this.createdDate = productEntity.getCreatedDate()
             .format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT));
         this.bidderCount = bidEntities.size();
         this.images = images;

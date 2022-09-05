@@ -23,7 +23,7 @@ public class ProductWriteDto {
   private final long openingBid;
 
   @Min(1)
-  private final long tick;
+  private final int tick;
 
   private final Long hopePrice;
 
