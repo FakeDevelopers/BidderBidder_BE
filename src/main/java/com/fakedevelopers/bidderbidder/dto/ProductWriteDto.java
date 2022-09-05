@@ -12,26 +12,24 @@ import java.time.LocalDateTime;
 @Getter
 @RequiredArgsConstructor
 public class ProductWriteDto {
-    @NotBlank(message = "제목에 빈칸은 입력불가입니다.")
-    @Size(max = 400)
-    private final String productTitle;
+  @NotBlank(message = "제목에 빈칸은 입력불가입니다.")
+  @Size(max = 400)
+  private final String productTitle;
 
-    @NotBlank(message = "내용에 빈칸은 입력불가입니다.")
-    @Size(max = 4000)
-    private final String productContent;
+  @NotBlank(message = "내용에 빈칸은 입력불가입니다.")
+  @Size(max = 4000)
+  private final String productContent;
 
-    private final long openingBid;
+  private final long openingBid;
 
-    @Min(1)
-    private final long tick;
+  @Min(1)
+  private final long tick;
 
-    private final Long hopePrice;
+  private final Long hopePrice;
 
-    private final int representPicture;
+  private final int representPicture;
 
-    @NotNull
-    private final int category;
+  @NotNull private final long category;
 
-    private final LocalDateTime expirationDate;
-
+  private final LocalDateTime expirationDate;
 }

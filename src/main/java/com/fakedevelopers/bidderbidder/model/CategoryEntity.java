@@ -1,16 +1,15 @@
 package com.fakedevelopers.bidderbidder.model;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import java.util.ArrayList;
-import java.util.List;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
@@ -27,12 +26,14 @@ public class CategoryEntity {
   private String categoryName;
 
   // 상위 카테고리 번호
-  @Column
-  private Long parentCategoryId;
+  @Column private Long parentCategoryId;
 
   @Column
   @OneToMany(mappedBy = "parentCategoryId")
   private List<CategoryEntity> subCategories = new ArrayList<>();
+
+  @OneToMany
+  private List<ProductEntity> productEntities;
 
   public CategoryEntity(String categoryName, Long parentCategoryId) {
     this.categoryName = categoryName;

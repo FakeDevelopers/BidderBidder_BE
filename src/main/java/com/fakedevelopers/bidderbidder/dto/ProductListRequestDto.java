@@ -1,21 +1,26 @@
 package com.fakedevelopers.bidderbidder.dto;
 
-import lombok.Getter;
-
+import static com.fakedevelopers.bidderbidder.domain.Constants.SEARCH_TITLE_AND_CONTENT;
 import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class ProductListRequestDto {
 
-    private final String searchWord;
+    private String searchWord;
 
-    private final Integer listCount;
+    private Integer listCount;
 
-    private final Integer searchType;
+    private Integer searchType;
 
-    ProductListRequestDto(String searchWord, Integer listCount, Integer searchType) {
+    private Long category;
+
+    ProductListRequestDto(String searchWord, Integer listCount, Integer searchType, Long category) {
         this.searchWord = searchWord;
         this.listCount = Objects.requireNonNullElse(listCount, 10);
-        this.searchType = Objects.requireNonNullElse(searchType, 2);
+        this.searchType = Objects.requireNonNullElse(searchType, SEARCH_TITLE_AND_CONTENT);
+        this.category = Objects.requireNonNullElse(category, 0L);
     }
 }
