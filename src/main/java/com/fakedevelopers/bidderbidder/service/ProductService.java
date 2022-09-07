@@ -103,10 +103,14 @@ public class ProductService {
     private void saveProductValidation(ProductWriteDto productWriteDto, List<MultipartFile> files) {
         compareBids(productWriteDto.getHopePrice(), productWriteDto.getOpeningBid());
         compareDate(productWriteDto.getExpirationDate());
-        checkCategory(productWriteDto.getCategory());
+        checkCategoryId(productWriteDto.getCategory());
+        checkSubCategoryIsNull(productWriteDto.getCategory());
         if (files != null) {
             compareExtension(files);
             imageCount(productWriteDto.getRepresentPicture(), files);
+        }
+        else {
+            productWriteDto.setRepresentPicture(-1);
         }
     }
 
@@ -164,10 +168,13 @@ public class ProductService {
     }
 
     // 카테고리 id가 유효한지 체크
-    private void checkCategory(long categoryId) {
+    private void checkCategoryId(long categoryId) {
         if (categoryRepository.findById(categoryId).isEmpty()) {
             throw new InvalidCategoryException("잘못된 카테고리 번호입니다.");
         }
+    }
+
+    private void checkSubCategoryIsNull(long categoryId) {
         CategoryEntity category = categoryRepository.getById(categoryId);
         if (!category.getSubCategories().isEmpty()) {
             throw new InvalidCategoryException("최하위 카테고리가 아닙니다.");
@@ -186,8 +193,8 @@ public class ProductService {
 
     public PageListResponseDto getProductListPagination(
             ProductListRequestDto productListRequestDto, int page) {
-        if ( productListRequestDto.getCategory() != 0 && categoryRepository.findById(productListRequestDto.getCategory()).isEmpty()) {
-            throw new InvalidCategoryException("잘못된 카테고리 번호입니다.");
+        if ( productListRequestDto.getCategory() != 0) {
+            checkCategoryId(productListRequestDto.getCategory());
         }
         Pageable pageable =
                 PageRequest.of(
@@ -201,8 +208,8 @@ public class ProductService {
 
     public List<ProductListDto> getProductListInfiniteScroll(
             ProductListRequestDto productListRequestDto, long startNumber) {
-        if ( productListRequestDto.getCategory() != 0 && categoryRepository.findById(productListRequestDto.getCategory()).isEmpty()) {
-            throw new InvalidCategoryException("잘못된 카테고리 번호입니다.");
+        if ( productListRequestDto.getCategory() != 0) {
+            checkCategoryId(productListRequestDto.getCategory());
         }
         int size = productListRequestDto.getListCount();
         ProductEntity productEntity = productRepository.findTopByOrderByProductIdDesc();
