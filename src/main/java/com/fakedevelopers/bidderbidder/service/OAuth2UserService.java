@@ -1,6 +1,7 @@
 package com.fakedevelopers.bidderbidder.service;
 
 import com.fakedevelopers.bidderbidder.domain.Constants;
+import com.fakedevelopers.bidderbidder.domain.OAuthProfile;
 import com.fakedevelopers.bidderbidder.dto.OAuth2UserRegisterDto;
 import com.fakedevelopers.bidderbidder.model.UserEntity;
 import com.fakedevelopers.bidderbidder.repository.UserRepository;
@@ -42,6 +43,7 @@ public class OAuth2UserService implements UserDetailsService {
     } catch (UsernameNotFoundException e) {
       OAuth2UserRegisterDto dto =
           OAuth2UserRegisterDto.builder()
+              .username(OAuthProfile.GOOGLE_PREFIX + token.getUid())
               .email(token.getEmail())
               .nickname(Constants.INIT_NICKNAME)
               .build();
@@ -58,10 +60,7 @@ public class OAuth2UserService implements UserDetailsService {
    */
   @Transactional
   public UserEntity register(OAuth2UserRegisterDto dto) {
-    UserEntity userEntity = UserEntity.builder()
-        .email(dto.getEmail())
-        .nickname(dto.getNickname())
-        .build();
+    UserEntity userEntity = dto.toUserEntity();
 
     userEntity = userRepository.save(userEntity);
     // nickname 필드의 postfix에 identifier 추가 (닉네임 중복 방지)
@@ -74,4 +73,6 @@ public class OAuth2UserService implements UserDetailsService {
   public void initNickname(@NotNull UserEntity user, String nickname) {
     user.setNickname(nickname);
   }
+
+
 }
