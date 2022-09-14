@@ -38,8 +38,7 @@ public class ProductInformationDto {
                 .format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT));
         this.bidderCount = bidEntities.size();
         this.images = images;
-        int len = bidEntities.size();
-        for (int i = 0; i < len; i++) {
+        for (int i = 0; i < bidderCount; i++) {
             BidEntity bid = bidEntities.get(i);
             bids.add(new BidDto(i + 1, bid.getUser().getNickname(), bid.getBid()));
         }

@@ -20,7 +20,7 @@ public class ProductListDto {
     private final String expirationDate;
     private final int bidderCount;
 
-    public ProductListDto(ProductEntity productEntity, boolean isWeb, Integer bidderCount) {
+    public ProductListDto(ProductEntity productEntity, boolean isWeb, int bidderCount) {
         productId = productEntity.getProductId();
         thumbnail =
                 "/product/getThumbnail?productId=" + productEntity.getProductId() + "&isWeb="
@@ -34,6 +34,6 @@ public class ProductListDto {
                 productEntity
                         .getExpirationDate()
                         .format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT));
-        this.bidderCount = (bidderCount == null ? 0 : bidderCount);
+        this.bidderCount = bidderCount;
     }
 }
