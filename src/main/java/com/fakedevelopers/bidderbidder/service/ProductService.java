@@ -12,6 +12,9 @@ import com.fakedevelopers.bidderbidder.exception.InvalidExpirationDateException;
 import com.fakedevelopers.bidderbidder.exception.InvalidExtensionException;
 import com.fakedevelopers.bidderbidder.exception.InvalidHopePriceException;
 import com.fakedevelopers.bidderbidder.exception.InvalidRepresentPictureIndexException;
+import com.fakedevelopers.bidderbidder.exception.NoImageException;
+import com.fakedevelopers.bidderbidder.exception.NotFoundImageException;
+import com.fakedevelopers.bidderbidder.exception.NotFoundProductException;
 import com.fakedevelopers.bidderbidder.model.BidEntity;
 import com.fakedevelopers.bidderbidder.model.CategoryEntity;
 import com.fakedevelopers.bidderbidder.model.FileEntity;
@@ -60,7 +63,7 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final BidRepository bidRepository;
     private final ArrayList<String> extensionList =
-            new ArrayList<>(Arrays.asList("jpg", "jpeg", "png"));
+            new ArrayList<>(Arrays.asList("jpg", "jpeg", "png", "gif"));
 
     ProductService(
             ProductRepository productRepository,
@@ -83,29 +86,30 @@ public class ProductService {
     public void saveProduct(ProductWriteDto productWriteDto, List<MultipartFile> files)
             throws Exception {
 
+        if (files == null) {
+            throw new NoImageException();
+        }
         saveProductValidation(productWriteDto, files);
         List<String> pathList = createPathIfNeed();
         CategoryEntity categoryEntity = categoryRepository.getById(productWriteDto.getCategory());
         ProductEntity productEntity =
                 new ProductEntity(pathList.get(0), productWriteDto, files, categoryEntity);
         ProductEntity savedProductEntity = productRepository.save(productEntity);
-        if (files != null) {
-            FileEntity representFileEntity =
-                    savedProductEntity.getFileEntities().get(productWriteDto.getRepresentPicture());
-            saveResizeFile(
-                    representFileEntity.getSavedFileName(), savedProductEntity.getProductId(),
-                    pathList);
-        }
+        FileEntity representFileEntity =
+                savedProductEntity.getFileEntities().get(productWriteDto.getRepresentPicture());
+        saveResizeFile(
+                representFileEntity.getSavedFileName(), savedProductEntity.getProductId(),
+                pathList);
+
     }
 
     private void saveProductValidation(ProductWriteDto productWriteDto, List<MultipartFile> files) {
         compareBids(productWriteDto.getHopePrice(), productWriteDto.getOpeningBid());
         compareDate(productWriteDto.getExpirationDate());
-        checkCategory(productWriteDto.getCategory());
-        if (files != null) {
-            compareExtension(files);
-            imageCount(productWriteDto.getRepresentPicture(), files);
-        }
+        checkCategoryId(productWriteDto.getCategory());
+        checkLastSubCategory(productWriteDto.getCategory());
+        compareExtension(files);
+        imageCount(productWriteDto.getRepresentPicture(), files);
     }
 
     // 입력 받은 이미지를 web, app 에 맞게 각각 리사이징 후 저장
@@ -120,7 +124,7 @@ public class ProductService {
     // 시작가가 희망가보다 적은지 확인
     private void compareBids(Long hopePrice, long openingBid) {
         if (hopePrice != null && hopePrice < openingBid) {
-            throw new InvalidHopePriceException("희망가가 시작가보다 적어 ㅠㅠ ");
+            throw new InvalidHopePriceException();
         }
     }
 
@@ -145,7 +149,7 @@ public class ProductService {
                 String extension = FilenameUtils.getExtension(fileOriginName);
 
                 if (!extensionList.contains(extension)) {
-                    throw new InvalidExtensionException("파일 확장자가 다릅니다.");
+                    throw new InvalidExtensionException();
                 }
             }
         }
@@ -162,10 +166,13 @@ public class ProductService {
     }
 
     // 카테고리 id가 유효한지 체크
-    private void checkCategory(long categoryId) {
+    private void checkCategoryId(long categoryId) {
         if (categoryRepository.findById(categoryId).isEmpty()) {
             throw new InvalidCategoryException("잘못된 카테고리 번호입니다.");
         }
+    }
+
+    private void checkLastSubCategory(long categoryId) {
         CategoryEntity category = categoryRepository.getById(categoryId);
         if (!category.getSubCategories().isEmpty()) {
             throw new InvalidCategoryException("최하위 카테고리가 아닙니다.");
@@ -184,6 +191,7 @@ public class ProductService {
 
     public PageListResponseDto getProductListPagination(
             ProductListRequestDto productListRequestDto, int page) {
+        checkCategoryIdIncludeZero(productListRequestDto.getCategory());
         Pageable pageable =
                 PageRequest.of(
                         page - 1, productListRequestDto.getListCount(), Sort.Direction.DESC,
@@ -196,6 +204,7 @@ public class ProductService {
 
     public List<ProductListDto> getProductListInfiniteScroll(
             ProductListRequestDto productListRequestDto, long startNumber) {
+        checkCategoryIdIncludeZero(productListRequestDto.getCategory());
         int size = productListRequestDto.getListCount();
         ProductEntity productEntity = productRepository.findTopByOrderByProductIdDesc();
         long maxCount = productEntity.getProductId();
@@ -207,6 +216,12 @@ public class ProductService {
                 pageable);
 
         return makeProductListDtoList(productList, false);
+    }
+
+    private void checkCategoryIdIncludeZero(long category) {
+        if (category != 0) {
+            checkCategoryId(category);
+        }
     }
 
     public List<ProductEntity> getProductList(
@@ -277,7 +292,7 @@ public class ProductService {
     public ResponseEntity<Resource> getProductImage(Long fileId) throws IOException {
         FileEntity fileEntity = fileRepository.findByFileId(fileId);
         if (fileEntity == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new NotFoundImageException();
         }
         InputStream inputStream;
         File image = new File(UPLOAD_FOLDER + File.separator + fileEntity.getSavedFileName());
@@ -351,7 +366,7 @@ public class ProductService {
 
         ProductEntity productEntity = productRepository.findByProductId(productId);
         if (productEntity == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new NotFoundProductException();
         }
         List<FileEntity> fileEntities = productEntity.getFileEntities();
         ArrayList<String> images = new ArrayList<>();

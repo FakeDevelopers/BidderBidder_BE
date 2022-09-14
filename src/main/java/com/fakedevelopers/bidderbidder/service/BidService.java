@@ -39,7 +39,7 @@ public class BidService {
 
   private void validateBid(ProductEntity product, long bid) {
     Long hopePrice = product.getHopePrice();
-    long tick = product.getTick();
+    int tick = product.getTick();
    long minimumBid = getMinimumBid(product,tick);
     if (hopePrice != null && hopePrice < bid) {
       throw new InvalidBidException("희망가(" + hopePrice + ") 이상 응찰 할수 없습니다.");
@@ -52,7 +52,7 @@ public class BidService {
     }
   }
 
-  private long getMinimumBid(ProductEntity product,long tick){
+  private long getMinimumBid(ProductEntity product, int tick){
     long minimumBid = product.getOpeningBid();
     List<BidEntity> bids = bidRepository.getBidsByProductId(product.getProductId());
     if (bids.size() > 3) { // 3등까지는 응찰금액이 안보이니까 보이는 4등보다는 높은 금액만 응찰 가능하게 한다.

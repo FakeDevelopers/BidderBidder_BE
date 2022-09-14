@@ -13,31 +13,32 @@ public class ProductInformationDto {
 
     private final String productTitle;
     private final String productContent;
+    private final String category;
     private final long openingBid;
     private final Long hopePrice;
-    private final long tick;
+    private final int tick;
     private final String expirationDate;
-    private final String createdTime;
+    private final String createdDate;
     private final int bidderCount;
     private final List<String> images;
 
     private final List<BidDto> bids = new ArrayList<>();
 
     public ProductInformationDto(ProductEntity productEntity, List<String> images,
-        List<BidEntity> bidEntities) {
+            List<BidEntity> bidEntities) {
         this.productTitle = productEntity.getProductTitle();
         this.productContent = productEntity.getProductContent();
+        this.category = productEntity.getCategory().getCategoryName();
         this.openingBid = productEntity.getOpeningBid();
         this.hopePrice = productEntity.getHopePrice();
         this.tick = productEntity.getTick();
         this.expirationDate = productEntity.getExpirationDate()
-            .format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT));
-        this.createdTime = productEntity.getCreatedTime()
-            .format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT));
+                .format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT));
+        this.createdDate = productEntity.getCreatedDate()
+                .format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT));
         this.bidderCount = bidEntities.size();
         this.images = images;
-        int len = bidEntities.size();
-        for (int i = 0; i < len; i++) {
+        for (int i = 0; i < bidderCount; i++) {
             BidEntity bid = bidEntities.get(i);
             bids.add(new BidDto(i + 1, bid.getUser().getNickname(), bid.getBid()));
         }

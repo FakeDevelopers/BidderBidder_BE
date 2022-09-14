@@ -57,17 +57,17 @@ public class ProductEntity {
 
   // 호가
   @Column(nullable = false)
-  private long tick;
+  private int tick;
 
   // 등록시간
-  @Column
+  @Column(updatable = false)
   @CreatedDate
-  private LocalDateTime createdTime;
+  private LocalDateTime createdDate;
 
   // 수정시간
   @Column
   @LastModifiedDate
-  private LocalDateTime modifiedTime;
+  private LocalDateTime modifiedDate;
 
   @Column
   private int representPicture;
