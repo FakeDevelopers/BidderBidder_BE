@@ -67,7 +67,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         .containsIgnoreCase(noSpaceWord)
                         .or(productEntity.productContent.containsIgnoreCase(noSpaceWord));
             default:
-                throw new InvalidSearchTypeException("잘못된 검색 타입입니다.");
+                throw new InvalidSearchTypeException();
         }
     }
 }
