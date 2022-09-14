@@ -11,10 +11,10 @@ import com.fakedevelopers.bidderbidder.exception.InvalidCategoryException;
 import com.fakedevelopers.bidderbidder.exception.InvalidExpirationDateException;
 import com.fakedevelopers.bidderbidder.exception.InvalidExtensionException;
 import com.fakedevelopers.bidderbidder.exception.InvalidHopePriceException;
-import com.fakedevelopers.bidderbidder.exception.InvalidImageIdException;
-import com.fakedevelopers.bidderbidder.exception.InvalidProductIdException;
+import com.fakedevelopers.bidderbidder.exception.NotFoundImageException;
+import com.fakedevelopers.bidderbidder.exception.NotFoundProductException;
 import com.fakedevelopers.bidderbidder.exception.InvalidRepresentPictureIndexException;
-import com.fakedevelopers.bidderbidder.exception.NoImageWhenWriteException;
+import com.fakedevelopers.bidderbidder.exception.NoImageException;
 import com.fakedevelopers.bidderbidder.model.BidEntity;
 import com.fakedevelopers.bidderbidder.model.CategoryEntity;
 import com.fakedevelopers.bidderbidder.model.FileEntity;
@@ -87,7 +87,7 @@ public class ProductService {
             throws Exception {
 
         if (files == null) {
-            throw new NoImageWhenWriteException();
+            throw new NoImageException();
         }
         saveProductValidation(productWriteDto, files);
         List<String> pathList = createPathIfNeed();
@@ -294,7 +294,7 @@ public class ProductService {
     public ResponseEntity<Resource> getProductImage(Long fileId) throws IOException {
         FileEntity fileEntity = fileRepository.findByFileId(fileId);
         if (fileEntity == null) {
-            throw new InvalidImageIdException();
+            throw new NotFoundImageException();
         }
         InputStream inputStream;
         File image = new File(UPLOAD_FOLDER + File.separator + fileEntity.getSavedFileName());
@@ -368,7 +368,7 @@ public class ProductService {
 
         ProductEntity productEntity = productRepository.findByProductId(productId);
         if (productEntity == null) {
-            throw new InvalidProductIdException();
+            throw new NotFoundProductException();
         }
         List<FileEntity> fileEntities = productEntity.getFileEntities();
         ArrayList<String> images = new ArrayList<>();
