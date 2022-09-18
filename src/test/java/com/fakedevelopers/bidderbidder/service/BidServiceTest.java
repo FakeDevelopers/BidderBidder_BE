@@ -4,17 +4,21 @@ package com.fakedevelopers.bidderbidder.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.fakedevelopers.bidderbidder.IntegrationTestBase;
 import com.fakedevelopers.bidderbidder.dto.ProductWriteDto;
 import com.fakedevelopers.bidderbidder.exception.AlreadyExpiredException;
 import com.fakedevelopers.bidderbidder.exception.InvalidBidException;
 import com.fakedevelopers.bidderbidder.exception.ProductNotFoundException;
 import com.fakedevelopers.bidderbidder.exception.UserNotFoundException;
 import com.fakedevelopers.bidderbidder.model.BidEntity;
+import com.fakedevelopers.bidderbidder.model.CategoryEntity;
 import com.fakedevelopers.bidderbidder.model.ProductEntity;
+import com.fakedevelopers.bidderbidder.repository.CategoryRepository;
 import com.fakedevelopers.bidderbidder.repository.ProductRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,17 +26,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
-@SpringBootTest(args = {
-    "--datasource.url=~~~",
-    "--datasource.username=~~~", "--datasource.password=~~~",
-    "--redis.password=~~~", "--redis.host=~~~",
-    "--OAuth2.clientPassword=~~~",
-    "--OAuth2.clientID=~~~"})
-@Transactional // 요걸 왜 썼을지는 각자 알아보시면 좋을것 같아요!
-class BidServiceTest {
+
+class BidServiceTest extends IntegrationTestBase {
 
   @Autowired // 테스트 할때는 어쩔수 없이 Autowired를 사용합니다
   BidService sut;
@@ -41,12 +37,23 @@ class BidServiceTest {
 
   static long productID;
 
+  static CategoryEntity categoryEntity; // ProductEntity 생성을 위한 객체
+
   @BeforeAll
-  static void createProduct(@Autowired ProductRepository productRepository) throws Exception {
+  static void setUp(@Autowired ProductRepository productRepository,
+      @Autowired CategoryRepository categoryRepository) throws Exception {
     ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10, 1000000L, 0, 1,
         LocalDateTime.now().plusHours(1));
-    ProductEntity product = new ProductEntity(".", productWriteDto, new ArrayList<>());
+    ProductEntity product = new ProductEntity(".", productWriteDto, new ArrayList<>(),
+        categoryEntity);
     productID = productRepository.save(product).getProductId();
+    categoryEntity = categoryRepository.findAllByParentCategoryIdIsNull()
+        .get(0); // ProductEntity 생성을 위해 아무 카테고리를 가져온다
+  }
+
+  @AfterAll
+  static void tearDown(@Autowired ProductRepository productRepository) {
+    productRepository.deleteById(productID);
   }
 
   private static Stream<Arguments> parameterGenerator() {
@@ -92,7 +99,8 @@ class BidServiceTest {
 
     ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10, 1000000L, 0, 1,
         LocalDateTime.now().minusHours(1));
-    ProductEntity product = new ProductEntity(".", productWriteDto, new ArrayList<>());
+    ProductEntity product = new ProductEntity(".", productWriteDto, new ArrayList<>(),
+        categoryEntity);
 
     long productID = productRepository.save(product).getProductId();
     long userID = 1;
