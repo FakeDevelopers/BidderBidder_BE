@@ -8,7 +8,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.util.annotation.NonNull;
-import reactor.util.annotation.NonNullApi;
 
 @SpringBootTest
 @ContextConfiguration(initializers = PropertiesInitializer.class)
@@ -27,7 +26,8 @@ public class IntegrationTestBase {
               "redis.password=~~~",
               "redis.host=~~~",
               "OAuth2.clientPassword=~~~",
-              "OAuth2.clientID=~~~")
+              "OAuth2.clientID=~~~",
+              "sentry.dsn=~~")
           .applyTo(applicationContext);
 
     }
