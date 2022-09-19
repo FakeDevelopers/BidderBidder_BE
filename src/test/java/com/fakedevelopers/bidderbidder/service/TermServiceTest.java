@@ -24,7 +24,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 @DisplayName("TermService 클래스")
-public class TermServiceTest extends IntegrationTestBase {
+class TermServiceTest extends IntegrationTestBase {
 
   private static TermEntity termEntity;
   @Autowired
@@ -45,11 +45,11 @@ public class TermServiceTest extends IntegrationTestBase {
 
   @Nested
   @DisplayName("getTerms 메소드는")
-  public class Describe_getTerms {
+  class Describe_getTerms {
 
     @Nested
     @DisplayName("항상")
-    public class Context_Always {
+    class Context_Always {
 
       @Test
       @DisplayName("성공한다")
@@ -64,11 +64,11 @@ public class TermServiceTest extends IntegrationTestBase {
 
   @Nested
   @DisplayName("getTerm 메소드는")
-  public class Describe_getTerm {
+  class Describe_getTerm {
 
     @Nested
     @DisplayName("존재하지 않는 ID의 약관을 요청하면")
-    public class Context_NotExistId {
+    class Context_NotExistId {
 
       @Test
       @DisplayName("TermNotFoundException을 던진다")
@@ -79,7 +79,7 @@ public class TermServiceTest extends IntegrationTestBase {
 
     @Nested
     @DisplayName("존재하는 ID의 약관을 요청하면")
-    public class Context_ExistId {
+    class Context_ExistId {
 
       @Test
       @DisplayName("성공한다.")
@@ -91,11 +91,11 @@ public class TermServiceTest extends IntegrationTestBase {
 
   @Nested
   @DisplayName("addTerm 메소드는")
-  public class Describe_addTerm {
+  class Describe_addTerm {
 
     @Nested
     @DisplayName("새로운 약관을 넣으면")
-    public class Context_NewTermName {
+    class Context_NewTermName {
 
       @Test
       @DisplayName("성공한다.")
@@ -114,7 +114,7 @@ public class TermServiceTest extends IntegrationTestBase {
 
     @Nested
     @DisplayName("존재하는 약관이름으로 요청하면")
-    public class Context_ExistTermName {
+    class Context_ExistTermName {
 
       @Test
       @DisplayName("업데이트에 성공한다.")
@@ -133,11 +133,11 @@ public class TermServiceTest extends IntegrationTestBase {
 
   @Nested
   @DisplayName("deleteTerm 메소드는")
-  public class Describe_deleteTerm {
+  class Describe_deleteTerm {
 
     @Nested
     @DisplayName("존재하지 않는 ID의 약관을 삭제 요청하면")
-    public class Context_NotExistId {
+    class Context_NotExistId {
 
       @Test
       @DisplayName("TermNotFoundException을 던진다")
@@ -148,7 +148,7 @@ public class TermServiceTest extends IntegrationTestBase {
 
     @Nested
     @DisplayName("존재하는 ID의 약관을 삭제 요청하면")
-    public class Context_ExistTermId {
+    class Context_ExistTermId {
 
       @Test
       @DisplayName("성공한다.")

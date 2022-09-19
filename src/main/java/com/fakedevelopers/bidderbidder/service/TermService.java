@@ -6,6 +6,7 @@ import static com.fakedevelopers.bidderbidder.domain.Constants.REQUIRED;
 import com.fakedevelopers.bidderbidder.exception.TermNotFoundException;
 import com.fakedevelopers.bidderbidder.model.TermEntity;
 import com.fakedevelopers.bidderbidder.repository.TermRepository;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -70,7 +71,7 @@ public class TermService {
 	@Transactional
 	public void addTerm(String termName, boolean isRequired, MultipartFile file) throws Exception {
 		TermEntity term = termRepository.findByName(termName);
-		String contents = new String(file.getBytes());
+		String contents = new String(file.getBytes(), StandardCharsets.UTF_8);
 		long id;
 
 		if (term != null) {
