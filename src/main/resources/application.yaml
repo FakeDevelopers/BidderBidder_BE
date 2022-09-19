@@ -20,7 +20,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update # 운영시에는 validate 추천
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
@@ -43,10 +43,6 @@ spring:
     activate:
       on-profile: prod
 
-  jpa:
-    hibernate:
-      ddl-auto: validate
-
 ---
 server:
   port: 8080
@@ -55,7 +51,3 @@ spring:
   config:
     activate:
       on-profile: dev
-
-  jpa:
-    hibernate:
-      ddl-auto: update
