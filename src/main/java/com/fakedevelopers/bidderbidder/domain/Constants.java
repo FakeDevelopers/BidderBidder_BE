@@ -16,6 +16,9 @@ public class Constants {
     public static final String INIT_NICKNAME = "Bidder";
     public static final String SUCCESS = "success";
     public static final String FAIL = "fail";
+    public static final String REQUIRED = "required";
+    public static final String OPTIONAL = "optional";
+
     private Constants() {
         throw new IllegalStateException("Utility State");
     }
