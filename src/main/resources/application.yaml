@@ -20,7 +20,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate # 다수가 샌박 디비에 접속하다보니 컬럼이 꼬이는 경우가 자주 보여서 update에서 validate로 수정했습니다
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate:

@@ -16,20 +16,14 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestClassOrder;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 @DisplayName("TermService 클래스")
-@TestClassOrder(ClassOrderer.OrderAnnotation.class)
 public class TermServiceTest extends IntegrationTestBase {
 
   private static TermEntity termEntity;
@@ -138,9 +132,7 @@ public class TermServiceTest extends IntegrationTestBase {
   }
 
   @Nested
-  @Order(value = Integer.MAX_VALUE)
   @DisplayName("deleteTerm 메소드는")
-  @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
   public class Describe_deleteTerm {
 
     @Nested
@@ -155,7 +147,6 @@ public class TermServiceTest extends IntegrationTestBase {
     }
 
     @Nested
-    @Order(value = Integer.MAX_VALUE) // 이 테스트는 TearDown겸 삭제 테스트라서 마지막에 실행되도록 합니다.
     @DisplayName("존재하는 ID의 약관을 삭제 요청하면")
     public class Context_ExistTermId {
 
