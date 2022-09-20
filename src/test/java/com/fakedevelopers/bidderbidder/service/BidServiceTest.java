@@ -30,14 +30,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 class BidServiceTest extends IntegrationTestBase {
 
+  static long productID;
+  static CategoryEntity categoryEntity; // ProductEntity 생성을 위한 객체
   @Autowired // 테스트 할때는 어쩔수 없이 Autowired를 사용합니다
   BidService sut;
   @Autowired
   ProductRepository productRepository;
-
-  static long productID;
-
-  static CategoryEntity categoryEntity; // ProductEntity 생성을 위한 객체
 
   @BeforeAll
   static void setUp(@Autowired ProductRepository productRepository,

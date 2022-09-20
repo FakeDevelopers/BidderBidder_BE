@@ -26,14 +26,12 @@ public class CategoryEntity {
   private String categoryName;
 
   // 상위 카테고리 번호
-  @Column private Long parentCategoryId;
+  @Column
+  private Long parentCategoryId;
 
   @Column
   @OneToMany(mappedBy = "parentCategoryId")
   private List<CategoryEntity> subCategories = new ArrayList<>();
-
-  @OneToMany
-  private List<ProductEntity> productEntities;
 
   public CategoryEntity(String categoryName, Long parentCategoryId) {
     this.categoryName = categoryName;
