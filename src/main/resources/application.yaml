@@ -37,6 +37,7 @@ spring:
 sentry:
   dsn: ${sentry.dsn}
   traces-sample-rate: 1.0
+  sample-rate: 1.0
 
 ---
 server:
