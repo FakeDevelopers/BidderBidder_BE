@@ -24,11 +24,11 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/term")
 public class TermController {
 
-	private final TermService termService;
+  private final TermService termService;
 
-	TermController(TermService termService) {
-		this.termService = termService;
-	}
+  TermController(TermService termService) {
+    this.termService = termService;
+  }
 
   @GetMapping("/list")
   @ApiOperation(value = "약관 리스트", notes = "필수 약관과 선택약관을 반환하는 API입니다.")
@@ -44,19 +44,19 @@ public class TermController {
     return termService.getTerm(id);
   }
 
-	@PostMapping(value = "/{termName}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-	@ApiOperation(value = "약관 등록", notes = "약관을 등록하는 API입니다.")
-	String addTerm(
+  @PostMapping(value = "/{termName}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+  @ApiOperation(value = "약관 등록", notes = "약관을 등록하는 API입니다.")
+  String addTerm(
       @ApiParam(value = "등록할 약관이름", required = true, name = "termName")
       @PathVariable String termName,
       @ApiParam(value = "업로드할 약관파일", required = true, type = "file", name = "term")
       @NotNull @RequestPart MultipartFile term,
       @ApiParam(value = "필수약관인지 여부", required = true, name = "isRequired")
       @RequestParam boolean isRequired)
-			throws Exception { // 나중에 요 API는 관리자만? 접근하도록 해야 할것 같네요 ㅋㅋㅋ
-		termService.addTerm(termName, isRequired, term);
-		return Constants.SUCCESS;
-	}
+      throws Exception { // 나중에 요 API는 관리자만? 접근하도록 해야 할것 같네요 ㅋㅋㅋ
+    termService.addTerm(termName, isRequired, term);
+    return Constants.SUCCESS;
+  }
 
   @DeleteMapping(value = "/{id}")
   @ApiOperation(value = "약관 삭제", notes = "약관을 삭제하는 API입니다.")

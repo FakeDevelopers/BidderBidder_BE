@@ -7,9 +7,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
-/** OAuth2UserRegisterDto: OAuth2 로그인시에 필요한 정보들을 정의.
- *  <br>
- *  #33 기준 필요한 정보: Email, nickname(nullable)
+/**
+ * OAuth2UserRegisterDto: OAuth2 로그인시에 필요한 정보들을 정의.
+ * <br>
+ * #33 기준 필요한 정보: Email, nickname(nullable)
  */
 @Builder
 @Getter

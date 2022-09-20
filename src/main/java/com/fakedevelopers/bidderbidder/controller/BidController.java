@@ -20,7 +20,8 @@ public class BidController {
   }
 
   @PostMapping
-  String addBid(@PathVariable long productId, @RequestParam long userId, @RequestParam @Min(0) long bid) {
+  String addBid(@PathVariable long productId, @RequestParam long userId,
+      @RequestParam @Min(0) long bid) {
     bidService.addBid(productId, userId, bid);
     return Constants.SUCCESS;
   }

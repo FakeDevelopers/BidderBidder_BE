@@ -10,8 +10,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class AuctionProjectApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(AuctionProjectApplication.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(AuctionProjectApplication.class, args);
+  }
 
 }
