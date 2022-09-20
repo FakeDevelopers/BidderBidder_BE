@@ -16,8 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 /**
  * The type User entity.
  * <p>
- *   패스워드가 null 일 경우, OAuth2 로그인 방식으로 접속한 것. <br>
- *   내부 회원가입은 반드시 not-null 이어야한다.
+ * 패스워드가 null 일 경우, OAuth2 로그인 방식으로 접속한 것. <br> 내부 회원가입은 반드시 not-null 이어야한다.
  * </p>
  */
 @NoArgsConstructor
@@ -36,7 +35,7 @@ public class UserEntity implements UserDetails {
   @Column(nullable = false)
   private String nickname;
 
-  @Column(nullable = true)
+  @Column()
   private String password;
 
   /**
