@@ -26,7 +26,8 @@ public class CategoryEntity {
   private String categoryName;
 
   // 상위 카테고리 번호
-  @Column private Long parentCategoryId;
+  @Column
+  private Long parentCategoryId;
 
   @Column
   @OneToMany(mappedBy = "parentCategoryId")

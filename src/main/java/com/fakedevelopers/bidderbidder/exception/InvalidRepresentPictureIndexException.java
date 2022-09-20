@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 
 public class InvalidRepresentPictureIndexException extends HttpException {
 
-    public InvalidRepresentPictureIndexException(String message) {
-        super(HttpStatus.BAD_REQUEST, message);
-    }
+  public InvalidRepresentPictureIndexException(String message) {
+    super(HttpStatus.BAD_REQUEST, message);
+  }
 }

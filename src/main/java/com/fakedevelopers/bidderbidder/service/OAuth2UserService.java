@@ -13,7 +13,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** The type OAuth2 User Service. */
+/**
+ * The type OAuth2 User Service.
+ */
 @RequiredArgsConstructor
 @Service
 public class OAuth2UserService implements UserDetailsService {
@@ -51,8 +53,7 @@ public class OAuth2UserService implements UserDetailsService {
   /**
    * Register user entity.
    *
-   * @param dto 회원가입에 필수적인 정보(email, nickname) <br>
-   *     OAuth2 회원가입은 패스워드를 요구하지 않는다.
+   * @param dto 회원가입에 필수적인 정보(email, nickname) <br> OAuth2 회원가입은 패스워드를 요구하지 않는다.
    * @return the user entity
    */
   @Transactional

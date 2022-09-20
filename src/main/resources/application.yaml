@@ -34,6 +34,11 @@ spring:
     port: 6379
     timeout: 5000
 
+sentry:
+  dsn: ${sentry.dsn}
+  traces-sample-rate: 1.0
+  sample-rate: 1.0
+
 ---
 server:
   port: 80
@@ -43,6 +48,9 @@ spring:
     activate:
       on-profile: prod
 
+sentry:
+  environment: prod
+
 ---
 server:
   port: 8080
@@ -51,3 +59,6 @@ spring:
   config:
     activate:
       on-profile: dev
+
+sentry:
+  environment: dev
