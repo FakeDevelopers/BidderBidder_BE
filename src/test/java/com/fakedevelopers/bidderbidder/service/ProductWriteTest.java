@@ -13,7 +13,9 @@ import com.fakedevelopers.bidderbidder.exception.InvalidRepresentPictureIndexExc
 import com.fakedevelopers.bidderbidder.exception.InvalidTickException;
 import com.fakedevelopers.bidderbidder.exception.InvalidTitleException;
 import com.fakedevelopers.bidderbidder.exception.NoImageException;
+import com.fakedevelopers.bidderbidder.model.TermEntity;
 import com.fakedevelopers.bidderbidder.repository.ProductRepository;
+import com.fakedevelopers.bidderbidder.repository.TermRepository;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -26,6 +28,7 @@ import java.util.List;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -36,12 +39,13 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 @DisplayName("글쓰기 기능 테스트")
 public class ProductWriteTest extends IntegrationTestBase {
 
+  private static List<MultipartFile> mList;
   @Autowired
   ProductService sut;
   @Autowired
   ProductRepository productRepository;
 
-  private List<MultipartFile> makeImageList() throws IOException {
+  private static List<MultipartFile> makeImageList() throws IOException {
     File file = new File("src/main/resources/static/img/Starry night.jpg");
     FileItem fileItem = new DiskFileItem("testImage", Files.probeContentType(file.toPath()),
         false, file.getName(), (int) file.length(), file.getParentFile());
@@ -69,6 +73,11 @@ public class ProductWriteTest extends IntegrationTestBase {
     return imageList;
   }
 
+  @BeforeAll
+  static void setUp() throws IOException {
+     mList = makeImageList();
+  }
+
   @Nested
   @DisplayName("productTitle(제목)이")
   class Describe_productTitle {
@@ -79,7 +88,7 @@ public class ProductWriteTest extends IntegrationTestBase {
 
       @Test
       @DisplayName("InvalidTitleException를 던진다.")
-      void it_throwInvalidTitleException() {
+      void it_throwInvalidTitleException(){
         String str = "일이삼사오육칠팔구십";
 
         ProductWriteDto productWriteDto = new ProductWriteDto(str.repeat(11),
@@ -87,7 +96,7 @@ public class ProductWriteTest extends IntegrationTestBase {
             100000L, 0, 4,
             LocalDateTime.now().plusHours(1));
         assertThrows(InvalidTitleException.class,
-            () -> sut.saveProduct(productWriteDto, makeImageList()));
+            () -> sut.saveProduct(productWriteDto, mList));
       }
     }
 
@@ -97,14 +106,14 @@ public class ProductWriteTest extends IntegrationTestBase {
 
       @Test
       @DisplayName("InvalidTitleException를 던진다.")
-      void it_throwInvalidTitleException() {
+      void it_throwInvalidTitleException(){
         ProductWriteDto productWriteDto = new ProductWriteDto(
             "",
             "테스트", 1000, 10,
             100000L, 0, 4,
             LocalDateTime.now().plusHours(1));
         assertThrows(InvalidTitleException.class,
-            () -> sut.saveProduct(productWriteDto, makeImageList()));
+            () -> sut.saveProduct(productWriteDto, mList));
 
       }
     }
@@ -120,7 +129,7 @@ public class ProductWriteTest extends IntegrationTestBase {
 
       @Test
       @DisplayName("InvalidContentException를 던진다")
-      void it_throwInvalidContentException() {
+      void it_throwInvalidContentException(){
         String str = "일이삼사오육칠팔구십";
         ProductWriteDto productWriteDto = new ProductWriteDto(
             "테스트",
@@ -129,7 +138,7 @@ public class ProductWriteTest extends IntegrationTestBase {
             100000L, 0, 4,
             LocalDateTime.now().plusHours(1));
         assertThrows(InvalidContentException.class,
-            () -> sut.saveProduct(productWriteDto, makeImageList()));
+            () -> sut.saveProduct(productWriteDto, mList));
       }
     }
 
@@ -139,14 +148,14 @@ public class ProductWriteTest extends IntegrationTestBase {
 
       @Test
       @DisplayName("InvalidContentException를 던진다.")
-      void it_throwInvalidContentException() {
+      void it_throwInvalidContentException(){
         ProductWriteDto productWriteDto = new ProductWriteDto(
             "테스트",
             "", 1000, 10,
             100000L, 0, 4,
             LocalDateTime.now().plusHours(1));
         assertThrows(InvalidContentException.class,
-            () -> sut.saveProduct(productWriteDto, makeImageList()));
+            () -> sut.saveProduct(productWriteDto, mList));
       }
     }
   }
@@ -166,7 +175,7 @@ public class ProductWriteTest extends IntegrationTestBase {
             100000L, 0, 4,
             LocalDateTime.now().plusHours(1));
         assertThrows(InvalidOpeningBidException.class,
-            () -> sut.saveProduct(productWriteDto, makeImageList()));
+            () -> sut.saveProduct(productWriteDto, mList));
       }
     }
 
@@ -176,12 +185,12 @@ public class ProductWriteTest extends IntegrationTestBase {
 
       @Test
       @DisplayName("InvalidOpeningBidException를 던진다.")
-      void it_throwInvalidOpeningBidException() {
+      void it_throwInvalidOpeningBidException(){
         ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 100000, 10,
             1000L, 0, 4,
             LocalDateTime.now().plusHours(1));
         assertThrows(InvalidOpeningBidException.class,
-            () -> sut.saveProduct(productWriteDto, makeImageList()));
+            () -> sut.saveProduct(productWriteDto, mList));
       }
     }
   }
@@ -196,12 +205,12 @@ public class ProductWriteTest extends IntegrationTestBase {
 
       @Test
       @DisplayName("InvalidTickException를 던진다.")
-      void it_throwInvalidTickException() {
+      void it_throwInvalidTickException(){
         ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 0,
             100000L, 0, 4,
             LocalDateTime.now().plusHours(1));
         assertThrows(InvalidTickException.class,
-            () -> sut.saveProduct(productWriteDto, makeImageList()));
+            () -> sut.saveProduct(productWriteDto, mList));
       }
     }
   }
@@ -216,12 +225,12 @@ public class ProductWriteTest extends IntegrationTestBase {
 
       @Test
       @DisplayName("InvalidRepresentPictureIndexException를 던진다.")
-      void it_throwInvalidRepresentPictureIndexException() {
+      void it_throwInvalidRepresentPictureIndexException(){
         ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
             100000L, -1, 4,
             LocalDateTime.now().plusHours(1));
         assertThrows(InvalidRepresentPictureIndexException.class,
-            () -> sut.saveProduct(productWriteDto, makeImageList()));
+            () -> sut.saveProduct(productWriteDto, mList));
       }
     }
 
@@ -231,12 +240,12 @@ public class ProductWriteTest extends IntegrationTestBase {
 
       @Test
       @DisplayName("InvalidRepresentPictureIndexException를 던진다.")
-      void it_throwInvalidRepresentPictureIndexException() {
+      void it_throwInvalidRepresentPictureIndexException(){
         ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
             100000L, 1, 4,
             LocalDateTime.now().plusHours(1));
         assertThrows(InvalidRepresentPictureIndexException.class,
-            () -> sut.saveProduct(productWriteDto, makeImageList()));
+            () -> sut.saveProduct(productWriteDto, mList));
       }
     }
   }
@@ -251,12 +260,12 @@ public class ProductWriteTest extends IntegrationTestBase {
 
       @Test
       @DisplayName("InvalidCategoryException를 던진다")
-      void it_throwInvalidCategoryException() {
+      void it_throwInvalidCategoryException(){
         ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
             100000L, 0, 99,
             LocalDateTime.now().plusHours(1));
         assertThrows(InvalidCategoryException.class,
-            () -> sut.saveProduct(productWriteDto, makeImageList()));
+            () -> sut.saveProduct(productWriteDto, mList));
       }
     }
 
@@ -266,12 +275,12 @@ public class ProductWriteTest extends IntegrationTestBase {
 
       @Test
       @DisplayName("InvalidCategoryException를 던진다")
-      void it_throwInvalidCategoryException() {
+      void it_throwInvalidCategoryException(){
         ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
             100000L, 0, 1,
             LocalDateTime.now().plusHours(1));
         assertThrows(InvalidCategoryException.class,
-            () -> sut.saveProduct(productWriteDto, makeImageList()));
+            () -> sut.saveProduct(productWriteDto, mList));
       }
     }
 
@@ -292,7 +301,7 @@ public class ProductWriteTest extends IntegrationTestBase {
             100000L, 0, 4,
             LocalDateTime.now().minusHours(1));
         assertThrows(InvalidExpirationDateException.class,
-            () -> sut.saveProduct(productWriteDto, makeImageList()));
+            () -> sut.saveProduct(productWriteDto, mList));
       }
     }
 
@@ -302,14 +311,14 @@ public class ProductWriteTest extends IntegrationTestBase {
 
       @Test
       @DisplayName("InvalidExpirationDateException를 던진다")
-      void it_throwInvalidExpirationDateException() {
+      void it_throwInvalidExpirationDateException(){
         // 서버에서는 시차가 존재해서 -9를 해주었지만
         // 로컬에서는 현재시간이 그대로 적용이기 때문에 72 + 9 + 1의 시간을 더해줌
         ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
             100000L, 0, 4,
             LocalDateTime.now().plusHours(82));
         assertThrows(InvalidExpirationDateException.class,
-            () -> sut.saveProduct(productWriteDto, makeImageList()));
+            () -> sut.saveProduct(productWriteDto, mList));
       }
     }
   }
@@ -339,12 +348,13 @@ public class ProductWriteTest extends IntegrationTestBase {
 
       @Test
       @DisplayName("InvalidExtensionException을 던진다.")
-      void it_throwInvalidExtensionException() {
+      void it_throwInvalidExtensionException() throws IOException {
         ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
             100000L, 0, 4,
             LocalDateTime.now().plusHours(1));
+        List<MultipartFile> mList = makeFailImageList();
         assertThrows(InvalidExtensionException.class,
-            () -> sut.saveProduct(productWriteDto, makeFailImageList()));
+            () -> sut.saveProduct(productWriteDto, mList));
       }
     }
   }
@@ -363,7 +373,8 @@ public class ProductWriteTest extends IntegrationTestBase {
         ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 100000, 10,
             null, 0, 4,
             LocalDateTime.now().plusHours(1));
-        assertDoesNotThrow(() -> sut.saveProduct(productWriteDto, makeImageList()));
+
+        assertDoesNotThrow(() -> sut.saveProduct(productWriteDto, mList));
       }
     }
 
@@ -377,7 +388,7 @@ public class ProductWriteTest extends IntegrationTestBase {
         ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 100000, 10,
             100000L, 0, 4,
             LocalDateTime.now().plusHours(1));
-        assertDoesNotThrow(() -> sut.saveProduct(productWriteDto, makeImageList()));
+        assertDoesNotThrow(() -> sut.saveProduct(productWriteDto, mList));
       }
     }
   }
