@@ -36,350 +36,354 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 @DisplayName("글쓰기 기능 테스트")
 public class ProductWriteTest extends IntegrationTestBase {
 
-    @Autowired
-    ProductService sut;
-    @Autowired
-    ProductRepository productRepository;
+  @Autowired
+  ProductService sut;
+  @Autowired
+  ProductRepository productRepository;
 
-    private List<MultipartFile> makeImageList() throws IOException {
-        File file = new File("src/main/resources/static/img/Starry night.jpg");
-        FileItem fileItem = new DiskFileItem("testImage", Files.probeContentType(file.toPath()),
-                false, file.getName(), (int) file.length(), file.getParentFile());
+  private List<MultipartFile> makeImageList() throws IOException {
+    File file = new File("src/main/resources/static/img/Starry night.jpg");
+    FileItem fileItem = new DiskFileItem("testImage", Files.probeContentType(file.toPath()),
+        false, file.getName(), (int) file.length(), file.getParentFile());
 
-        InputStream input = new FileInputStream(file);
-        OutputStream output = fileItem.getOutputStream();
-        IOUtils.copy(input, output);
+    InputStream input = new FileInputStream(file);
+    OutputStream output = fileItem.getOutputStream();
+    IOUtils.copy(input, output);
 
-        List<MultipartFile> imageList = new ArrayList<>();
-        imageList.add(new CommonsMultipartFile(fileItem));
-        return imageList;
-    }
+    List<MultipartFile> imageList = new ArrayList<>();
+    imageList.add(new CommonsMultipartFile(fileItem));
+    return imageList;
+  }
 
-    private List<MultipartFile> makeFailImageList() throws IOException {
-        File file = new File("src/main/resources/static/img/Tidokang_star.webp");
-        FileItem fileItem = new DiskFileItem("testFailImage", Files.probeContentType(file.toPath()),
-                false, file.getName(), (int) file.length(), file.getParentFile());
+  private List<MultipartFile> makeFailImageList() throws IOException {
+    File file = new File("src/main/resources/static/img/Tidokang_star.webp");
+    FileItem fileItem = new DiskFileItem("testFailImage", Files.probeContentType(file.toPath()),
+        false, file.getName(), (int) file.length(), file.getParentFile());
 
-        InputStream input = new FileInputStream(file);
-        OutputStream output = fileItem.getOutputStream();
-        IOUtils.copy(input, output);
+    InputStream input = new FileInputStream(file);
+    OutputStream output = fileItem.getOutputStream();
+    IOUtils.copy(input, output);
 
-        List<MultipartFile> imageList = new ArrayList<>();
-        imageList.add(new CommonsMultipartFile(fileItem));
-        return imageList;
+    List<MultipartFile> imageList = new ArrayList<>();
+    imageList.add(new CommonsMultipartFile(fileItem));
+    return imageList;
+  }
+
+  @Nested
+  @DisplayName("productTitle(제목)이")
+  class Describe_productTitle {
+
+    @Nested
+    @DisplayName("100자가 초과하면")
+    class Context_Over100Words {
+
+      @Test
+      @DisplayName("InvalidTitleException를 던진다.")
+      void it_throwInvalidTitleException() {
+        String str = "일이삼사오육칠팔구십";
+
+        ProductWriteDto productWriteDto = new ProductWriteDto(str.repeat(11),
+            "테스트", 1000, 10,
+            100000L, 0, 4,
+            LocalDateTime.now().plusHours(1));
+        try {
+          assertThrows(InvalidTitleException.class,
+              () -> sut.saveProduct(productWriteDto, makeImageList()));
+        } catch (RuntimeException e) {
+          throw e;
+        }
+      }
     }
 
     @Nested
-    @DisplayName("productTitle(제목)이")
-    class Describe_productTitle {
+    @DisplayName("빈값이면")
+    class Context_IsBlank {
 
-        @Nested
-        @DisplayName("100자가 초과하면")
-        class Context_Over100Words {
+      @Test
+      @DisplayName("InvalidTitleException를 던진다.")
+      void it_throwInvalidTitleException() {
+        ProductWriteDto productWriteDto = new ProductWriteDto(
+            "",
+            "테스트", 1000, 10,
+            100000L, 0, 4,
+            LocalDateTime.now().plusHours(1));
+        assertThrows(InvalidTitleException.class,
+            () -> sut.saveProduct(productWriteDto, makeImageList()));
 
-            @Test
-            @DisplayName("InvalidTitleException를 던진다.")
-            void it_throwInvalidTitleException() {
-                String str = "일이삼사오육칠팔구십";
+      }
+    }
+  }
 
-                ProductWriteDto productWriteDto = new ProductWriteDto(str.repeat(11),
-                        "테스트", 1000, 10,
-                        100000L, 0, 4,
-                        LocalDateTime.now().plusHours(1));
-                assertThrows(InvalidTitleException.class,
-                        () -> sut.saveProduct(productWriteDto, makeImageList()));
-            }
-        }
+  @Nested
+  @DisplayName("productContent(내용)가")
+  class Describe_productContent {
 
-        @Nested
-        @DisplayName("빈값이면")
-        class Context_IsBlank {
+    @Nested
+    @DisplayName("1000자가 초과하면")
+    class Context_Over1000Words {
 
-            @Test
-            @DisplayName("InvalidTitleException를 던진다.")
-            void it_throwInvalidTitleException() {
-                ProductWriteDto productWriteDto = new ProductWriteDto(
-                        "",
-                        "테스트", 1000, 10,
-                        100000L, 0, 4,
-                        LocalDateTime.now().plusHours(1));
-                assertThrows(InvalidTitleException.class,
-                        () -> sut.saveProduct(productWriteDto, makeImageList()));
-
-            }
-        }
+      @Test
+      @DisplayName("InvalidContentException를 던진다")
+      void it_throwInvalidContentException() {
+        String str = "일이삼사오육칠팔구십";
+        ProductWriteDto productWriteDto = new ProductWriteDto(
+            "테스트",
+            str.repeat(101),
+            1000, 10,
+            100000L, 0, 4,
+            LocalDateTime.now().plusHours(1));
+        assertThrows(InvalidContentException.class,
+            () -> sut.saveProduct(productWriteDto, makeImageList()));
+      }
     }
 
     @Nested
-    @DisplayName("productContent(내용)가")
-    class Describe_productContent {
+    @DisplayName("값이 없으면")
+    class Context_IsBlank {
 
-        @Nested
-        @DisplayName("1000자가 초과하면")
-        class Context_Over1000Words {
+      @Test
+      @DisplayName("InvalidContentException를 던진다.")
+      void it_throwInvalidContentException() {
+        ProductWriteDto productWriteDto = new ProductWriteDto(
+            "테스트",
+            "", 1000, 10,
+            100000L, 0, 4,
+            LocalDateTime.now().plusHours(1));
+        assertThrows(InvalidContentException.class,
+            () -> sut.saveProduct(productWriteDto, makeImageList()));
+      }
+    }
+  }
 
-            @Test
-            @DisplayName("InvalidContentException를 던진다")
-            void it_throwInvalidContentException() {
-                String str = "일이삼사오육칠팔구십";
-                ProductWriteDto productWriteDto = new ProductWriteDto(
-                        "테스트",
-                        str.repeat(101),
-                        1000, 10,
-                        100000L, 0, 4,
-                        LocalDateTime.now().plusHours(1));
-                assertThrows(InvalidContentException.class,
-                        () -> sut.saveProduct(productWriteDto, makeImageList()));
-            }
-        }
+  @Nested
+  @DisplayName("openingBid(시작가)가")
+  class Describe_openingBid {
 
-        @Nested
-        @DisplayName("값이 없으면")
-        class Context_IsBlank {
+    @Nested
+    @DisplayName("1보다 작으면")
+    class Context_Under1 {
 
-            @Test
-            @DisplayName("InvalidContentException를 던진다.")
-            void it_throwInvalidContentException() {
-                ProductWriteDto productWriteDto = new ProductWriteDto(
-                        "테스트",
-                        "", 1000, 10,
-                        100000L, 0, 4,
-                        LocalDateTime.now().plusHours(1));
-                assertThrows(InvalidContentException.class,
-                        () -> sut.saveProduct(productWriteDto, makeImageList()));
-            }
-        }
+      @Test
+      @DisplayName("InvalidOpeningBidException를 던진다.")
+      void it_throwInvalidOpeningBidException() {
+        ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 0, 10,
+            100000L, 0, 4,
+            LocalDateTime.now().plusHours(1));
+        assertThrows(InvalidOpeningBidException.class,
+            () -> sut.saveProduct(productWriteDto, makeImageList()));
+      }
     }
 
     @Nested
-    @DisplayName("openingBid(시작가)가")
-    class Describe_openingBid {
+    @DisplayName("희망가보다 크다면")
+    class Context_BiggerThanHopePrice {
 
-        @Nested
-        @DisplayName("1보다 작으면")
-        class Context_Under1 {
+      @Test
+      @DisplayName("InvalidOpeningBidException를 던진다.")
+      void it_throwInvalidOpeningBidException() {
+        ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 100000, 10,
+            1000L, 0, 4,
+            LocalDateTime.now().plusHours(1));
+        assertThrows(InvalidOpeningBidException.class,
+            () -> sut.saveProduct(productWriteDto, makeImageList()));
+      }
+    }
+  }
 
-            @Test
-            @DisplayName("InvalidOpeningBidException를 던진다.")
-            void it_throwInvalidOpeningBidException() {
-                ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 0, 10,
-                        100000L, 0, 4,
-                        LocalDateTime.now().plusHours(1));
-                assertThrows(InvalidOpeningBidException.class,
-                        () -> sut.saveProduct(productWriteDto, makeImageList()));
-            }
-        }
+  @Nested
+  @DisplayName("tick(입찰가 단위)이")
+  class Describe_tick {
 
-        @Nested
-        @DisplayName("희망가보다 크다면")
-        class Context_BiggerThanHopePrice {
+    @Nested
+    @DisplayName("1보다 작으면")
+    class Context_Under1 {
 
-            @Test
-            @DisplayName("InvalidOpeningBidException를 던진다.")
-            void it_throwInvalidOpeningBidException() {
-                ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 100000, 10,
-                        1000L, 0, 4,
-                        LocalDateTime.now().plusHours(1));
-                assertThrows(InvalidOpeningBidException.class,
-                        () -> sut.saveProduct(productWriteDto, makeImageList()));
-            }
-        }
+      @Test
+      @DisplayName("InvalidTickException를 던진다.")
+      void it_throwInvalidTickException() {
+        ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 0,
+            100000L, 0, 4,
+            LocalDateTime.now().plusHours(1));
+        assertThrows(InvalidTickException.class,
+            () -> sut.saveProduct(productWriteDto, makeImageList()));
+      }
+    }
+  }
+
+  @Nested
+  @DisplayName("representPicture(대표 이미지 번호)가")
+  class Describe_representPicture {
+
+    @Nested
+    @DisplayName("0보다 작으면")
+    class Context_Under0 {
+
+      @Test
+      @DisplayName("InvalidRepresentPictureIndexException를 던진다.")
+      void it_throwInvalidRepresentPictureIndexException() {
+        ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
+            100000L, -1, 4,
+            LocalDateTime.now().plusHours(1));
+        assertThrows(InvalidRepresentPictureIndexException.class,
+            () -> sut.saveProduct(productWriteDto, makeImageList()));
+      }
     }
 
     @Nested
-    @DisplayName("tick(입찰가 단위)이")
-    class Describe_tick {
+    @DisplayName("이미지 개수보다 크면")
+    class Context_OverImageCount {
 
-        @Nested
-        @DisplayName("1보다 작으면")
-        class Context_Under1 {
+      @Test
+      @DisplayName("InvalidRepresentPictureIndexException를 던진다.")
+      void it_throwInvalidRepresentPictureIndexException() {
+        ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
+            100000L, 1, 4,
+            LocalDateTime.now().plusHours(1));
+        assertThrows(InvalidRepresentPictureIndexException.class,
+            () -> sut.saveProduct(productWriteDto, makeImageList()));
+      }
+    }
+  }
 
-            @Test
-            @DisplayName("InvalidTickException를 던진다.")
-            void it_throwInvalidTickException() {
-                ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 0,
-                        100000L, 0, 4,
-                        LocalDateTime.now().plusHours(1));
-                assertThrows(InvalidTickException.class,
-                        () -> sut.saveProduct(productWriteDto, makeImageList()));
-            }
-        }
+  @Nested
+  @DisplayName("category(카테고리 ID)가")
+  class Describe_category {
+
+    @Nested
+    @DisplayName("존재하지 않을 때")
+    class Context_NotExistId {
+
+      @Test
+      @DisplayName("InvalidCategoryException를 던진다")
+      void it_throwInvalidCategoryException() {
+        ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
+            100000L, 0, 99,
+            LocalDateTime.now().plusHours(1));
+        assertThrows(InvalidCategoryException.class,
+            () -> sut.saveProduct(productWriteDto, makeImageList()));
+      }
     }
 
     @Nested
-    @DisplayName("representPicture(대표 이미지 번호)가")
-    class Describe_representPicture {
+    @DisplayName("최하위 카테고리가 아닐 때")
+    class Context_NotLastSubCategory {
 
-        @Nested
-        @DisplayName("0보다 작으면")
-        class Context_Under0 {
+      @Test
+      @DisplayName("InvalidCategoryException를 던진다")
+      void it_throwInvalidCategoryException() {
+        ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
+            100000L, 0, 1,
+            LocalDateTime.now().plusHours(1));
+        assertThrows(InvalidCategoryException.class,
+            () -> sut.saveProduct(productWriteDto, makeImageList()));
+      }
+    }
 
-            @Test
-            @DisplayName("InvalidRepresentPictureIndexException를 던진다.")
-            void it_throwInvalidRepresentPictureIndexException() {
-                ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
-                        100000L, -1, 4,
-                        LocalDateTime.now().plusHours(1));
-                assertThrows(InvalidRepresentPictureIndexException.class,
-                        () -> sut.saveProduct(productWriteDto, makeImageList()));
-            }
-        }
+  }
 
-        @Nested
-        @DisplayName("이미지 개수보다 크면")
-        class Context_OverImageCount {
+  @Nested
+  @DisplayName("expirationDate(기간 만료일)가")
+  class Describe_expirationDate {
 
-            @Test
-            @DisplayName("InvalidRepresentPictureIndexException를 던진다.")
-            void it_throwInvalidRepresentPictureIndexException() {
-                ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
-                        100000L, 1, 4,
-                        LocalDateTime.now().plusHours(1));
-                assertThrows(InvalidRepresentPictureIndexException.class,
-                        () -> sut.saveProduct(productWriteDto, makeImageList()));
-            }
-        }
+    @Nested
+    @DisplayName("오늘보다 이전일 때")
+    class Context_BeforeToday {
+
+      @Test
+      @DisplayName("InvalidExpirationDateException를 던진다.")
+      void it_throwInvalidExpirationDateException() {
+        ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
+            100000L, 0, 4,
+            LocalDateTime.now().minusHours(1));
+        assertThrows(InvalidExpirationDateException.class,
+            () -> sut.saveProduct(productWriteDto, makeImageList()));
+      }
     }
 
     @Nested
-    @DisplayName("category(카테고리 ID)가")
-    class Describe_category {
+    @DisplayName("72시간보다 뒤일 때")
+    class Context_After72Hours {
 
-        @Nested
-        @DisplayName("존재하지 않을 때")
-        class Context_NotExistId {
+      @Test
+      @DisplayName("InvalidExpirationDateException를 던진다")
+      void it_throwInvalidExpirationDateException() {
+        // 서버에서는 시차가 존재해서 -9를 해주었지만
+        // 로컬에서는 현재시간이 그대로 적용이기 때문에 72 + 9 + 1의 시간을 더해줌
+        ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
+            100000L, 0, 4,
+            LocalDateTime.now().plusHours(82));
+        assertThrows(InvalidExpirationDateException.class,
+            () -> sut.saveProduct(productWriteDto, makeImageList()));
+      }
+    }
+  }
 
-            @Test
-            @DisplayName("InvalidCategoryException를 던진다")
-            void it_throwInvalidCategoryException() {
-                ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
-                        100000L, 0, 99,
-                        LocalDateTime.now().plusHours(1));
-                assertThrows(InvalidCategoryException.class,
-                        () -> sut.saveProduct(productWriteDto, makeImageList()));
-            }
-        }
+  @Nested
+  @DisplayName("files(이미지)가")
+  class Describe_files {
 
-        @Nested
-        @DisplayName("최하위 카테고리가 아닐 때")
-        class Context_NotLastSubCategory {
+    @Nested
+    @DisplayName("없을 때")
+    class Context_NotExist {
 
-            @Test
-            @DisplayName("InvalidCategoryException를 던진다")
-            void it_throwInvalidCategoryException() {
-                ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
-                        100000L, 0, 1,
-                        LocalDateTime.now().plusHours(1));
-                assertThrows(InvalidCategoryException.class,
-                        () -> sut.saveProduct(productWriteDto, makeImageList()));
-            }
-        }
-
+      @Test
+      @DisplayName("NoImageException을 던진다.")
+      void it_throwNoImageException() {
+        ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
+            100000L, 0, 4,
+            LocalDateTime.now().plusHours(1));
+        assertThrows(NoImageException.class,
+            () -> sut.saveProduct(productWriteDto, null));
+      }
     }
 
     @Nested
-    @DisplayName("expirationDate(기간 만료일)가")
-    class Describe_expirationDate {
+    @DisplayName("확장자가 다를 때")
+    class Context_DifferentExtension {
 
-        @Nested
-        @DisplayName("오늘보다 이전일 때")
-        class Context_BeforeToday {
+      @Test
+      @DisplayName("InvalidExtensionException을 던진다.")
+      void it_throwInvalidExtensionException() {
+        ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
+            100000L, 0, 4,
+            LocalDateTime.now().plusHours(1));
+        assertThrows(InvalidExtensionException.class,
+            () -> sut.saveProduct(productWriteDto, makeFailImageList()));
+      }
+    }
+  }
 
-            @Test
-            @DisplayName("InvalidExpirationDateException를 던진다.")
-            void it_throwInvalidExpirationDateException() {
-                ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
-                        100000L, 0, 4,
-                        LocalDateTime.now().minusHours(1));
-                assertThrows(InvalidExpirationDateException.class,
-                        () -> sut.saveProduct(productWriteDto, makeImageList()));
-            }
-        }
+  @Nested
+  @DisplayName("글쓰기 정보를 제대로 입력했을 시")
+  class Describe_productSave {
 
-        @Nested
-        @DisplayName("72시간보다 뒤일 때")
-        class Context_After72Hours {
+    @Nested
+    @DisplayName("희망가가 없을 때")
+    class Context_NotExistHopePrice {
 
-            @Test
-            @DisplayName("InvalidExpirationDateException를 던진다")
-            void it_throwInvalidExpirationDateException() {
-                // 서버에서는 시차가 존재해서 -9를 해주었지만
-                // 로컬에서는 현재시간이 그대로 적용이기 때문에 72 + 9 + 1의 시간을 더해줌
-                ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
-                        100000L, 0, 4,
-                        LocalDateTime.now().plusHours(82));
-                assertThrows(InvalidExpirationDateException.class,
-                        () -> sut.saveProduct(productWriteDto, makeImageList()));
-            }
-        }
+      @Test
+      @DisplayName("성공한다.")
+      void it_success() {
+        ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 100000, 10,
+            null, 0, 4,
+            LocalDateTime.now().plusHours(1));
+        assertDoesNotThrow(() -> sut.saveProduct(productWriteDto, makeImageList()));
+      }
     }
 
     @Nested
-    @DisplayName("files(이미지)가")
-    class Describe_files {
+    @DisplayName("희망가가 있을 때")
+    class Context_ExistHopePrice {
 
-        @Nested
-        @DisplayName("없을 때")
-        class Context_NotExist {
-
-            @Test
-            @DisplayName("NoImageException을 던진다.")
-            void it_throwNoImageException() {
-                ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
-                        100000L, 0, 4,
-                        LocalDateTime.now().plusHours(1));
-                assertThrows(NoImageException.class,
-                        () -> sut.saveProduct(productWriteDto, null));
-            }
-        }
-
-        @Nested
-        @DisplayName("확장자가 다를 때")
-        class Context_DifferentExtension {
-
-            @Test
-            @DisplayName("InvalidExtensionException을 던진다.")
-            void it_throwInvalidExtensionException() {
-                ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
-                        100000L, 0, 4,
-                        LocalDateTime.now().plusHours(1));
-                assertThrows(InvalidExtensionException.class,
-                        () -> sut.saveProduct(productWriteDto, makeFailImageList()));
-            }
-        }
+      @Test
+      @DisplayName("성공한다.")
+      void it_success() {
+        ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 100000, 10,
+            100000L, 0, 4,
+            LocalDateTime.now().plusHours(1));
+        assertDoesNotThrow(() -> sut.saveProduct(productWriteDto, makeImageList()));
+      }
     }
-
-    @Nested
-    @DisplayName("글쓰기 정보를 제대로 입력했을 시")
-    class Describe_productSave {
-
-        @Nested
-        @DisplayName("희망가가 없을 때")
-        class Context_NotExistHopePrice {
-
-            @Test
-            @DisplayName("성공한다.")
-            void it_success() {
-                ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 100000, 10,
-                        null, 0, 4,
-                        LocalDateTime.now().plusHours(1));
-                assertDoesNotThrow(() -> sut.saveProduct(productWriteDto, makeImageList()));
-            }
-        }
-
-        @Nested
-        @DisplayName("희망가가 있을 때")
-        class Context_ExistHopePrice {
-
-            @Test
-            @DisplayName("성공한다.")
-            void it_success() {
-                ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 100000, 10,
-                        100000L, 0, 4,
-                        LocalDateTime.now().plusHours(1));
-                assertDoesNotThrow(() -> sut.saveProduct(productWriteDto, makeImageList()));
-            }
-        }
-    }
+  }
 
 }

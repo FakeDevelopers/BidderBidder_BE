@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatus;
 
 public class InvalidTickException extends HttpException {
 
-    public InvalidTickException(String message) {
-        super(HttpStatus.BAD_REQUEST, message);
-    }
+  public InvalidTickException(String message) {
+    super(HttpStatus.BAD_REQUEST, message);
+  }
 
 }
