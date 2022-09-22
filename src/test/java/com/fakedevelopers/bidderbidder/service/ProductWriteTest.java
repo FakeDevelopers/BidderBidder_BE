@@ -86,12 +86,8 @@ public class ProductWriteTest extends IntegrationTestBase {
             "테스트", 1000, 10,
             100000L, 0, 4,
             LocalDateTime.now().plusHours(1));
-        try {
-          assertThrows(InvalidTitleException.class,
-              () -> sut.saveProduct(productWriteDto, makeImageList()));
-        } catch (RuntimeException e) {
-          throw e;
-        }
+        assertThrows(InvalidTitleException.class,
+            () -> sut.saveProduct(productWriteDto, makeImageList()));
       }
     }
 
