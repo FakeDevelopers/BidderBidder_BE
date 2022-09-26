@@ -20,14 +20,12 @@ public class IntegrationTestBase {
     @Override
     public void initialize(@NonNull ConfigurableApplicationContext applicationContext) {
       TestPropertyValues.of(
-              "datasource.url=~~~",
-              "datasource.username=~~~",
-              "datasource.password=~~~",
-              "redis.password=~~~",
-              "redis.host=~~~",
-              "OAuth2.clientPassword=~~~",
-              "OAuth2.clientID=~~~",
-              "sentry.dsn=~~")
+              "datasource.url=jdbc:mariadb://fakedeveloper-1.cntzqxmv6ryr.ap-northeast-2.rds.amazonaws.com:3306/bidderbidder_sandbox",
+              "datasource.username=fakedev", "datasource.password=fogh2468",
+              "redis.password=zhsvnfhtmxm159753", "redis.host=127.0.0.1",
+              "OAuth2.clientPassword=GOCSPX",
+              "OAuth2.clientID=996585179232-in0qv8altjrkkdl8p1q6878hah20ttfh.apps.googleusercontent.com",
+              "sentry.dsn=https://ecb06f1e062946449f62053b15236ab5@o1417813.ingest.sentry.io/6760564")
           .applyTo(applicationContext);
 
     }
