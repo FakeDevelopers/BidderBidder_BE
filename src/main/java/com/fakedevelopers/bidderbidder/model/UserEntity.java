@@ -27,16 +27,16 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class UserEntity implements UserDetails {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   @Column(unique = true, nullable = false)
-  @Size(min = 6, max = 12)
-  @Pattern(regexp = "[a-zA-Z0-9_]")
+  @Size(min = 6, max = 50)
+  @Pattern(regexp = "^[a-zA-Z]{1}[a-zA-Z0-9_]{4,11}$")
   private String username; // 유저를 고유하게 구분할 수 있는 String을 의미합니다.
 
   @Email
-  @Column(unique = true, nullable = false)
+  @Column(unique = true, nullable = true)
   private String email;
 
   @Column(nullable = false)
@@ -49,7 +49,7 @@ public class UserEntity implements UserDetails {
    * Instantiates a new User entity.
    * *
    * @param username 아이디는 6~12글자의 (영문자, 숫자, _)만 사용이 가능
-   * @param email    이메일 형식 준수, not-null
+   * @param email    이메일 형식 준수, nullable
    * @param nickname 기본값(Constants.java) 참고
    * @param password null일 경우 OAuth 로그인
    */
@@ -75,7 +75,7 @@ public class UserEntity implements UserDetails {
   @Override
   public String getUsername() {
     // User Identifier
-    return this.email;
+    return this.username;
   }
 
   @Override
