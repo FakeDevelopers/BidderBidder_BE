@@ -13,11 +13,13 @@ import java.util.Optional;
 import org.apache.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
+@Service
 public class KakaoOAuthService {
 
   public boolean validateRequestFormat(String code, String error) throws KakaoApiException {
@@ -72,6 +74,7 @@ public class KakaoOAuthService {
         .retrieve().bodyToMono(KakaoUserInfoDto.class).block();
   }
 
+  // todo: 미완결된 메소드
   public String makeFirebaseCustomToken(String accessToken)
       throws FirebaseAuthException {
     KakaoUserInfoDto userInfo = getUserInfo(accessToken);

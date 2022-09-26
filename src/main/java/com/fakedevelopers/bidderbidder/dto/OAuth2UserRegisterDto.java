@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.lang.Nullable;
 
 /**
  * OAuth2UserRegisterDto: OAuth2 로그인시에 필요한 정보들을 정의.
@@ -24,7 +25,8 @@ public class OAuth2UserRegisterDto {
   private final String username;
 
   @Email(message = "이메일의 형식을 따라야 합니다.")
-  @NotBlank(message = "이메일에는 공백문자가 포함될 수 없습니다")
+//  @NotBlank(message = "이메일에는 공백문자가 포함될 수 없습니다")
+  @Nullable
   private final String email;
 
   @NotBlank(message = "형식이 잘못되었습니다.")

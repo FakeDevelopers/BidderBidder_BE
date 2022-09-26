@@ -24,7 +24,7 @@ public class OAuth2UserService implements UserDetailsService {
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     return userRepository
-        .findByEmail(username)
+        .findByUsername(username)
         .orElseThrow(() -> new UsernameNotFoundException("Username Not Found!"));
   }
 
@@ -37,14 +37,15 @@ public class OAuth2UserService implements UserDetailsService {
   public UserEntity loadUserOrRegister(FirebaseToken token) {
     UserEntity user;
     try {
-      user = (UserEntity) loadUserByUsername(token.getEmail());
+      user = (UserEntity) loadUserByUsername(OAuthProfile.GOOGLE_PREFIX + token.getUid());
     } catch (UsernameNotFoundException e) {
       OAuth2UserRegisterDto dto =
           OAuth2UserRegisterDto.builder()
-              .username(OAuthProfile.GOOGLE_PREFIX + token.getUid())
+              .username(OAuthProfile.GOOGLE_PREFIX + token.getUid().substring(0, 4))
               .email(token.getEmail())
               .nickname(Constants.INIT_NICKNAME)
               .build();
+
       user = register(dto);
     }
     return user;

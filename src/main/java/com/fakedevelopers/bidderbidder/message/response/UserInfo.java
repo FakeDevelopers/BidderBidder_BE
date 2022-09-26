@@ -14,6 +14,9 @@ public class UserInfo {
 
   // Controller가 반환하는 정보, front에서 받아서 유저 정보 표시
   @NotBlank
+  private String username;
+
+  @NotBlank
   private String email;
   @NotNull
   private String nickname;
