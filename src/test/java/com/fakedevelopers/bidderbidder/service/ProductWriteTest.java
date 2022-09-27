@@ -276,8 +276,8 @@ public class ProductWriteTest extends IntegrationTestBase {
         assertThat(product.getProductContent()).isEqualTo("테스트");
         assertThat(product.getOpeningBid()).isEqualTo(1000);
         assertThat(product.getTick()).isEqualTo(10);
-        assertThat(product.getHopePrice()).isEqualTo(null);
-        assertThat(product.getRepresentPicture()).isEqualTo(0);
+        assertThat(product.getHopePrice()).isNull();
+        assertThat(product.getRepresentPicture()).isZero();
         assertThat(product.getCategory().getCategoryId()).isEqualTo(4);
 
         deleteImage(product.getProductId());
@@ -302,7 +302,7 @@ public class ProductWriteTest extends IntegrationTestBase {
         assertThat(product.getOpeningBid()).isEqualTo(1000);
         assertThat(product.getTick()).isEqualTo(10);
         assertThat(product.getHopePrice()).isEqualTo(100000);
-        assertThat(product.getRepresentPicture()).isEqualTo(0);
+        assertThat(product.getRepresentPicture()).isZero();
         assertThat(product.getCategory().getCategoryId()).isEqualTo(4);
 
         deleteImage(product.getProductId());
