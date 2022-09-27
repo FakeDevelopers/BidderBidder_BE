@@ -8,13 +8,10 @@ import com.fakedevelopers.bidderbidder.dto.ProductListDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListRequestDto;
 import com.fakedevelopers.bidderbidder.dto.ProductWriteDto;
 import com.fakedevelopers.bidderbidder.exception.InvalidCategoryException;
-import com.fakedevelopers.bidderbidder.exception.InvalidContentException;
 import com.fakedevelopers.bidderbidder.exception.InvalidExpirationDateException;
 import com.fakedevelopers.bidderbidder.exception.InvalidExtensionException;
 import com.fakedevelopers.bidderbidder.exception.InvalidOpeningBidException;
 import com.fakedevelopers.bidderbidder.exception.InvalidRepresentPictureIndexException;
-import com.fakedevelopers.bidderbidder.exception.InvalidTickException;
-import com.fakedevelopers.bidderbidder.exception.InvalidTitleException;
 import com.fakedevelopers.bidderbidder.exception.NoImageException;
 import com.fakedevelopers.bidderbidder.exception.NotFoundImageException;
 import com.fakedevelopers.bidderbidder.exception.NotFoundProductException;
@@ -86,7 +83,7 @@ public class ProductService {
   /**
    * . 게시글 저장
    */
-  public String saveProduct(ProductWriteDto productWriteDto, List<MultipartFile> files)
+  public ProductEntity saveProduct(ProductWriteDto productWriteDto, List<MultipartFile> files)
       throws Exception {
 
     if (files == null) {
@@ -103,14 +100,11 @@ public class ProductService {
     saveResizeFile(
         representFileEntity.getSavedFileName(), savedProductEntity.getProductId(),
         pathList);
-    return Constants.SUCCESS;
+    return savedProductEntity;
   }
 
   private void saveProductValidation(ProductWriteDto productWriteDto, List<MultipartFile> files) {
-    checkTitle(productWriteDto.getProductTitle());
-    checkContent(productWriteDto.getProductContent());
     checkOpeningBid(productWriteDto.getHopePrice(), productWriteDto.getOpeningBid());
-    checkTick(productWriteDto.getTick());
     compareDate(productWriteDto.getExpirationDate());
     checkCategoryId(productWriteDto.getCategory());
     checkLastSubCategory(productWriteDto.getCategory());
@@ -118,29 +112,6 @@ public class ProductService {
     imageCount(productWriteDto.getRepresentPicture(), files);
   }
 
-  private void checkTitle(String title) {
-    if (title.length() > 100) {
-      throw new InvalidTitleException("제목은 100자 이하만 입력가능합니다.");
-    }
-    if (title.isBlank()) {
-      throw new InvalidTitleException("제목 입력은 필수입니다.");
-    }
-  }
-
-  private void checkContent(String content) {
-    if (content.length() > 1000) {
-      throw new InvalidContentException("내용은 1000자 이하만 입력가능합니다.");
-    }
-    if (content.isBlank()) {
-      throw new InvalidContentException("내용 입력은 필수입니다.");
-    }
-  }
-
-  private void checkTick(int tick) {
-    if (tick < 1) {
-      throw new InvalidTickException("입찰가 단위는 1이상이어야 합니다.");
-    }
-  }
 
   // 입력 받은 이미지를 web, app 에 맞게 각각 리사이징 후 저장
   private void saveResizeFile(String fileName, Long productId, List<String> pathList)

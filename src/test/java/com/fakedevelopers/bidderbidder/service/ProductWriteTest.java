@@ -1,21 +1,17 @@
 package com.fakedevelopers.bidderbidder.service;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.fakedevelopers.bidderbidder.IntegrationTestBase;
 import com.fakedevelopers.bidderbidder.dto.ProductWriteDto;
 import com.fakedevelopers.bidderbidder.exception.InvalidCategoryException;
-import com.fakedevelopers.bidderbidder.exception.InvalidContentException;
 import com.fakedevelopers.bidderbidder.exception.InvalidExpirationDateException;
 import com.fakedevelopers.bidderbidder.exception.InvalidExtensionException;
 import com.fakedevelopers.bidderbidder.exception.InvalidOpeningBidException;
 import com.fakedevelopers.bidderbidder.exception.InvalidRepresentPictureIndexException;
-import com.fakedevelopers.bidderbidder.exception.InvalidTickException;
-import com.fakedevelopers.bidderbidder.exception.InvalidTitleException;
 import com.fakedevelopers.bidderbidder.exception.NoImageException;
-import com.fakedevelopers.bidderbidder.model.TermEntity;
+import com.fakedevelopers.bidderbidder.model.ProductEntity;
 import com.fakedevelopers.bidderbidder.repository.ProductRepository;
-import com.fakedevelopers.bidderbidder.repository.TermRepository;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -59,6 +55,11 @@ public class ProductWriteTest extends IntegrationTestBase {
     return imageList;
   }
 
+  @BeforeAll
+  static void setUp() throws IOException {
+    mList = makeImageList();
+  }
+
   private List<MultipartFile> makeFailImageList() throws IOException {
     File file = new File("src/main/resources/static/img/Tidokang_star.webp");
     FileItem fileItem = new DiskFileItem("testFailImage", Files.probeContentType(file.toPath()),
@@ -73,91 +74,21 @@ public class ProductWriteTest extends IntegrationTestBase {
     return imageList;
   }
 
-  @BeforeAll
-  static void setUp() throws IOException {
-     mList = makeImageList();
-  }
+  private void deleteImage(long productId) {
+    String path = "upload";
+    String originalImage = productRepository.findByProductId(productId).getFileEntities().get(0)
+        .getSavedFileName();
+    String resizedImage =
+        "resize_" + productRepository.findByProductId(productId).getProductId() + ".jpg";
+    File originalFile = new File(path + File.separator + originalImage);
+    File appResizedFile = new File(
+        path + File.separator + "resize_app" + File.separator + resizedImage);
+    File webResizedFile = new File(
+        path + File.separator + "resize_web" + File.separator + resizedImage);
 
-  @Nested
-  @DisplayName("productTitle(제목)이")
-  class Describe_productTitle {
-
-    @Nested
-    @DisplayName("100자가 초과하면")
-    class Context_Over100Words {
-
-      @Test
-      @DisplayName("InvalidTitleException를 던진다.")
-      void it_throwInvalidTitleException(){
-        String str = "일이삼사오육칠팔구십";
-
-        ProductWriteDto productWriteDto = new ProductWriteDto(str.repeat(11),
-            "테스트", 1000, 10,
-            100000L, 0, 4,
-            LocalDateTime.now().plusHours(1));
-        assertThrows(InvalidTitleException.class,
-            () -> sut.saveProduct(productWriteDto, mList));
-      }
-    }
-
-    @Nested
-    @DisplayName("빈값이면")
-    class Context_IsBlank {
-
-      @Test
-      @DisplayName("InvalidTitleException를 던진다.")
-      void it_throwInvalidTitleException(){
-        ProductWriteDto productWriteDto = new ProductWriteDto(
-            "",
-            "테스트", 1000, 10,
-            100000L, 0, 4,
-            LocalDateTime.now().plusHours(1));
-        assertThrows(InvalidTitleException.class,
-            () -> sut.saveProduct(productWriteDto, mList));
-
-      }
-    }
-  }
-
-  @Nested
-  @DisplayName("productContent(내용)가")
-  class Describe_productContent {
-
-    @Nested
-    @DisplayName("1000자가 초과하면")
-    class Context_Over1000Words {
-
-      @Test
-      @DisplayName("InvalidContentException를 던진다")
-      void it_throwInvalidContentException(){
-        String str = "일이삼사오육칠팔구십";
-        ProductWriteDto productWriteDto = new ProductWriteDto(
-            "테스트",
-            str.repeat(101),
-            1000, 10,
-            100000L, 0, 4,
-            LocalDateTime.now().plusHours(1));
-        assertThrows(InvalidContentException.class,
-            () -> sut.saveProduct(productWriteDto, mList));
-      }
-    }
-
-    @Nested
-    @DisplayName("값이 없으면")
-    class Context_IsBlank {
-
-      @Test
-      @DisplayName("InvalidContentException를 던진다.")
-      void it_throwInvalidContentException(){
-        ProductWriteDto productWriteDto = new ProductWriteDto(
-            "테스트",
-            "", 1000, 10,
-            100000L, 0, 4,
-            LocalDateTime.now().plusHours(1));
-        assertThrows(InvalidContentException.class,
-            () -> sut.saveProduct(productWriteDto, mList));
-      }
-    }
+    originalFile.delete();
+    appResizedFile.delete();
+    webResizedFile.delete();
   }
 
   @Nested
@@ -165,51 +96,16 @@ public class ProductWriteTest extends IntegrationTestBase {
   class Describe_openingBid {
 
     @Nested
-    @DisplayName("1보다 작으면")
-    class Context_Under1 {
-
-      @Test
-      @DisplayName("InvalidOpeningBidException를 던진다.")
-      void it_throwInvalidOpeningBidException() {
-        ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 0, 10,
-            100000L, 0, 4,
-            LocalDateTime.now().plusHours(1));
-        assertThrows(InvalidOpeningBidException.class,
-            () -> sut.saveProduct(productWriteDto, mList));
-      }
-    }
-
-    @Nested
-    @DisplayName("희망가보다 크다면")
+    @DisplayName("hopePrice(희망가)보다 크다면")
     class Context_BiggerThanHopePrice {
 
       @Test
       @DisplayName("InvalidOpeningBidException를 던진다.")
-      void it_throwInvalidOpeningBidException(){
+      void it_throwInvalidOpeningBidException() {
         ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 100000, 10,
             1000L, 0, 4,
             LocalDateTime.now().plusHours(1));
         assertThrows(InvalidOpeningBidException.class,
-            () -> sut.saveProduct(productWriteDto, mList));
-      }
-    }
-  }
-
-  @Nested
-  @DisplayName("tick(입찰가 단위)이")
-  class Describe_tick {
-
-    @Nested
-    @DisplayName("1보다 작으면")
-    class Context_Under1 {
-
-      @Test
-      @DisplayName("InvalidTickException를 던진다.")
-      void it_throwInvalidTickException(){
-        ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 0,
-            100000L, 0, 4,
-            LocalDateTime.now().plusHours(1));
-        assertThrows(InvalidTickException.class,
             () -> sut.saveProduct(productWriteDto, mList));
       }
     }
@@ -225,7 +121,7 @@ public class ProductWriteTest extends IntegrationTestBase {
 
       @Test
       @DisplayName("InvalidRepresentPictureIndexException를 던진다.")
-      void it_throwInvalidRepresentPictureIndexException(){
+      void it_throwInvalidRepresentPictureIndexException() {
         ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
             100000L, -1, 4,
             LocalDateTime.now().plusHours(1));
@@ -240,7 +136,7 @@ public class ProductWriteTest extends IntegrationTestBase {
 
       @Test
       @DisplayName("InvalidRepresentPictureIndexException를 던진다.")
-      void it_throwInvalidRepresentPictureIndexException(){
+      void it_throwInvalidRepresentPictureIndexException() {
         ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
             100000L, 1, 4,
             LocalDateTime.now().plusHours(1));
@@ -255,12 +151,12 @@ public class ProductWriteTest extends IntegrationTestBase {
   class Describe_category {
 
     @Nested
-    @DisplayName("존재하지 않을 때")
+    @DisplayName("존재하지 않으면")
     class Context_NotExistId {
 
       @Test
       @DisplayName("InvalidCategoryException를 던진다")
-      void it_throwInvalidCategoryException(){
+      void it_throwInvalidCategoryException() {
         ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
             100000L, 0, 99,
             LocalDateTime.now().plusHours(1));
@@ -270,12 +166,12 @@ public class ProductWriteTest extends IntegrationTestBase {
     }
 
     @Nested
-    @DisplayName("최하위 카테고리가 아닐 때")
+    @DisplayName("최하위 카테고리가 아니면")
     class Context_NotLastSubCategory {
 
       @Test
       @DisplayName("InvalidCategoryException를 던진다")
-      void it_throwInvalidCategoryException(){
+      void it_throwInvalidCategoryException() {
         ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
             100000L, 0, 1,
             LocalDateTime.now().plusHours(1));
@@ -291,7 +187,7 @@ public class ProductWriteTest extends IntegrationTestBase {
   class Describe_expirationDate {
 
     @Nested
-    @DisplayName("오늘보다 이전일 때")
+    @DisplayName("오늘보다 이전이면")
     class Context_BeforeToday {
 
       @Test
@@ -306,12 +202,12 @@ public class ProductWriteTest extends IntegrationTestBase {
     }
 
     @Nested
-    @DisplayName("72시간보다 뒤일 때")
+    @DisplayName("72시간보다 뒤면")
     class Context_After72Hours {
 
       @Test
       @DisplayName("InvalidExpirationDateException를 던진다")
-      void it_throwInvalidExpirationDateException(){
+      void it_throwInvalidExpirationDateException() {
         // 서버에서는 시차가 존재해서 -9를 해주었지만
         // 로컬에서는 현재시간이 그대로 적용이기 때문에 72 + 9 + 1의 시간을 더해줌
         ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
@@ -328,7 +224,7 @@ public class ProductWriteTest extends IntegrationTestBase {
   class Describe_files {
 
     @Nested
-    @DisplayName("없을 때")
+    @DisplayName("없으면")
     class Context_NotExist {
 
       @Test
@@ -343,7 +239,7 @@ public class ProductWriteTest extends IntegrationTestBase {
     }
 
     @Nested
-    @DisplayName("확장자가 다를 때")
+    @DisplayName("확장자가 다르면")
     class Context_DifferentExtension {
 
       @Test
@@ -364,31 +260,52 @@ public class ProductWriteTest extends IntegrationTestBase {
   class Describe_productSave {
 
     @Nested
-    @DisplayName("희망가가 없을 때")
+    @DisplayName("희망가가 없으면")
     class Context_NotExistHopePrice {
 
       @Test
       @DisplayName("성공한다.")
-      void it_success() {
-        ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 100000, 10,
+      void it_success() throws Exception {
+        ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
             null, 0, 4,
             LocalDateTime.now().plusHours(1));
+        ProductEntity product = sut.saveProduct(productWriteDto, mList);
 
-        assertDoesNotThrow(() -> sut.saveProduct(productWriteDto, mList));
+        assertThat(product.getProductId()).isPositive();
+        assertThat(product.getProductTitle()).isEqualTo("테스트");
+        assertThat(product.getProductContent()).isEqualTo("테스트");
+        assertThat(product.getOpeningBid()).isEqualTo(1000);
+        assertThat(product.getTick()).isEqualTo(10);
+        assertThat(product.getHopePrice()).isEqualTo(null);
+        assertThat(product.getRepresentPicture()).isEqualTo(0);
+        assertThat(product.getCategory().getCategoryId()).isEqualTo(4);
+
+        deleteImage(product.getProductId());
       }
     }
 
     @Nested
-    @DisplayName("희망가가 있을 때")
+    @DisplayName("희망가가 있으면")
     class Context_ExistHopePrice {
 
       @Test
       @DisplayName("성공한다.")
-      void it_success() {
-        ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 100000, 10,
+      void it_success() throws Exception {
+        ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
             100000L, 0, 4,
             LocalDateTime.now().plusHours(1));
-        assertDoesNotThrow(() -> sut.saveProduct(productWriteDto, mList));
+        ProductEntity product = sut.saveProduct(productWriteDto, mList);
+
+        assertThat(product.getProductId()).isPositive();
+        assertThat(product.getProductTitle()).isEqualTo("테스트");
+        assertThat(product.getProductContent()).isEqualTo("테스트");
+        assertThat(product.getOpeningBid()).isEqualTo(1000);
+        assertThat(product.getTick()).isEqualTo(10);
+        assertThat(product.getHopePrice()).isEqualTo(100000);
+        assertThat(product.getRepresentPicture()).isEqualTo(0);
+        assertThat(product.getCategory().getCategoryId()).isEqualTo(4);
+
+        deleteImage(product.getProductId());
       }
     }
   }
