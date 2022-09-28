@@ -15,22 +15,18 @@ import com.fakedevelopers.bidderbidder.repository.ProductRepository;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.disk.DiskFileItem;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 @DisplayName("글쓰기 기능 테스트")
 public class ProductWriteTest extends IntegrationTestBase {
@@ -41,37 +37,21 @@ public class ProductWriteTest extends IntegrationTestBase {
   @Autowired
   ProductRepository productRepository;
 
-  private static List<MultipartFile> makeImageList() throws IOException {
-    File file = new File("src/main/resources/static/img/Starry night.jpg");
-    FileItem fileItem = new DiskFileItem("testImage", Files.probeContentType(file.toPath()),
-        false, file.getName(), (int) file.length(), file.getParentFile());
-
-    InputStream input = new FileInputStream(file);
-    OutputStream output = fileItem.getOutputStream();
-    IOUtils.copy(input, output);
+  private static List<MultipartFile> makeImageList(String imageName, String extension)
+      throws IOException {
+    File file = new File("src/test/java/com/fakedevelopers/bidderbidder/img/" + imageName + extension);
+    MultipartFile multipartFile = new MockMultipartFile("testImage." + extension,
+        "testImage." + extension, "image/" + extension,
+        new FileInputStream(file));
 
     List<MultipartFile> imageList = new ArrayList<>();
-    imageList.add(new CommonsMultipartFile(fileItem));
+    imageList.add(multipartFile);
     return imageList;
   }
 
   @BeforeAll
   static void setUp() throws IOException {
-    mList = makeImageList();
-  }
-
-  private List<MultipartFile> makeFailImageList() throws IOException {
-    File file = new File("src/main/resources/static/img/Tidokang_star.webp");
-    FileItem fileItem = new DiskFileItem("testFailImage", Files.probeContentType(file.toPath()),
-        false, file.getName(), (int) file.length(), file.getParentFile());
-
-    InputStream input = new FileInputStream(file);
-    OutputStream output = fileItem.getOutputStream();
-    IOUtils.copy(input, output);
-
-    List<MultipartFile> imageList = new ArrayList<>();
-    imageList.add(new CommonsMultipartFile(fileItem));
-    return imageList;
+    mList = makeImageList("Starry night.", "jpg");
   }
 
   private void deleteImage(long productId) {
@@ -248,7 +228,7 @@ public class ProductWriteTest extends IntegrationTestBase {
         ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
             100000L, 0, 4,
             LocalDateTime.now().plusHours(1));
-        List<MultipartFile> mList = makeFailImageList();
+        List<MultipartFile> mList = makeImageList("Tidokang_star.", "webp");
         assertThrows(InvalidExtensionException.class,
             () -> sut.saveProduct(productWriteDto, mList));
       }
@@ -272,13 +252,13 @@ public class ProductWriteTest extends IntegrationTestBase {
         ProductEntity product = sut.saveProduct(productWriteDto, mList);
 
         assertThat(product.getProductId()).isPositive();
-        assertThat(product.getProductTitle()).isEqualTo("테스트");
-        assertThat(product.getProductContent()).isEqualTo("테스트");
-        assertThat(product.getOpeningBid()).isEqualTo(1000);
-        assertThat(product.getTick()).isEqualTo(10);
-        assertThat(product.getHopePrice()).isNull();
-        assertThat(product.getRepresentPicture()).isZero();
-        assertThat(product.getCategory().getCategoryId()).isEqualTo(4);
+        assertThat(product.getProductTitle()).isEqualTo(productWriteDto.getProductTitle());
+        assertThat(product.getProductContent()).isEqualTo(productWriteDto.getProductContent());
+        assertThat(product.getOpeningBid()).isEqualTo(productWriteDto.getOpeningBid());
+        assertThat(product.getTick()).isEqualTo(productWriteDto.getTick());
+        assertThat(product.getHopePrice()).isEqualTo(productWriteDto.getHopePrice());
+        assertThat(product.getRepresentPicture()).isEqualTo(productWriteDto.getRepresentPicture());
+        assertThat(product.getCategory().getCategoryId()).isEqualTo(productWriteDto.getCategory());
 
         deleteImage(product.getProductId());
       }
@@ -297,13 +277,13 @@ public class ProductWriteTest extends IntegrationTestBase {
         ProductEntity product = sut.saveProduct(productWriteDto, mList);
 
         assertThat(product.getProductId()).isPositive();
-        assertThat(product.getProductTitle()).isEqualTo("테스트");
-        assertThat(product.getProductContent()).isEqualTo("테스트");
-        assertThat(product.getOpeningBid()).isEqualTo(1000);
-        assertThat(product.getTick()).isEqualTo(10);
-        assertThat(product.getHopePrice()).isEqualTo(100000);
-        assertThat(product.getRepresentPicture()).isZero();
-        assertThat(product.getCategory().getCategoryId()).isEqualTo(4);
+        assertThat(product.getProductTitle()).isEqualTo(productWriteDto.getProductTitle());
+        assertThat(product.getProductContent()).isEqualTo(productWriteDto.getProductContent());
+        assertThat(product.getOpeningBid()).isEqualTo(productWriteDto.getOpeningBid());
+        assertThat(product.getTick()).isEqualTo(productWriteDto.getTick());
+        assertThat(product.getHopePrice()).isEqualTo(productWriteDto.getHopePrice());
+        assertThat(product.getRepresentPicture()).isEqualTo(productWriteDto.getRepresentPicture());
+        assertThat(product.getCategory().getCategoryId()).isEqualTo(productWriteDto.getCategory());
 
         deleteImage(product.getProductId());
       }

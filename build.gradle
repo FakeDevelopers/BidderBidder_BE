@@ -74,11 +74,6 @@ dependencies {
     implementation 'com.github.ben-manes.caffeine:caffeine:3.1.1'
 
     implementation 'io.sentry:sentry-spring-boot-starter:6.4.1'
-
-    // https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload
-    implementation 'commons-fileupload:commons-fileupload:1.4'
-
-
 }
 
 tasks.named('test') {
