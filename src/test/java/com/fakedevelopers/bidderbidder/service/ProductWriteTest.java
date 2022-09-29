@@ -13,9 +13,8 @@ import com.fakedevelopers.bidderbidder.exception.NoImageException;
 import com.fakedevelopers.bidderbidder.model.ProductEntity;
 import com.fakedevelopers.bidderbidder.repository.ProductRepository;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 @DisplayName("글쓰기 기능 테스트")
 public class ProductWriteTest extends IntegrationTestBase {
 
+  private static ResourceLoader testResourceLoader;
   private static List<MultipartFile> mList;
   @Autowired
   ProductService sut;
@@ -39,10 +39,13 @@ public class ProductWriteTest extends IntegrationTestBase {
 
   private static List<MultipartFile> makeImageList(String imageName, String extension)
       throws IOException {
-    File file = new File("src/test/java/com/fakedevelopers/bidderbidder/img/" + imageName + extension);
+    InputStream inputStream =
+        testResourceLoader.getResource("classpath:img/" + imageName + extension)
+            .getInputStream();
+
     MultipartFile multipartFile = new MockMultipartFile("testImage." + extension,
         "testImage." + extension, "image/" + extension,
-        new FileInputStream(file));
+        inputStream);
 
     List<MultipartFile> imageList = new ArrayList<>();
     imageList.add(multipartFile);
@@ -50,7 +53,8 @@ public class ProductWriteTest extends IntegrationTestBase {
   }
 
   @BeforeAll
-  static void setUp() throws IOException {
+  static void setUp(@Autowired ResourceLoader resourceLoader) throws IOException {
+    testResourceLoader = resourceLoader;
     mList = makeImageList("Starry night.", "jpg");
   }
 
