@@ -16,18 +16,18 @@ import lombok.Setter;
 public class ProductWriteDto {
 
   @NotBlank(message = "제목에 빈칸은 입력불가입니다.")
-  @Size(max = 400)
+  @Size(max = 400, message = "제목은 최대 100자입니다.")
   private final String productTitle;
 
   @NotBlank(message = "내용에 빈칸은 입력불가입니다.")
-  @Size(max = 4000)
+  @Size(max = 4000, message = "내용은은 최대 100자입니다.")
   private final String productContent;
 
-  @Min(1)
+  @Min(value = 1, message = "시작가는 1이상이어야 합니다.")
   @NotNull(message = "경매 시작가에 빈칸은 입력불가입니다.")
   private final long openingBid;
 
-  @Min(1)
+  @Min(value = 1, message = "입찰가 단위는 1이상이어야 합니다.")
   @NotNull(message = "입찰가 단위에 빈칸은 입력불가입니다.")
   private final int tick;
 
