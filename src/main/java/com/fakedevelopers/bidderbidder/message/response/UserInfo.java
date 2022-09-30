@@ -27,6 +27,7 @@ public class UserInfo {
   }
 
   public UserInfo(UserEntity entity) {
+    this.username = entity.getUsername();
     this.email = entity.getEmail();
     this.nickname = entity.getNickname();
   }

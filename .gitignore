@@ -5,7 +5,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 firebase.json
-
+src/test/java/com/fakedevelopers/bidderbidder/IntegrationTestBase.java
 ### STS ###
 .apt_generated
 .classpath
