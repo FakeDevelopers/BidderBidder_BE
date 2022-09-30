@@ -1,7 +1,8 @@
 package com.fakedevelopers.bidderbidder.service;
 
-import com.fakedevelopers.bidderbidder.domain.Constants;
-import com.fakedevelopers.bidderbidder.domain.OAuthProfile;
+import static com.fakedevelopers.bidderbidder.domain.Constants.INIT_NICKNAME;
+import static com.fakedevelopers.bidderbidder.domain.Constants.MAX_USERNAME_SIZE;
+
 import com.fakedevelopers.bidderbidder.dto.OAuth2UserRegisterDto;
 import com.fakedevelopers.bidderbidder.model.UserEntity;
 import com.fakedevelopers.bidderbidder.repository.UserRepository;
@@ -25,28 +26,32 @@ public class OAuth2UserService implements UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    return userRepository
-        .findByUsername(username)
+    return userRepository.findByUsername(username)
         .orElseThrow(() -> new UsernameNotFoundException("Username Not Found!"));
   }
 
+  public UserDetails loadUserByUsername(String serviceProvider, String username) {
+    return loadUserByUsername(serviceProvider + username);
+  }
+
   /**
-   * Load user or register user entity.
+   * <h1> Load user or register user entity. </h1>
    *
    * @param token token을 이용하여, 사용자 검증 이후 기존의 등록된 사용자라면 정보를 load 하고 그렇지 않을 경우, 회원가입 후 정보를 load 한다.
    * @return the user entity
    */
-  public UserEntity loadUserOrRegister(FirebaseToken token) {
+  public UserEntity loadUserOrRegister(String serviceProvider, FirebaseToken token) {
     UserEntity user;
     try {
-      user = (UserEntity) loadUserByUsername(OAuthProfile.GOOGLE_PREFIX + token.getUid());
+      user = (UserEntity) loadUserByUsername(serviceProvider + token.getUid());
     } catch (UsernameNotFoundException e) {
-      OAuth2UserRegisterDto dto =
-          OAuth2UserRegisterDto.builder()
-              .username(OAuthProfile.GOOGLE_PREFIX + token.getUid().substring(0, 4))
-              .email(token.getEmail())
-              .nickname(Constants.INIT_NICKNAME)
-              .build();
+      String username = serviceProvider + token.getUid();
+      OAuth2UserRegisterDto dto = OAuth2UserRegisterDto.builder()
+          .username(
+              (username.substring(0, Math.min(token.getUid().length(), MAX_USERNAME_SIZE - 1))))
+          .email(token.getEmail())
+          .nickname(INIT_NICKNAME)
+          .build();
 
       user = register(dto);
     }
@@ -54,26 +59,36 @@ public class OAuth2UserService implements UserDetailsService {
   }
 
   /**
-   * Register user entity.
+   * <h1>Register user entity</h1>
    *
    * @param dto 회원가입에 필수적인 정보(email, nickname) <br> OAuth2 회원가입은 패스워드를 요구하지 않는다.
    * @return the user entity
    */
   @Transactional
   public UserEntity register(OAuth2UserRegisterDto dto) {
+
     UserEntity userEntity = dto.toUserEntity();
 
     userEntity = userRepository.save(userEntity);
     // nickname 필드의 postfix에 identifier 추가 (닉네임 중복 방지)
     Long uid = userEntity.getId();
-    initNickname(userEntity, dto.getNickname() + uid);
+    if (dto.getNickname().startsWith(INIT_NICKNAME)) {
+      initNickname(userEntity, dto.getNickname() + uid);
+    }
+    initUsername(userEntity, userEntity.getUsername());
     userRepository.save(userEntity);
     return userEntity;
   }
 
-  public void initNickname(@NotNull UserEntity user, String nickname) {
+
+  private void initNickname(@NotNull UserEntity user, String nickname) {
     user.setNickname(nickname);
   }
 
+  private void initUsername(@NotNull UserEntity user, String username) {
+    username = username.substring(0,
+        Math.min(MAX_USERNAME_SIZE - 1, username.length()));
+    user.setUsername(username);
+  }
 
 }

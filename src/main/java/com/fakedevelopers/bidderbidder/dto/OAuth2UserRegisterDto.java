@@ -21,7 +21,7 @@ import org.springframework.lang.Nullable;
 public class OAuth2UserRegisterDto {
 
   @NotBlank(message = "사용자ID는 공백문자가 포함될 수 없습니다")
-  @Pattern(message = "사용자ID에는 영문자, 숫자, _만 포함 가능합니다", regexp = "[a-zA-Z0-9_]")
+  @Pattern(message = "사용자ID에는 영문자, 숫자, _만 포함 가능합니다", regexp = "\\w")
   private final String username;
 
   @Email(message = "이메일의 형식을 따라야 합니다.")
@@ -33,11 +33,22 @@ public class OAuth2UserRegisterDto {
   @Length(min = 3, max = 12)
   private final String nickname;
 
+  @Nullable
+  private final String serviceProvider;
+
   public UserEntity toUserEntity() {
     return UserEntity.builder()
         .username(username)
         .email(email)
         .nickname(nickname)
+        .build();
+  }
+
+  public static OAuth2UserRegisterDto of(UserEntity userEntity) {
+    return OAuth2UserRegisterDto.builder()
+        .username(userEntity.getUsername())
+        .email(userEntity.getEmail())
+        .nickname(userEntity.getNickname())
         .build();
   }
 }
