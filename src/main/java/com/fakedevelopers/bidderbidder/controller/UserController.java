@@ -52,7 +52,8 @@ public class UserController {
 
 
   @PostMapping("/signin-google")
-  public UserInfo oAuth2GoogleLoginOrRegister(@RequestHeader("Authorization") String authorization) {
+  public UserInfo oAuth2GoogleLoginOrRegister(
+      @RequestHeader("Authorization") String authorization) {
     // Authorization: Bearer <token> 형식
     final FirebaseToken decodedToken;
     // 추후에 토큰 유효성 검사는 Filter 처리
@@ -69,15 +70,20 @@ public class UserController {
 
   /**
    * <h1> signin-kakao </h1>
-   * @param code 카카오 인증 서버에서 redirect uri 로 보내주는 authorization code
-   * @param error 클라이언트가 카카오 인증 서버로 보내는 요청에 문제가 발생했을 경우, 존재하는 값.
-   *              에러 메세지에 대한 자세한 내용은 kakao developer API 문서를 참고
+   *
+   * @param code  카카오 인증 서버에서 redirect uri 로 보내주는 authorization code
+   * @param error 클라이언트가 카카오 인증 서버로 보내는 요청에 문제가 발생했을 경우, 존재하는 값. 에러 메세지에 대한 자세한 내용은 kakao developer
+   *              API 문서를 참고
    * @return User Credential에 해당하는 custom token을 반환
-   * <br> 클라이언트는 signInWithCustomToken의 결과로 받아온 인스턴스에서 getIdToken() 메소드를 통해 firebase id token을 얻을 수 있다.
-   * @see <a href=https://firebase.google.com/docs/auth/admin/create-custom-tokens?hl=ko#web-version-9>커스텀 토큰 활용 방법</a>
+   * <br> 클라이언트는 signInWithCustomToken의 결과로 받아온 인스턴스에서 getIdToken() 메소드를 통해 firebase id token을 얻을 수
+   * 있다.
+   * @see <a
+   * href=https://firebase.google.com/docs/auth/admin/create-custom-tokens?hl=ko#web-version-9>커스텀
+   * 토큰 활용 방법</a>
    */
   @GetMapping("/signin-kakao")
-  public String oAuth2KakaoLoginOrRegister(@RequestParam(value = "code", required = false) String code,
+  public String oAuth2KakaoLoginOrRegister(
+      @RequestParam(value = "code", required = false) String code,
       @RequestParam(value = "error", required = false) String error) {
 
     try {
@@ -107,10 +113,6 @@ public class UserController {
     }
     return firebaseCustomToken;
   }
-
-
-
-
 
 
 }
