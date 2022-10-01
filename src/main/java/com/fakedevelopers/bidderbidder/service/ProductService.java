@@ -1,7 +1,6 @@
 package com.fakedevelopers.bidderbidder.service;
 
 import static java.lang.Math.min;
-
 import com.fakedevelopers.bidderbidder.domain.Constants;
 import com.fakedevelopers.bidderbidder.dto.PageListResponseDto;
 import com.fakedevelopers.bidderbidder.dto.ProductInformationDto;
@@ -11,7 +10,7 @@ import com.fakedevelopers.bidderbidder.dto.ProductWriteDto;
 import com.fakedevelopers.bidderbidder.exception.InvalidCategoryException;
 import com.fakedevelopers.bidderbidder.exception.InvalidExpirationDateException;
 import com.fakedevelopers.bidderbidder.exception.InvalidExtensionException;
-import com.fakedevelopers.bidderbidder.exception.InvalidHopePriceException;
+import com.fakedevelopers.bidderbidder.exception.InvalidOpeningBidException;
 import com.fakedevelopers.bidderbidder.exception.InvalidRepresentPictureIndexException;
 import com.fakedevelopers.bidderbidder.exception.NoImageException;
 import com.fakedevelopers.bidderbidder.exception.NotFoundImageException;
@@ -84,7 +83,7 @@ public class ProductService {
   /**
    * . 게시글 저장
    */
-  public void saveProduct(ProductWriteDto productWriteDto, List<MultipartFile> files)
+  public ProductEntity saveProduct(ProductWriteDto productWriteDto, List<MultipartFile> files)
       throws Exception {
 
     if (files == null) {
@@ -101,17 +100,18 @@ public class ProductService {
     saveResizeFile(
         representFileEntity.getSavedFileName(), savedProductEntity.getProductId(),
         pathList);
-
+    return savedProductEntity;
   }
 
   private void saveProductValidation(ProductWriteDto productWriteDto, List<MultipartFile> files) {
-    compareBids(productWriteDto.getHopePrice(), productWriteDto.getOpeningBid());
+    checkOpeningBid(productWriteDto.getHopePrice(), productWriteDto.getOpeningBid());
     compareDate(productWriteDto.getExpirationDate());
     checkCategoryId(productWriteDto.getCategory());
     checkLastSubCategory(productWriteDto.getCategory());
     compareExtension(files);
     imageCount(productWriteDto.getRepresentPicture(), files);
   }
+
 
   // 입력 받은 이미지를 web, app 에 맞게 각각 리사이징 후 저장
   private void saveResizeFile(String fileName, Long productId, List<String> pathList)
@@ -123,9 +123,12 @@ public class ProductService {
   }
 
   // 시작가가 희망가보다 적은지 확인
-  private void compareBids(Long hopePrice, long openingBid) {
+  private void checkOpeningBid(Long hopePrice, long openingBid) {
+    if (openingBid < 1) {
+      throw new InvalidOpeningBidException("시작가는 1이상이어야 합니다.");
+    }
     if (hopePrice != null && hopePrice < openingBid) {
-      throw new InvalidHopePriceException();
+      throw new InvalidOpeningBidException("시작가가 희망가보다 큽니다.");
     }
   }
 
