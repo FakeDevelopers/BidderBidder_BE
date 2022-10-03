@@ -6,7 +6,6 @@ build/
 !**/src/test/**/build/
 firebase.json
 src/test/java/com/fakedevelopers/bidderbidder/IntegrationTestBase.java
-bfgConfig.*
 
 ### STS ###
 .apt_generated
