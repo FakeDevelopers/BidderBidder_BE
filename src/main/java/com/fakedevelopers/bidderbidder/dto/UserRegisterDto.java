@@ -4,6 +4,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.Length;
@@ -11,6 +12,11 @@ import org.hibernate.validator.constraints.Length;
 @Getter
 @RequiredArgsConstructor
 public class UserRegisterDto {
+
+  @NotBlank
+  @Length(min = 6, max = 12)
+  @Pattern(regexp = "[a-zA-Z0-9_]")
+  private final String username;
 
   @Email(message = "이메일의 형식을 따라야 합니다.")
   @NotNull(message = "이메일 필드가 정의되어있지않습니다.")
