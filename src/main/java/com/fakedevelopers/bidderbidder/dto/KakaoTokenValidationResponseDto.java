@@ -1,5 +1,6 @@
 package com.fakedevelopers.bidderbidder.dto;
 
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,6 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class KakaoTokenValidationResponseDto {
 
+  @NotNull
   private Long id;
   private Integer expires_in;
   private Integer app_id;

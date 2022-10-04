@@ -14,8 +14,7 @@ import org.hibernate.validator.constraints.Length;
 public class UserRegisterDto {
 
   @NotBlank
-  @Length(min = 6, max = 12)
-  @Pattern(regexp = "[a-zA-Z0-9_]")
+  @Pattern(regexp = "\\w{6,12}")
   private final String username;
 
   @Email(message = "이메일의 형식을 따라야 합니다.")

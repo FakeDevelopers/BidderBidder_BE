@@ -47,7 +47,7 @@ public class KakaoOAuthService {
     }
     // 2. 사용자가 권한 인증을 수행하지 않았거나 로그인 과정이 실패한 경우
     if (error != null) {
-      throw new HttpException(HttpStatus.BAD_REQUEST, error);
+      throw new HttpException(HttpStatus.UNAUTHORIZED, error);
     }
   }
 

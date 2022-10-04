@@ -1,17 +1,17 @@
 package com.fakedevelopers.bidderbidder.domain;
 
-import static com.fakedevelopers.bidderbidder.domain.Constants.*;
+import static com.fakedevelopers.bidderbidder.domain.Constants.UTILITY_CLASS;
 
 public class OAuthProfile {
 
   private OAuthProfile() {
-    throw new IllegalStateException(UTILITY_CLASS);
+    throw new AssertionError(UTILITY_CLASS);
   }
 
-  public static class KAKAO {
+  public static class KAKAO extends OAuthProfile {
 
     private KAKAO() {
-      throw new IllegalStateException(UTILITY_CLASS);
+      super();
     }
 
     public static final String TITLE = "KAKAO";
@@ -30,29 +30,29 @@ public class OAuthProfile {
     public static final String REQUEST_TOKENINFO_URL = "/v1/user/access_token_info";
   }
 
-  public static class GOOGLE {
+  public static class GOOGLE extends OAuthProfile {
 
     private GOOGLE() {
-      throw new IllegalStateException(UTILITY_CLASS);
+      super();
     }
 
     public static final String PREFIX = "google_";
   }
 
-  public static class NAVER {
+  public static class NAVER extends OAuthProfile {
 
     private NAVER() {
-      throw new IllegalStateException(UTILITY_CLASS);
+      super();
     }
 
     public static final String PREFIX = "naver_";
 
   }
 
-  public static class APPLE {
+  public static class APPLE extends OAuthProfile {
 
     private APPLE() {
-      throw new IllegalStateException(UTILITY_CLASS);
+      super();
     }
 
     public static final String PREFIX = "apple_";
