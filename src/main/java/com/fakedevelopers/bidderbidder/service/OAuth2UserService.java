@@ -71,9 +71,8 @@ public class OAuth2UserService implements UserDetailsService {
 
     userEntity = userRepository.save(userEntity);
     // nickname 필드의 postfix에 identifier 추가 (닉네임 중복 방지)
-    Long uid = userEntity.getId();
     if (dto.getNickname().startsWith(INIT_NICKNAME)) {
-      initNickname(userEntity, dto.getNickname() + uid);
+      initNickname(userEntity, dto.getNickname() + userEntity.getId());
     }
     initUsername(userEntity, userEntity.getUsername());
     userRepository.save(userEntity);

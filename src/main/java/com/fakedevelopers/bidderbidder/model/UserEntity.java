@@ -35,7 +35,6 @@ public class UserEntity implements UserDetails {
 
   @Column(unique = true, nullable = false)
   @Size(min = MIN_USERNAME_SIZE, max = MAX_USERNAME_SIZE)
-  //@Pattern(regexp = "[a-zA-Z_]$")
   private String username; // 유저를 고유하게 구분할 수 있는 String을 의미합니다.
 
   @Email
