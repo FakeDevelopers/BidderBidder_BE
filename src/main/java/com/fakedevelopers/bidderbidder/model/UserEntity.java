@@ -1,12 +1,17 @@
 package com.fakedevelopers.bidderbidder.model;
 
+import static com.fakedevelopers.bidderbidder.domain.Constants.MAX_USERNAME_SIZE;
+import static com.fakedevelopers.bidderbidder.domain.Constants.MIN_USERNAME_SIZE;
+
 import java.util.Collection;
+import java.util.Collections;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,25 +33,31 @@ public class UserEntity implements UserDetails {
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
 
-  @Email
   @Column(unique = true, nullable = false)
+  @Size(min = MIN_USERNAME_SIZE, max = MAX_USERNAME_SIZE)
+  private String username; // 유저를 고유하게 구분할 수 있는 String을 의미합니다.
+
+  @Email
+  @Column(unique = true, nullable = true)
   private String email;
 
   @Column(nullable = false)
   private String nickname;
 
-  @Column()
+  @Column(nullable = true)
   private String password;
 
   /**
-   * Instantiates a new User entity.
+   * Instantiates a new User entity. *
    *
-   * @param email    이메일 형식 준수, not-null
+   * @param username 아이디는 6~12글자의 (영문자, 숫자, _)만 사용이 가능
+   * @param email    이메일 형식 준수, nullable
    * @param nickname 기본값(Constants.java) 참고
    * @param password null일 경우 OAuth 로그인
    */
   @Builder
-  public UserEntity(String email, String nickname, String password) {
+  public UserEntity(String username, String email, String nickname, String password) {
+    this.username = username;
     this.email = email;
     this.nickname = nickname;
     this.password = password;
@@ -55,7 +66,7 @@ public class UserEntity implements UserDetails {
   /* 아래는 firebase와 관련된 내용 */
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return null;
+    return Collections.emptyList();
   }
 
   @Override
@@ -66,7 +77,7 @@ public class UserEntity implements UserDetails {
   @Override
   public String getUsername() {
     // User Identifier
-    return this.email;
+    return this.username;
   }
 
   @Override

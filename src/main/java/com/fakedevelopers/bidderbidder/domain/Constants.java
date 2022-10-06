@@ -5,6 +5,7 @@ package com.fakedevelopers.bidderbidder.domain;
  */
 public class Constants {
 
+  public static final String UTILITY_CLASS = "Utility Class";
   public static final int APP_RESIZE_SIZE = 100;
   public static final int WEB_RESIZE_SIZE = 200;
   public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";
@@ -18,6 +19,9 @@ public class Constants {
   public static final String FAIL = "fail";
   public static final String REQUIRED = "required";
   public static final String OPTIONAL = "optional";
+
+  public static final int MIN_USERNAME_SIZE = 6;
+  public static final int MAX_USERNAME_SIZE = 64;
 
   private Constants() {
     throw new IllegalStateException("Utility State");
