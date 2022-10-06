@@ -5,6 +5,7 @@ import static com.fakedevelopers.bidderbidder.domain.Constants.MAX_USERNAME_SIZE
 
 import com.fakedevelopers.bidderbidder.dto.OAuth2UserRegisterDto;
 import com.fakedevelopers.bidderbidder.model.UserEntity;
+import com.fakedevelopers.bidderbidder.properties.OAuth2Properties;
 import com.fakedevelopers.bidderbidder.repository.UserRepository;
 import com.google.firebase.auth.FirebaseToken;
 import javax.validation.constraints.NotNull;
@@ -18,11 +19,18 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * The type OAuth2 User Service.
  */
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class OAuth2UserService implements UserDetailsService {
 
   private final UserRepository userRepository;
+  private final OAuth2Properties oAuth2Properties;
+
+
+  public String getBaseRedirectURI() {
+    return oAuth2Properties.getRedirect().getBase().getUri();
+  }
+
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

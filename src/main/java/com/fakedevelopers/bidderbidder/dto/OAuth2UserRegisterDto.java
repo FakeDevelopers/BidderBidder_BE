@@ -21,11 +21,10 @@ import org.springframework.lang.Nullable;
 public class OAuth2UserRegisterDto {
 
   @NotBlank(message = "사용자ID는 공백문자가 포함될 수 없습니다")
-  @Pattern(message = "사용자ID에는 영문자, 숫자, _만 포함 가능합니다", regexp = "\\w")
+  @Pattern(message = "사용자ID에는 영문자, 숫자, _만 포함 가능합니다", regexp = "\\w{6,64}")
   private final String username;
 
   @Email(message = "이메일의 형식을 따라야 합니다.")
-//  @NotBlank(message = "이메일에는 공백문자가 포함될 수 없습니다")
   @Nullable
   private final String email;
 

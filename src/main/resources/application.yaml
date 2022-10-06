@@ -51,6 +51,11 @@ spring:
 sentry:
   environment: prod
 
+oauth2:
+  redirect:
+    base:
+      uri: "http://bidderbidderapi.kro.kr:80"
+
 ---
 server:
   port: 8080
@@ -62,3 +67,26 @@ spring:
 
 sentry:
   environment: dev
+
+oauth2:
+  redirect:
+    base:
+      uri: "http://bidderbidderapi.kro.kr:8080"
+
+---
+### local phase configuartion
+server:
+  port: 8080
+
+spring:
+  config:
+    activate:
+      on-profile: local
+
+sentry:
+  environment: local
+
+oauth2:
+  redirect:
+    base:
+      uri: http://localhost:8080

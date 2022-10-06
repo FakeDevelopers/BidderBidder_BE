@@ -18,9 +18,8 @@ public class OAuthProfile {
     public static final String PREFIX = "kakao_";
     public static final String GRANT_TYPE = "authorization_code";
     public static final String CLIENT_ID = "cd5499f387c4ffb03b5928946765e699";
-    public static final String LOCAL_REDIRECT_URI = "http://localhost:8080/user/signin-kakao";
-    public static final String SANDBOX_REDIRECT_URI = "http://bidderbidderapi.kro.kr:8080/user/signin-kakao";
-    public static final String REAL_REDIRECT_URI = "http://bidderbidderapi.kro.kr:80/user/signin-kakao";
+
+    public static final String REDIRECT_URI = "/user/signin-kakao";
 
     public static final String KAUTH_BASE_URL = "https://kauth.kakao.com";
     public static final String REQUEST_TOKEN_URL = "/oauth/token";

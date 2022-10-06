@@ -61,7 +61,8 @@ public class KakaoOAuthService {
     MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
     formData.add("grant_type", KAKAO.GRANT_TYPE);
     formData.add("client_id", KAKAO.CLIENT_ID);
-    formData.add("redirect_uri", KAKAO.LOCAL_REDIRECT_URI); // 실제 서버의 URI
+    formData.add("redirect_uri",
+        oAuth2UserService.getBaseRedirectURI() + KAKAO.REDIRECT_URI); // 실제 서버의 URI
     formData.add("code", code);
 
     // access token 정보가 response에 저장된다.
@@ -97,7 +98,7 @@ public class KakaoOAuthService {
   /**
    * *
    *
-   * @param accessToken service Provider가 제공하는 액세스 토큰
+   * @param accessToken     service Provider가 제공하는 액세스 토큰
    * @param serviceProvider custom token의 claim으로 들어갈 서비스 제공자의 이름
    * @return accessToken의 uid와 Service provider에 해당하는 커스텀 토큰을 생성한다.
    * @throws FirebaseAuthException 파이어베이스 연동 중 발생하는 오류
