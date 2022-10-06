@@ -1,5 +1,6 @@
 package com.fakedevelopers.bidderbidder.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,14 +15,17 @@ public class KakaoTokenValidationResponseDto {
 
   @NotNull
   private Long id;
-  private Integer expires_in;
-  private Integer app_id;
+
+  @JsonProperty(value = "expires_in")
+  private Integer expiresIn;
+  @JsonProperty(value = "app_id")
+  private Integer appId;
 
   private Integer code; // 에러 코드에 해당
 
   @Override
   public String toString() {
-    return "KakaoTokenValidationResponseDto{" + "id=" + id + ", expires_in=" + expires_in
-        + ", app_id=" + app_id + '}';
+    return "KakaoTokenValidationResponseDto{" + "id=" + id + ", expiresIn=" + expiresIn + ", appId="
+        + appId + ", code=" + code + '}';
   }
 }

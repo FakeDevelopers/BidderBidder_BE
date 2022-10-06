@@ -74,7 +74,7 @@ public class KakaoOAuthService {
       throws KakaoApiException, WebClientRequestException {
     KakaoTokenValidationResponseDto validationResponse = WebClient.create(KAKAO.KAPI_BASE_URL)
         .get().uri(KAKAO.REQUEST_TOKENINFO_URL)
-        .header("Authorization", "Bearer " + dto.getAccess_token()).retrieve()
+        .header("Authorization", "Bearer " + dto.getAccessToken()).retrieve()
         .bodyToMono(KakaoTokenValidationResponseDto.class).block();
     if (validationResponse == null) {
       throw new WebClientRequestException(HttpStatus.BAD_REQUEST, "WebClient 오류");

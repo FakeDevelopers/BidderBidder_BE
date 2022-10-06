@@ -104,7 +104,7 @@ public class UserController {
     }
 
     // access token을 이용하여, firebase custom token을 만든다.
-    String accessToken = responseDto.getAccess_token();
+    String accessToken = responseDto.getAccessToken();
     String firebaseCustomToken;
     try {
       firebaseCustomToken = kakaoOAuthService.makeFirebaseCustomToken(accessToken, KAKAO.TITLE);
