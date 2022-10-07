@@ -10,6 +10,7 @@ import com.fakedevelopers.bidderbidder.model.ProductEntity;
 import com.fakedevelopers.bidderbidder.model.QProductEntity;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.StringPath;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
@@ -57,22 +58,28 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
       return null;
     }
     String noSpaceWord = searchWord.replace(" ", "");
+
+    final BooleanExpression SEARCH_NO_SPACE_TITLE = noSpaceSearch(productEntity.productTitle, noSpaceWord);
+    final BooleanExpression SEARCH_NO_SPACE_CONTENT = noSpaceSearch(productEntity.productContent,
+        noSpaceWord);
+
     redisRepository.saveSearchWord(searchWord);
     switch (searchType) {
       case SEARCH_TITLE:
-        return Expressions.stringTemplate(REPLACE_FUNCTION, productEntity.productTitle, " ", "")
-            .containsIgnoreCase(noSpaceWord);
+        return SEARCH_NO_SPACE_TITLE;
       case SEARCH_CONTENT:
-        return Expressions.stringTemplate(REPLACE_FUNCTION, productEntity.productContent, " ", "")
-            .containsIgnoreCase(noSpaceWord);
+        return SEARCH_NO_SPACE_CONTENT;
       case SEARCH_TITLE_AND_CONTENT:
-        return Expressions.stringTemplate(REPLACE_FUNCTION, productEntity.productTitle, " ", "")
-            .containsIgnoreCase(noSpaceWord).or(
-                Expressions.stringTemplate(REPLACE_FUNCTION, productEntity.productContent, " ", "")
-                    .containsIgnoreCase(noSpaceWord));
+        return SEARCH_NO_SPACE_TITLE.or(
+            SEARCH_NO_SPACE_CONTENT);
 
       default:
         throw new InvalidSearchTypeException();
     }
+  }
+
+  private BooleanExpression noSpaceSearch(StringPath searchType, String searchWord) {
+    return Expressions.stringTemplate(REPLACE_FUNCTION, searchType, " ", "")
+        .containsIgnoreCase(searchWord);
   }
 }
