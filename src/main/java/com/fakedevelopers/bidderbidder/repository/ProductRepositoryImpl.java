@@ -1,14 +1,15 @@
 package com.fakedevelopers.bidderbidder.repository;
 
+import static com.fakedevelopers.bidderbidder.domain.Constants.REPLACE_FUNCTION;
 import static com.fakedevelopers.bidderbidder.domain.Constants.SEARCH_CONTENT;
 import static com.fakedevelopers.bidderbidder.domain.Constants.SEARCH_TITLE;
 import static com.fakedevelopers.bidderbidder.domain.Constants.SEARCH_TITLE_AND_CONTENT;
-
 import com.fakedevelopers.bidderbidder.dto.ProductListRequestDto;
 import com.fakedevelopers.bidderbidder.exception.InvalidSearchTypeException;
 import com.fakedevelopers.bidderbidder.model.ProductEntity;
 import com.fakedevelopers.bidderbidder.model.QProductEntity;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
@@ -59,14 +60,17 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     redisRepository.saveSearchWord(searchWord);
     switch (searchType) {
       case SEARCH_TITLE:
-        return productEntity.productTitle.containsIgnoreCase(noSpaceWord);
+        return Expressions.stringTemplate(REPLACE_FUNCTION, productEntity.productTitle, " ", "")
+            .containsIgnoreCase(noSpaceWord);
       case SEARCH_CONTENT:
-        return productEntity.productContent.containsIgnoreCase(noSpaceWord);
+        return Expressions.stringTemplate(REPLACE_FUNCTION, productEntity.productContent, " ", "")
+            .containsIgnoreCase(noSpaceWord);
       case SEARCH_TITLE_AND_CONTENT:
-        return productEntity
-            .productTitle
-            .containsIgnoreCase(noSpaceWord)
-            .or(productEntity.productContent.containsIgnoreCase(noSpaceWord));
+        return Expressions.stringTemplate(REPLACE_FUNCTION, productEntity.productTitle, " ", "")
+            .containsIgnoreCase(noSpaceWord).or(
+                Expressions.stringTemplate(REPLACE_FUNCTION, productEntity.productContent, " ", "")
+                    .containsIgnoreCase(noSpaceWord));
+
       default:
         throw new InvalidSearchTypeException();
     }
