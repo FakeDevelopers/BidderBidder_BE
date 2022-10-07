@@ -59,19 +59,19 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
     String noSpaceWord = searchWord.replace(" ", "");
 
-    final BooleanExpression SEARCH_NO_SPACE_TITLE = noSpaceSearch(productEntity.productTitle, noSpaceWord);
-    final BooleanExpression SEARCH_NO_SPACE_CONTENT = noSpaceSearch(productEntity.productContent,
+    final BooleanExpression searchNoSpaceTitle = noSpaceSearch(productEntity.productTitle, noSpaceWord);
+    final BooleanExpression searchNoSpaceContent = noSpaceSearch(productEntity.productContent,
         noSpaceWord);
 
     redisRepository.saveSearchWord(searchWord);
     switch (searchType) {
       case SEARCH_TITLE:
-        return SEARCH_NO_SPACE_TITLE;
+        return searchNoSpaceTitle;
       case SEARCH_CONTENT:
-        return SEARCH_NO_SPACE_CONTENT;
+        return searchNoSpaceContent;
       case SEARCH_TITLE_AND_CONTENT:
-        return SEARCH_NO_SPACE_TITLE.or(
-            SEARCH_NO_SPACE_CONTENT);
+        return searchNoSpaceTitle.or(
+            searchNoSpaceContent);
 
       default:
         throw new InvalidSearchTypeException();
