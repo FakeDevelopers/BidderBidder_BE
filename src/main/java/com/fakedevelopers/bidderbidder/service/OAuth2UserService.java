@@ -5,6 +5,7 @@ import static com.fakedevelopers.bidderbidder.domain.Constants.MAX_USERNAME_SIZE
 
 import com.fakedevelopers.bidderbidder.dto.OAuth2UserRegisterDto;
 import com.fakedevelopers.bidderbidder.model.UserEntity;
+import com.fakedevelopers.bidderbidder.properties.NaverClientProperties;
 import com.fakedevelopers.bidderbidder.properties.OAuth2Properties;
 import com.fakedevelopers.bidderbidder.repository.UserRepository;
 import com.google.firebase.auth.FirebaseToken;
@@ -25,12 +26,20 @@ public class OAuth2UserService implements UserDetailsService {
 
   private final UserRepository userRepository;
   private final OAuth2Properties oAuth2Properties;
+  private final NaverClientProperties naverClientProperties;
 
 
   public String getBaseRedirectURI() {
     return oAuth2Properties.getRedirect().getBase().getUri();
   }
 
+  public String getNaverClientId() {
+    return naverClientProperties.getId();
+  }
+
+  public String getNaverClientSecret() {
+    return naverClientProperties.getSecret();
+  }
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
