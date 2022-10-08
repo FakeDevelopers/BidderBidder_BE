@@ -44,8 +44,27 @@ public class OAuthProfile {
       super();
     }
 
+    public static final String TITLE = "NAVER";
     public static final String PREFIX = "naver_";
+    public static final String RESPONSE_TYPE = "code";
+    public static final String CLIENT_ID = "R05yUCOPBcLQl9czxnew";
 
+    public static final String REDIRECT_URI = "/user/signin-naver";
+
+    public static class GrantType {
+
+      private GrantType() {
+        super();
+      }
+
+      // access token에 대한 처리
+      public static final String AUTHORIZATION_CODE = "authorization_code"; // 발급
+      public static final String REFRESH_TOKEN = "refresh_token"; // 갱신
+      public static final String DELETE = "delete"; // 삭제
+    }
+
+    public static final String REQUEST_TOKEN_URL = "https://nid.naver.com/oauth2.0/token";
+    public static final String REQUEST_USERINFO_URL = "https://openapi.naver.com/v1/nid/me";
   }
 
   public static class APPLE extends OAuthProfile {
