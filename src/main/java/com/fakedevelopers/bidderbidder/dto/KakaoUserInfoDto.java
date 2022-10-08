@@ -31,6 +31,6 @@ public class KakaoUserInfoDto {
     return OAuth2UserRegisterDto.builder().username(KAKAO.PREFIX + id)
         .email(kakaoAccount.getEmail())
         .nickname(Constants.INIT_NICKNAME) // 닉네임은 반드시 중복 방지를 위하여 추가작업이 필요하다.
-        .serviceProvider(KAKAO.PREFIX).build();
+        .serviceProvider(KAKAO.TITLE).build();
   }
 }

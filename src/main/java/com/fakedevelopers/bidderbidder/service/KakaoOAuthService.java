@@ -1,5 +1,8 @@
 package com.fakedevelopers.bidderbidder.service;
 
+import static com.fakedevelopers.bidderbidder.domain.Constants.MAX_USERNAME_SIZE;
+import static java.lang.Math.min;
+
 import com.fakedevelopers.bidderbidder.domain.OAuthProfile.KAKAO;
 import com.fakedevelopers.bidderbidder.dto.KakaoAccessTokenResponseDto;
 import com.fakedevelopers.bidderbidder.dto.KakaoTokenValidationResponseDto;
@@ -98,29 +101,33 @@ public class KakaoOAuthService {
   /**
    * *
    *
-   * @param accessToken     service Provider가 제공하는 액세스 토큰
-   * @param serviceProvider custom token의 claim으로 들어갈 서비스 제공자의 이름
+   * @param accessToken service Provider가 제공하는 액세스 토큰
+   * @param prefix      custom token의 claim으로 들어갈 서비스 제공자의 Prefix
    * @return accessToken의 uid와 Service provider에 해당하는 커스텀 토큰을 생성한다.
    * @throws FirebaseAuthException 파이어베이스 연동 중 발생하는 오류
    */
-  public String makeFirebaseCustomToken(@NotNull String accessToken, String serviceProvider)
+  public String makeFirebaseCustomToken(@NotNull String accessToken, String prefix)
       throws FirebaseAuthException {
 
     KakaoUserInfoDto userInfo = getUserInfo(accessToken);
     if (userInfo == null) {
       throw new WebClientRequestException(HttpStatus.BAD_REQUEST, "WebClient 오류");
     }
-    if (userRepository.findByUsername(serviceProvider + userInfo.getId())
-        .isEmpty()) {
 
+    String userId = String.valueOf(userInfo.getId());
+    String targetUsername = (prefix + userId).substring(0,
+        min((prefix + userId).length(), MAX_USERNAME_SIZE - 1));
+
+    if (userRepository.findByUsername(targetUsername)
+        .isEmpty()) {
       oAuth2UserService.register(userInfo.toOAuth2UserRegisterDto());
     }
 
     Map<String, Object> additionalClaims = new HashMap<>();
     additionalClaims.put("id", userInfo.getId());
-    additionalClaims.put("provider", serviceProvider);
+    additionalClaims.put("provider", prefix);
 
     return FirebaseAuth.getInstance()
-        .createCustomToken(serviceProvider + userInfo.getId(), additionalClaims);
+        .createCustomToken(prefix + userInfo.getId(), additionalClaims);
   }
 }
