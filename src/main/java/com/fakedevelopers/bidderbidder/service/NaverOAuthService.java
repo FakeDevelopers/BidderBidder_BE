@@ -78,8 +78,7 @@ public class NaverOAuthService {
     validateDto(userInfo);
 
     String userId = userInfo.getResponse().getId();
-    String targetUsername = (prefix + userId).substring(0,
-        min((prefix + userId).length(), MAX_USERNAME_SIZE - 1));
+    String targetUsername = OAuth2UserService.makeUsernameWithPrefix(prefix, userId);
     Optional<UserEntity> target = userRepository.findByUsername(targetUsername);
     if (target.isEmpty()) {
       oAuth2UserService.register(userInfo.toOAuth2UserRegisterDto());

@@ -109,7 +109,7 @@ public class UserController {
     String accessToken = responseDto.getAccessToken();
     String firebaseCustomToken;
     try {
-      firebaseCustomToken = kakaoOAuthService.makeFirebaseCustomToken(accessToken, KAKAO.TITLE);
+      firebaseCustomToken = kakaoOAuthService.makeFirebaseCustomToken(accessToken, KAKAO.PREFIX);
     } catch (FirebaseAuthException e) {
       throw new KakaoApiException(HttpStatus.INTERNAL_SERVER_ERROR.value());
     }

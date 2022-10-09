@@ -47,8 +47,6 @@ public class OAuthProfile {
     public static final String TITLE = "NAVER";
     public static final String PREFIX = "naver_";
     public static final String RESPONSE_TYPE = "code";
-    public static final String CLIENT_ID = "R05yUCOPBcLQl9czxnew";
-
     public static final String REDIRECT_URI = "/user/signin-naver";
 
     public static class GrantType {
