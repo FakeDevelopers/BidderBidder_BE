@@ -115,8 +115,7 @@ public class KakaoOAuthService {
     }
 
     String userId = String.valueOf(userInfo.getId());
-    String targetUsername = (prefix + userId).substring(0,
-        min((prefix + userId).length(), MAX_USERNAME_SIZE - 1));
+    String targetUsername = OAuth2UserService.makeUsernameWithPrefix(prefix, userId);
 
     if (userRepository.findByUsername(targetUsername)
         .isEmpty()) {
@@ -128,6 +127,6 @@ public class KakaoOAuthService {
     additionalClaims.put("provider", prefix);
 
     return FirebaseAuth.getInstance()
-        .createCustomToken(prefix + userInfo.getId(), additionalClaims);
+        .createCustomToken(targetUsername, additionalClaims);
   }
 }
