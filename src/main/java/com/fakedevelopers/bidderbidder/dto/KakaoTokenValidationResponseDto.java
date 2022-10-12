@@ -1,6 +1,7 @@
 package com.fakedevelopers.bidderbidder.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,14 +12,13 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class KakaoTokenValidationResponseDto {
 
   @NotNull
   private Long id;
 
-  @JsonProperty(value = "expires_in")
   private Integer expiresIn;
-  @JsonProperty(value = "app_id")
   private Integer appId;
 
   private Integer code; // 에러 코드에 해당

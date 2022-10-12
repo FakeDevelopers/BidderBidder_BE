@@ -39,6 +39,12 @@ sentry:
   traces-sample-rate: 1.0
   sample-rate: 1.0
 
+oauth2:
+  naver:
+    client:
+      id: ${naver.client_id}
+      secret: ${naver.client_secret}
+
 ---
 server:
   port: 80
