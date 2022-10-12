@@ -31,7 +31,7 @@ public class NaverOAuthService {
 
   public void validateRequestFormat(String code, String error,
       String errorDescription) throws NaverApiException {
-    if ((code != null && error != null) || (code == null && error == null)) {
+    if ((code == null ) == (error == null)) {
       throw new NaverApiException(
           "code와 error는 베타적이여야한다.(request format error);" + "code: " + code + ", error: " + error);
     }
