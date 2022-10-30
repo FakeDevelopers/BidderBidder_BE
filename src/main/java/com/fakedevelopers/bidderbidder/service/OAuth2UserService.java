@@ -96,6 +96,11 @@ public class OAuth2UserService implements UserDetailsService {
     return userEntity;
   }
 
+  public static String makeUsernameWithPrefix(String prefix, String name) {
+    String username = prefix + name;
+    int maxLength = Math.min(username.length(), MAX_USERNAME_SIZE);
+    return username.substring(0, maxLength - 1);
+  }
 
   private void initNickname(@NotNull UserEntity user, String nickname) {
     user.setNickname(nickname);

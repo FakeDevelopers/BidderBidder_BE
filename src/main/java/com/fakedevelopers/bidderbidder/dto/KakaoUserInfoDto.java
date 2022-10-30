@@ -3,7 +3,8 @@ package com.fakedevelopers.bidderbidder.dto;
 
 import com.fakedevelopers.bidderbidder.domain.Constants;
 import com.fakedevelopers.bidderbidder.domain.OAuthProfile.KAKAO;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,13 +18,13 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class KakaoUserInfoDto {
 
   // username(not-null), email(nullable), nickname(not-null), password(nullable)
   @NotNull
   private Long id;
 
-  @JsonProperty(value = "kakao_account")
   private KakaoAccount kakaoAccount; // 이메일 정보가 포함된다.
 
 
