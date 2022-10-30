@@ -40,7 +40,7 @@ public class RedisRepository {
   }
 
   // 검색이 많은 검색어를 listCount 개수만큼 리스트로 받아옴
-  public void getPopularSearchWord() {
+  public void savePopularSearchWord() {
     ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
     List<String> rank = new ArrayList<>();
     Set<String> range = new HashSet<>();
@@ -49,7 +49,7 @@ public class RedisRepository {
     Map<String, Double> wordScore = new HashMap<>();
 
     // 이전 3일간의 모든 key 저장
-    for (int i = 1; i <= Constants.SEARCH_WORD_REMAIN_3DAYS; i++) {
+    for (int i = 1; i <= Constants.SEARCH_WORD_REMAIN_DAYS; i++) {
       range.addAll(getAllKeys(i));
     }
 
@@ -101,10 +101,10 @@ public class RedisRepository {
         : yesterdaySearchRank;
   }
 
-  @Scheduled(cron = "0 0 0 * * *")
+  @Scheduled(cron = "0 * * * * *")
   public void deleteSearchWords() {
-    getPopularSearchWord();
-    redisTemplate.delete(getAllKeys(Constants.SEARCH_WORD_DELETE_BEFORE_4DAYS));
+    savePopularSearchWord();
+    redisTemplate.delete(getAllKeys(Constants.SEARCH_WORD_REMAIN_DAYS + 1));
   }
 
   private Set<String> getAllKeys(int i) {
