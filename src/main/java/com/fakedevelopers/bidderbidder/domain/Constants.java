@@ -12,7 +12,6 @@ public class Constants {
   public static final String DATE_FORMAT_FOR_REDIS = "yyyyMMdd";
   public static final String SEARCH_WORD_REDIS = "searchWord:";
   public static final int SEARCH_WORD_REMAIN_DAYS = 3;
-  public static final int SEARCH_WORD_DELETE_DAY = 4;
   public static final String REPLACE_FUNCTION = "function('replace', {0}, {1}, {2})";
   public static final int SEARCH_TITLE = 0;
   public static final int SEARCH_CONTENT = 1;

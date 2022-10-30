@@ -104,7 +104,7 @@ public class RedisRepository {
   @Scheduled(cron = "0 * * * * *")
   public void deleteSearchWords() {
     savePopularSearchWord();
-    redisTemplate.delete(getAllKeys(Constants.SEARCH_WORD_DELETE_DAY));
+    redisTemplate.delete(getAllKeys(Constants.SEARCH_WORD_REMAIN_DAYS + 1));
   }
 
   private Set<String> getAllKeys(int i) {
