@@ -1,8 +1,5 @@
 package com.fakedevelopers.bidderbidder.service;
 
-import static com.fakedevelopers.bidderbidder.domain.Constants.MAX_USERNAME_SIZE;
-import static java.lang.Math.min;
-
 import com.fakedevelopers.bidderbidder.domain.OAuthProfile.NAVER;
 import com.fakedevelopers.bidderbidder.domain.OAuthProfile.NAVER.GrantType;
 import com.fakedevelopers.bidderbidder.dto.NaverAccessTokenResponseDto;
@@ -15,6 +12,7 @@ import com.google.firebase.auth.FirebaseAuthException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.validation.constraints.NotNull;
@@ -79,7 +77,7 @@ public class NaverOAuthService {
 
     String userId = userInfo.getResponse().getId();
     String targetUsername = OAuth2UserService.makeUsernameWithPrefix(prefix, userId);
-    Optional<UserEntity> target = userRepository.findByUsername(targetUsername);
+    List<UserEntity> target = userRepository.findByUsername(targetUsername);
     if (target.isEmpty()) {
       oAuth2UserService.register(userInfo.toOAuth2UserRegisterDto());
     }
