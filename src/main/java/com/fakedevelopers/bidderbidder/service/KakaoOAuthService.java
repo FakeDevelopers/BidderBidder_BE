@@ -40,6 +40,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 @RequiredArgsConstructor
 public class KakaoOAuthService {
 
+  private final UserService userService;
   private final OAuth2UserService oAuth2UserService;
   private final UserRepository userRepository;
 
@@ -115,7 +116,7 @@ public class KakaoOAuthService {
     }
 
     String userId = String.valueOf(userInfo.getId());
-    String targetUsername = OAuth2UserService.makeUsernameWithPrefix(prefix, userId);
+    String targetUsername = userService.makeUsernameWithPrefix(prefix, userId);
 
     if (userRepository.findByUsername(targetUsername)
         .isEmpty()) {

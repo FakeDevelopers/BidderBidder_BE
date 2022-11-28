@@ -24,12 +24,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 @RequiredArgsConstructor
 public class NaverOAuthService {
 
+  private final UserService userService;
   private final UserRepository userRepository;
   private final OAuth2UserService oAuth2UserService;
 
   public void validateRequestFormat(String code, String error,
       String errorDescription) throws NaverApiException {
-    if ((code == null ) == (error == null)) {
+    if ((code == null) == (error == null)) {
       throw new NaverApiException(
           "code와 error는 베타적이여야한다.(request format error);" + "code: " + code + ", error: " + error);
     }
@@ -76,7 +77,7 @@ public class NaverOAuthService {
     validateDto(userInfo);
 
     String userId = userInfo.getResponse().getId();
-    String targetUsername = OAuth2UserService.makeUsernameWithPrefix(prefix, userId);
+    String targetUsername = userService.makeUsernameWithPrefix(prefix, userId);
     List<UserEntity> target = userRepository.findByUsername(targetUsername);
     if (target.isEmpty()) {
       oAuth2UserService.register(userInfo.toOAuth2UserRegisterDto());
