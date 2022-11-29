@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
   private final UserRepository userRepository;
 
   /**
@@ -24,7 +25,6 @@ public class UserService {
    */
   @Transactional
   public UserEntity register(OAuth2UserRegisterDto dto) {
-
     UserEntity userEntity = dto.toUserEntity();
 
     userEntity = userRepository.save(userEntity);
