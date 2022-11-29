@@ -12,7 +12,6 @@ import com.google.firebase.auth.FirebaseAuthException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.validation.constraints.NotNull;
@@ -24,12 +23,11 @@ import org.springframework.web.reactive.function.client.WebClient;
 @RequiredArgsConstructor
 public class NaverOAuthService {
 
-  private final UserService userService;
   private final UserRepository userRepository;
   private final OAuth2UserService oAuth2UserService;
 
-  public void validateRequestFormat(String code, String error,
-      String errorDescription) throws NaverApiException {
+  public void validateRequestFormat(String code, String error, String errorDescription)
+      throws NaverApiException {
     if ((code == null) == (error == null)) {
       throw new NaverApiException(
           "code와 error는 베타적이여야한다.(request format error);" + "code: " + code + ", error: " + error);
@@ -42,32 +40,20 @@ public class NaverOAuthService {
 
   public NaverAccessTokenResponseDto getAccessToken(String clientId, String clientSecret,
       String code, String state) {
-    WebClient webClient = WebClient.builder()
-        .baseUrl(NAVER.REQUEST_TOKEN_URL).build();
+    WebClient webClient = WebClient.builder().baseUrl(NAVER.REQUEST_TOKEN_URL).build();
 
-    return webClient.get()
-        .uri(uriBuilder -> uriBuilder
-            .queryParam("grant_type", GrantType.AUTHORIZATION_CODE)
-            .queryParam("client_id", clientId)
-            .queryParam("client_secret", clientSecret)
-            .queryParam("code", code)
-            .queryParam("state", state)
-            .build())
-        .retrieve()
-        .bodyToMono(NaverAccessTokenResponseDto.class)
-        .block();
+    return webClient.get().uri(
+            uriBuilder -> uriBuilder.queryParam("grant_type", GrantType.AUTHORIZATION_CODE)
+                .queryParam("client_id", clientId).queryParam("client_secret", clientSecret)
+                .queryParam("code", code).queryParam("state", state).build()).retrieve()
+        .bodyToMono(NaverAccessTokenResponseDto.class).block();
   }
 
   public NaverUserInfoDto getUserInfo(String accessToken) {
     String encodedAccessToken = URLEncoder.encode(accessToken, StandardCharsets.UTF_8);
-    WebClient webClient = WebClient.builder()
-        .baseUrl(NAVER.REQUEST_USERINFO_URL)
-        .build();
-    return webClient.get()
-        .header("Authorization", "Bearer: " + encodedAccessToken)
-        .retrieve()
-        .bodyToMono(NaverUserInfoDto.class)
-        .block();
+    WebClient webClient = WebClient.builder().baseUrl(NAVER.REQUEST_USERINFO_URL).build();
+    return webClient.get().header("Authorization", "Bearer: " + encodedAccessToken).retrieve()
+        .bodyToMono(NaverUserInfoDto.class).block();
   }
 
   public String makeFirebaseCustomToken(@NotNull String accessToken, String prefix)
@@ -77,8 +63,8 @@ public class NaverOAuthService {
     validateDto(userInfo);
 
     String userId = userInfo.getResponse().getId();
-    String targetUsername = userService.makeUsernameWithPrefix(prefix, userId);
-    List<UserEntity> target = userRepository.findByUsername(targetUsername);
+    String targetUsername = UserService.makeUsernameWithPrefix(prefix, userId);
+    Optional<UserEntity> target = userRepository.findByUsername(targetUsername);
     if (target.isEmpty()) {
       oAuth2UserService.register(userInfo.toOAuth2UserRegisterDto());
     }
@@ -86,8 +72,7 @@ public class NaverOAuthService {
     additionalClaims.put("id", userInfo.getResponse().getId());
     additionalClaims.put("provider", prefix);
 
-    return FirebaseAuth.getInstance()
-        .createCustomToken(targetUsername, additionalClaims);
+    return FirebaseAuth.getInstance().createCustomToken(targetUsername, additionalClaims);
   }
 
   public void validateDto(@NotNull NaverAccessTokenResponseDto dto) throws NaverApiException {

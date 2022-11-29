@@ -9,7 +9,7 @@ import com.fakedevelopers.bidderbidder.properties.NaverClientProperties;
 import com.fakedevelopers.bidderbidder.properties.OAuth2Properties;
 import com.fakedevelopers.bidderbidder.repository.UserRepository;
 import com.google.firebase.auth.FirebaseToken;
-import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -43,14 +43,11 @@ public class OAuth2UserService implements UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    List<UserEntity> result = userRepository.findByUsername(username);
+    Optional<UserEntity> result = userRepository.findByUsername(username);
     if (result.isEmpty()) {
       throw new UsernameNotFoundException("User Not Found");
     }
-    if (result.size() > 1) {
-      throw new AssertionError("[!FATAL] 동일 Username을 가진 유저가 2명 이상입니다");
-    }
-    return result.get(0);
+    return result.get();
   }
 
   public UserDetails loadUserByUsername(String serviceProvider, String username) {
@@ -70,7 +67,7 @@ public class OAuth2UserService implements UserDetailsService {
     } catch (UsernameNotFoundException e) {
       String username = serviceProvider + token.getUid();
       OAuth2UserRegisterDto dto = OAuth2UserRegisterDto.builder().username((username.substring(0,
-              Math.min(serviceProvider.length() + token.getUid().length(), MAX_USERNAME_SIZE - 1))))
+              Math.min(username.length(), MAX_USERNAME_SIZE - 1))))
           .email(token.getEmail()).nickname(INIT_NICKNAME).build();
 
       user = register(dto);
