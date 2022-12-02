@@ -116,6 +116,11 @@ public class UserController {
     return firebaseCustomToken;
   }
 
+  @GetMapping("/signin-apple")
+  public String oAuth2AppleLoginOrRegister() {
+    return "temp";
+  }
+
   /**
    * <h1> signin-naver </h1>
    *

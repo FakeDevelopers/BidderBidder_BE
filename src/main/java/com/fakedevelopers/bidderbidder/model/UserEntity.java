@@ -11,10 +11,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -34,17 +35,19 @@ public class UserEntity implements UserDetails {
   private Long id;
 
   @Column(unique = true, nullable = false)
-  @Size(min = MIN_USERNAME_SIZE, max = MAX_USERNAME_SIZE)
+  @Length(min = MIN_USERNAME_SIZE, max = MAX_USERNAME_SIZE)
   private String username; // 유저를 고유하게 구분할 수 있는 String을 의미합니다.
 
-  @Email
-  @Column(unique = true, nullable = true)
+  @Email(message = "이메일의 형식을 따라야 합니다.")
+  @Column(unique = true)
   private String email;
 
   @Column(nullable = false)
+  @NotBlank(message = "형식이 잘못되었습니다.")
+  @Length(min = 3, max = 12)
   private String nickname;
 
-  @Column(nullable = true)
+  @Column
   private String password;
 
   /**

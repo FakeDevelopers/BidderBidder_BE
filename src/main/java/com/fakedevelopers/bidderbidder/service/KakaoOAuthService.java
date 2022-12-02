@@ -1,8 +1,5 @@
 package com.fakedevelopers.bidderbidder.service;
 
-import static com.fakedevelopers.bidderbidder.domain.Constants.MAX_USERNAME_SIZE;
-import static java.lang.Math.min;
-
 import com.fakedevelopers.bidderbidder.domain.OAuthProfile.KAKAO;
 import com.fakedevelopers.bidderbidder.dto.KakaoAccessTokenResponseDto;
 import com.fakedevelopers.bidderbidder.dto.KakaoTokenValidationResponseDto;
@@ -75,10 +72,9 @@ public class KakaoOAuthService {
 
   public void validateAccessToken(KakaoAccessTokenResponseDto dto)
       throws KakaoApiException, WebClientRequestException {
-    KakaoTokenValidationResponseDto validationResponse = WebClient.create(KAKAO.KAPI_BASE_URL)
-        .get().uri(KAKAO.REQUEST_TOKENINFO_URL)
-        .header("Authorization", "Bearer " + dto.getAccessToken()).retrieve()
-        .bodyToMono(KakaoTokenValidationResponseDto.class).block();
+    KakaoTokenValidationResponseDto validationResponse = WebClient.create(KAKAO.KAPI_BASE_URL).get()
+        .uri(KAKAO.REQUEST_TOKENINFO_URL).header("Authorization", "Bearer " + dto.getAccessToken())
+        .retrieve().bodyToMono(KakaoTokenValidationResponseDto.class).block();
     if (validationResponse == null) {
       throw new WebClientRequestException(HttpStatus.BAD_REQUEST, "WebClient 오류");
     }
@@ -94,8 +90,8 @@ public class KakaoOAuthService {
         .build();
 
     return webClient.get().uri(KAKAO.REQUEST_USERINFO_URL)
-        .header("Authorization", "Bearer " + accessToken)
-        .retrieve().bodyToMono(KakaoUserInfoDto.class).block();
+        .header("Authorization", "Bearer " + accessToken).retrieve()
+        .bodyToMono(KakaoUserInfoDto.class).block();
   }
 
   /**
@@ -115,10 +111,9 @@ public class KakaoOAuthService {
     }
 
     String userId = String.valueOf(userInfo.getId());
-    String targetUsername = OAuth2UserService.makeUsernameWithPrefix(prefix, userId);
+    String targetUsername = UserService.makeUsernameWithPrefix(prefix, userId);
 
-    if (userRepository.findByUsername(targetUsername)
-        .isEmpty()) {
+    if (userRepository.findByUsername(targetUsername).isEmpty()) {
       oAuth2UserService.register(userInfo.toOAuth2UserRegisterDto());
     }
 
@@ -126,7 +121,6 @@ public class KakaoOAuthService {
     additionalClaims.put("id", userInfo.getId());
     additionalClaims.put("provider", prefix);
 
-    return FirebaseAuth.getInstance()
-        .createCustomToken(targetUsername, additionalClaims);
+    return FirebaseAuth.getInstance().createCustomToken(targetUsername, additionalClaims);
   }
 }
