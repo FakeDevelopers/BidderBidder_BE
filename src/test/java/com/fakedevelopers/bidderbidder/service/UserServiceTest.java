@@ -7,35 +7,33 @@ import com.fakedevelopers.bidderbidder.domain.Constants;
 import com.fakedevelopers.bidderbidder.dto.OAuth2UserRegisterDto;
 import com.fakedevelopers.bidderbidder.model.UserEntity;
 import com.fakedevelopers.bidderbidder.repository.UserRepository;
-import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 @DisplayName("UserService 클래스")
 public class UserServiceTest extends IntegrationTestBase {
 
   @Autowired
-  UserService userService;
-
+  public UserRepository userRepository;
   @Autowired
-  UserRepository userRepository;
+  public UserService userService;
 
 
   public static Stream<Arguments> validRegisterDtoGenerator() {
     ThreadLocalRandom randomGenerator = ThreadLocalRandom.current();
-    return Stream.of(
-        Arguments.of("validUser" + randomGenerator.nextInt(1, 1000), "a@b.com",
+    return Stream.of(Arguments.of("validUser" + randomGenerator.nextInt(1, 1000), "a@b.com",
             Constants.INIT_NICKNAME), // 기본 닉네임
         Arguments.of("validUser" + randomGenerator.nextInt(1, 1000), "a@b.com",
-            "hello_mockup_user")
-    );
+            "mockup"));
   }
 
   public static Stream<Arguments> invalidRegisterDtoGenerator() {
@@ -61,8 +59,7 @@ public class UserServiceTest extends IntegrationTestBase {
         Arguments.of("invalidUser" + randomGenerator.nextInt(1, 1000), "a@b.com", "a"),
 
         // nickname이 12글자 초과인 경우
-        Arguments.of("invalidUser" + randomGenerator.nextInt(1, 1000), "a@b.com", "a".repeat(20))
-    );
+        Arguments.of("invalidUser" + randomGenerator.nextInt(1, 1000), "a@b.com", "a".repeat(20)));
   }
 
 
@@ -78,18 +75,15 @@ public class UserServiceTest extends IntegrationTestBase {
       @MethodSource(value = "com.fakedevelopers.bidderbidder.service.UserServiceTest#validRegisterDtoGenerator")
       @DisplayName("올바른 UserEntity를 반환한다")
       void returns_valid_UserEntity(String username, String email, String nickname) {
-        UserEntity result = userService.register(OAuth2UserRegisterDto.builder()
-            .username(username)
-            .email(email)
-            .nickname(nickname)
-            .build());
+        UserEntity result = userService.register(
+            OAuth2UserRegisterDto.builder().username(username).email(email).nickname(nickname)
+                .build());
         assertThat(result.getUsername()).isEqualTo(username);
         assertThat(result.getEmail()).isEqualTo(email);
         assertThat(result.getNickname()).startsWith(nickname);
       }
     }
 
-    @Disabled
     @Nested
     @DisplayName("정당하지 못한 OAuth2RegisterDto에 대해")
     class Context_Invalid_Input {
@@ -97,21 +91,13 @@ public class UserServiceTest extends IntegrationTestBase {
       @ParameterizedTest
       @MethodSource(value = "com.fakedevelopers.bidderbidder.service.UserServiceTest#invalidRegisterDtoGenerator")
       @DisplayName("저장하지 않는다")
-      void Throws_Exception(String username, String email, String nickname) {
-        OAuth2UserRegisterDto dto = OAuth2UserRegisterDto.builder()
-            .username(username)
-            .email(email)
-            .nickname(nickname)
-            .build();
-        System.out.println("dto = " + dto);
+      void Do_Not_Save(String username, String email, String nickname) {
+        OAuth2UserRegisterDto dto = OAuth2UserRegisterDto.builder().username(username).email(email)
+            .nickname(nickname).build();
 
-        UserEntity registered = userService.register(dto);
-        long targetId = registered.getId();
-        Optional<UserEntity> target = userRepository.findById(targetId);
-        assertThat(target).isEmpty();
+        Assertions.assertThrows(Exception.class, () -> userService.register(dto));
       }
     }
-
   }
 
 }

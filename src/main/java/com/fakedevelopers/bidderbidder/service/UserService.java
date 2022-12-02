@@ -33,7 +33,7 @@ public class UserService {
       initNickname(userEntity, dto.getNickname() + userEntity.getId());
     }
     initUsername(userEntity, userEntity.getUsername());
-    userRepository.save(userEntity);
+    userRepository.saveAndFlush(userEntity);
     return userEntity;
   }
 
