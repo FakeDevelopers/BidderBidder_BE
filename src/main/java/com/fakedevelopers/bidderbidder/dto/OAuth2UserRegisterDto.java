@@ -50,4 +50,14 @@ public class OAuth2UserRegisterDto {
         .nickname(userEntity.getNickname())
         .build();
   }
+
+  @Override
+  public String toString() {
+    return "OAuth2UserRegisterDto{" +
+        "username='" + username + '\'' +
+        ", email='" + email + '\'' +
+        ", nickname='" + nickname + '\'' +
+        ", serviceProvider='" + serviceProvider + '\'' +
+        '}';
+  }
 }
