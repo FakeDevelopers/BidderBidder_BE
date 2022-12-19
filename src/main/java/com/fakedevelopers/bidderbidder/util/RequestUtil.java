@@ -5,12 +5,16 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.http.HttpHeaders;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The type Request util.
  */
 public class RequestUtil {
   // Request 메세지를 검증하고, 토큰 값을 가져온다.
+
+  private static final Logger log = LoggerFactory.getLogger(RequestUtil.class);
 
   private RequestUtil() {
     throw new IllegalAccessError("Utility Class는 인스턴스를 생성할 수 없습니다.");
@@ -27,6 +31,7 @@ public class RequestUtil {
   public static FirebaseToken parseJwtToken(String token)
       throws IllegalArgumentException, FirebaseAuthException {
     String jwtToken = getAuthorizationToken(token);
+    log.info(jwtToken);
     return FirebaseAuth.getInstance().verifyIdToken(jwtToken);
   }
 
