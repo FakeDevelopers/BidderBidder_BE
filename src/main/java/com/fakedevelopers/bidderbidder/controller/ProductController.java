@@ -8,6 +8,7 @@ import com.fakedevelopers.bidderbidder.dto.ProductListRequestDto;
 import com.fakedevelopers.bidderbidder.dto.ProductWriteDto;
 import com.fakedevelopers.bidderbidder.model.CategoryEntity;
 import com.fakedevelopers.bidderbidder.model.ProductEntity;
+import com.fakedevelopers.bidderbidder.model.UserEntity;
 import com.fakedevelopers.bidderbidder.service.ProductService;
 import java.io.IOException;
 import java.util.List;
@@ -38,11 +39,11 @@ public class ProductController {
   @PostMapping(
       value = "/write",
       consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-  String productWrite(
+  String productWrite(UserEntity userEntity,
       @Validated ProductWriteDto productWriteDto,
       @RequestPart(required = false) List<MultipartFile> files)
       throws Exception {
-    productService.saveProduct(productWriteDto, files);
+    productService.saveProduct(userEntity, productWriteDto, files);
     return Constants.SUCCESS;
   }
 
@@ -73,7 +74,8 @@ public class ProductController {
   }
 
   @GetMapping("/getProductInfo/{productId}")
-  ResponseEntity<ProductInformationDto> getProductInfo(@PathVariable long productId) {
+  ResponseEntity<ProductInformationDto> getProductInfo(
+      @PathVariable long productId) {
     return productService.getProductInfo(productId);
   }
 
@@ -83,7 +85,7 @@ public class ProductController {
   }
 
   @GetMapping("/getSearchRank")
-  List<String> searchRankList(int listCount) {
+  List<String> searchRankList(UserEntity userEntity, int listCount) {
     return productService.getPopularSearchWord(listCount);
   }
 

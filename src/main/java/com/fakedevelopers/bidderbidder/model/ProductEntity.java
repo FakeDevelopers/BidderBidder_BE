@@ -65,9 +65,8 @@ public class ProductEntity extends BaseTimeEntity {
   private LocalDateTime expirationDate;
 
   // 유저 DB 외래키
-  //    @ManyToOne(targetEntity = User)
-  //    @JoinColumn(name = "user_id")
-  //    private long user_id;
+  @ManyToOne(optional = false)
+  private UserEntity user;
 
   // 파일
   @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "productEntity")
@@ -77,7 +76,8 @@ public class ProductEntity extends BaseTimeEntity {
       String path,
       ProductWriteDto productWriteDto,
       List<MultipartFile> files,
-      CategoryEntity category)
+      CategoryEntity category,
+      UserEntity user)
       throws Exception {
     productTitle = productWriteDto.getProductTitle();
     productContent = productWriteDto.getProductContent();
@@ -88,6 +88,7 @@ public class ProductEntity extends BaseTimeEntity {
     this.category = category;
     expirationDate = productWriteDto.getExpirationDate();
     fileEntities = makeFileEntityList(path, files);
+    this.user = user;
   }
 
   // 파일 엔티티 리스트 만듦
