@@ -29,9 +29,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-  private FirebaseAuth firebaseAuth; // Firebase 토큰 정보
-  @Resource
-  private CustomUserDetailsService customUserDetailsService;
+  private final FirebaseAuth firebaseAuth; // Firebase 토큰 정보
+  private final CustomUserDetailsService customUserDetailsService;
   /*
    *  Firebase token을 인증하는 커스텀 필터 적용
    *  Consists of) OAuth2UserService, firebaseAuth

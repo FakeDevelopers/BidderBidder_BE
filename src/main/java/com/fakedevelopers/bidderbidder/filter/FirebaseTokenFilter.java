@@ -30,7 +30,7 @@ public class FirebaseTokenFilter extends OncePerRequestFilter {
   public FirebaseTokenFilter(CustomUserDetailsService customUserDetailsService,
       FirebaseAuth firebaseAuth) {
     this.customUserDetailsService = customUserDetailsService;
-    this.firebaseAuth = FirebaseAuth.getInstance();
+    this.firebaseAuth = firebaseAuth;
   }
 
   @Override
