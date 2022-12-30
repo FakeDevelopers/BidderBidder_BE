@@ -19,6 +19,7 @@ import com.fakedevelopers.bidderbidder.model.BidEntity;
 import com.fakedevelopers.bidderbidder.model.CategoryEntity;
 import com.fakedevelopers.bidderbidder.model.FileEntity;
 import com.fakedevelopers.bidderbidder.model.ProductEntity;
+import com.fakedevelopers.bidderbidder.model.UserEntity;
 import com.fakedevelopers.bidderbidder.repository.BidRepository;
 import com.fakedevelopers.bidderbidder.repository.CategoryRepository;
 import com.fakedevelopers.bidderbidder.repository.FileRepository;
@@ -83,7 +84,8 @@ public class ProductService {
   /**
    * . 게시글 저장
    */
-  public ProductEntity saveProduct(ProductWriteDto productWriteDto, List<MultipartFile> files)
+  public ProductEntity saveProduct(UserEntity userEntity, ProductWriteDto productWriteDto,
+      List<MultipartFile> files)
       throws Exception {
 
     if (files == null) {
@@ -93,7 +95,7 @@ public class ProductService {
     List<String> pathList = createPathIfNeed();
     CategoryEntity categoryEntity = categoryRepository.getById(productWriteDto.getCategory());
     ProductEntity productEntity =
-        new ProductEntity(pathList.get(0), productWriteDto, files, categoryEntity);
+        new ProductEntity(pathList.get(0), productWriteDto, files, categoryEntity, userEntity);
     ProductEntity savedProductEntity = productRepository.save(productEntity);
     FileEntity representFileEntity =
         savedProductEntity.getFileEntities().get(productWriteDto.getRepresentPicture());
