@@ -11,7 +11,9 @@ import com.fakedevelopers.bidderbidder.exception.InvalidOpeningBidException;
 import com.fakedevelopers.bidderbidder.exception.InvalidRepresentPictureIndexException;
 import com.fakedevelopers.bidderbidder.exception.NoImageException;
 import com.fakedevelopers.bidderbidder.model.ProductEntity;
+import com.fakedevelopers.bidderbidder.model.UserEntity;
 import com.fakedevelopers.bidderbidder.repository.ProductRepository;
+import com.fakedevelopers.bidderbidder.repository.UserRepository;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,10 +34,13 @@ public class ProductWriteTest extends IntegrationTestBase {
 
   private static ResourceLoader testResourceLoader;
   private static List<MultipartFile> mList;
+  private static UserEntity userEntity;
   @Autowired
   ProductService sut;
   @Autowired
   ProductRepository productRepository;
+  @Autowired
+  UserRepository userRepository;
 
   private static List<MultipartFile> makeImageList(String imageName, String extension)
       throws IOException {
@@ -53,9 +58,11 @@ public class ProductWriteTest extends IntegrationTestBase {
   }
 
   @BeforeAll
-  static void setUp(@Autowired ResourceLoader resourceLoader) throws IOException {
+  static void setUp(@Autowired ResourceLoader resourceLoader,
+      @Autowired UserRepository userRepository) throws IOException {
     testResourceLoader = resourceLoader;
     mList = makeImageList("Starry night.", "jpg");
+    userEntity = userRepository.findById(33001L).orElseThrow();
   }
 
   private void deleteImage(long productId) {
@@ -90,7 +97,7 @@ public class ProductWriteTest extends IntegrationTestBase {
             1000L, 0, 4,
             LocalDateTime.now().plusHours(1));
         assertThrows(InvalidOpeningBidException.class,
-            () -> sut.saveProduct(productWriteDto, mList));
+            () -> sut.saveProduct(userEntity, productWriteDto, mList));
       }
     }
   }
@@ -110,7 +117,7 @@ public class ProductWriteTest extends IntegrationTestBase {
             100000L, -1, 4,
             LocalDateTime.now().plusHours(1));
         assertThrows(InvalidRepresentPictureIndexException.class,
-            () -> sut.saveProduct(productWriteDto, mList));
+            () -> sut.saveProduct(userEntity, productWriteDto, mList));
       }
     }
 
@@ -125,7 +132,7 @@ public class ProductWriteTest extends IntegrationTestBase {
             100000L, 1, 4,
             LocalDateTime.now().plusHours(1));
         assertThrows(InvalidRepresentPictureIndexException.class,
-            () -> sut.saveProduct(productWriteDto, mList));
+            () -> sut.saveProduct(userEntity, productWriteDto, mList));
       }
     }
   }
@@ -145,7 +152,7 @@ public class ProductWriteTest extends IntegrationTestBase {
             100000L, 0, 99,
             LocalDateTime.now().plusHours(1));
         assertThrows(InvalidCategoryException.class,
-            () -> sut.saveProduct(productWriteDto, mList));
+            () -> sut.saveProduct(userEntity, productWriteDto, mList));
       }
     }
 
@@ -160,7 +167,7 @@ public class ProductWriteTest extends IntegrationTestBase {
             100000L, 0, 1,
             LocalDateTime.now().plusHours(1));
         assertThrows(InvalidCategoryException.class,
-            () -> sut.saveProduct(productWriteDto, mList));
+            () -> sut.saveProduct(userEntity, productWriteDto, mList));
       }
     }
 
@@ -181,7 +188,7 @@ public class ProductWriteTest extends IntegrationTestBase {
             100000L, 0, 4,
             LocalDateTime.now().minusHours(1));
         assertThrows(InvalidExpirationDateException.class,
-            () -> sut.saveProduct(productWriteDto, mList));
+            () -> sut.saveProduct(userEntity, productWriteDto, mList));
       }
     }
 
@@ -198,7 +205,7 @@ public class ProductWriteTest extends IntegrationTestBase {
             100000L, 0, 4,
             LocalDateTime.now().plusHours(82));
         assertThrows(InvalidExpirationDateException.class,
-            () -> sut.saveProduct(productWriteDto, mList));
+            () -> sut.saveProduct(userEntity, productWriteDto, mList));
       }
     }
   }
@@ -218,7 +225,7 @@ public class ProductWriteTest extends IntegrationTestBase {
             100000L, 0, 4,
             LocalDateTime.now().plusHours(1));
         assertThrows(NoImageException.class,
-            () -> sut.saveProduct(productWriteDto, null));
+            () -> sut.saveProduct(userEntity, productWriteDto, null));
       }
     }
 
@@ -234,7 +241,7 @@ public class ProductWriteTest extends IntegrationTestBase {
             LocalDateTime.now().plusHours(1));
         List<MultipartFile> mList = makeImageList("Tidokang_star.", "webp");
         assertThrows(InvalidExtensionException.class,
-            () -> sut.saveProduct(productWriteDto, mList));
+            () -> sut.saveProduct(userEntity, productWriteDto, mList));
       }
     }
   }
@@ -253,7 +260,7 @@ public class ProductWriteTest extends IntegrationTestBase {
         ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
             null, 0, 4,
             LocalDateTime.now().plusHours(1));
-        ProductEntity product = sut.saveProduct(productWriteDto, mList);
+        ProductEntity product = sut.saveProduct(userEntity, productWriteDto, mList);
 
         assertThat(product.getProductId()).isPositive();
         assertThat(product.getProductTitle()).isEqualTo(productWriteDto.getProductTitle());
@@ -278,7 +285,7 @@ public class ProductWriteTest extends IntegrationTestBase {
         ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10,
             100000L, 0, 4,
             LocalDateTime.now().plusHours(1));
-        ProductEntity product = sut.saveProduct(productWriteDto, mList);
+        ProductEntity product = sut.saveProduct(userEntity, productWriteDto, mList);
 
         assertThat(product.getProductId()).isPositive();
         assertThat(product.getProductTitle()).isEqualTo(productWriteDto.getProductTitle());

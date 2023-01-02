@@ -3,7 +3,6 @@ package com.fakedevelopers.bidderbidder.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import com.fakedevelopers.bidderbidder.IntegrationTestBase;
 import com.fakedevelopers.bidderbidder.dto.ProductWriteDto;
 import com.fakedevelopers.bidderbidder.exception.AlreadyExpiredException;
@@ -13,8 +12,10 @@ import com.fakedevelopers.bidderbidder.exception.UserNotFoundException;
 import com.fakedevelopers.bidderbidder.model.BidEntity;
 import com.fakedevelopers.bidderbidder.model.CategoryEntity;
 import com.fakedevelopers.bidderbidder.model.ProductEntity;
+import com.fakedevelopers.bidderbidder.model.UserEntity;
 import com.fakedevelopers.bidderbidder.repository.CategoryRepository;
 import com.fakedevelopers.bidderbidder.repository.ProductRepository;
+import com.fakedevelopers.bidderbidder.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.stream.Stream;
@@ -32,18 +33,23 @@ class BidServiceTest extends IntegrationTestBase {
 
   static long productID;
   static CategoryEntity categoryEntity; // ProductEntity 생성을 위한 객체
+  static UserEntity userEntity;
   @Autowired // 테스트 할때는 어쩔수 없이 Autowired를 사용합니다
   BidService sut;
   @Autowired
   ProductRepository productRepository;
+  @Autowired
+  UserRepository userRepository;
 
   @BeforeAll
   static void setUp(@Autowired ProductRepository productRepository,
-      @Autowired CategoryRepository categoryRepository) throws Exception {
+      @Autowired CategoryRepository categoryRepository,
+      @Autowired UserRepository userRepository) throws Exception {
     ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10, 1000000L, 0, 1,
         LocalDateTime.now().plusHours(1));
+    userEntity = userRepository.findById(32001L).orElseThrow();
     ProductEntity product = new ProductEntity(".", productWriteDto, new ArrayList<>(),
-        categoryEntity);
+        categoryEntity, userEntity);
     productID = productRepository.save(product).getProductId();
     categoryEntity = categoryRepository.findAllByParentCategoryIdIsNull()
         .get(0); // ProductEntity 생성을 위해 아무 카테고리를 가져온다
@@ -98,7 +104,7 @@ class BidServiceTest extends IntegrationTestBase {
     ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트", 1000, 10, 1000000L, 0, 1,
         LocalDateTime.now().minusHours(1));
     ProductEntity product = new ProductEntity(".", productWriteDto, new ArrayList<>(),
-        categoryEntity);
+        categoryEntity, userEntity);
 
     long productID = productRepository.save(product).getProductId();
     long userID = 1;
