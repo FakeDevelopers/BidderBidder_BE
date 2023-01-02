@@ -85,7 +85,7 @@ public class ProductController {
   }
 
   @GetMapping("/getSearchRank")
-  List<String> searchRankList(UserEntity userEntity, int listCount) {
+  List<String> searchRankList(int listCount) {
     return productService.getPopularSearchWord(listCount);
   }
 
