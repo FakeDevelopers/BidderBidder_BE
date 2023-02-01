@@ -6,10 +6,11 @@ package com.fakedevelopers.bidderbidder.domain;
 public class Constants {
 
   public static final String UTILITY_CLASS = "Utility Class";
-  public static final int APP_RESIZE_SIZE = 100;
-  public static final int WEB_RESIZE_SIZE = 200;
+  public static final int APP_RESIZE_SIZE = 200;
+  public static final int WEB_RESIZE_SIZE = 400;
   public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";
   public static final String DATE_FORMAT_FOR_REDIS = "yyyyMMdd";
+  public static final String DATE_FORMAT_FOR_REVISION = "yyMMddHHmmss";
   public static final String SEARCH_WORD_REDIS = "searchWord:";
   public static final int SEARCH_WORD_REMAIN_DAYS = 3;
   public static final String REPLACE_FUNCTION = "function('replace', {0}, {1}, {2})";

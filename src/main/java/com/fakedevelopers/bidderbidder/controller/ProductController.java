@@ -79,6 +79,19 @@ public class ProductController {
     return productService.getProductInfo(productId);
   }
 
+  @PostMapping(
+      value = "/getProductInfo/{productId}/modify",
+      consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+  String modifyProductInfo(
+      UserEntity userEntity,
+      @Validated ProductWriteDto productWriteDto,
+      @RequestPart(required = false) List<MultipartFile> files,
+      @PathVariable long productId)
+      throws Exception {
+    productService.modifyProduct(userEntity, productWriteDto, files, productId);
+    return Constants.SUCCESS;
+  }
+
   @GetMapping("/getImage/{imageId}")
   ResponseEntity<Resource> getProductImage(@PathVariable long imageId) throws IOException {
     return productService.getProductImage(imageId);
