@@ -7,6 +7,7 @@ import com.fakedevelopers.bidderbidder.dto.ProductInformationDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListRequestDto;
 import com.fakedevelopers.bidderbidder.dto.ProductWriteDto;
+import com.fakedevelopers.bidderbidder.exception.FileDeleteException;
 import com.fakedevelopers.bidderbidder.exception.InvalidCategoryException;
 import com.fakedevelopers.bidderbidder.exception.InvalidExpirationDateException;
 import com.fakedevelopers.bidderbidder.exception.InvalidExtensionException;
@@ -139,18 +140,21 @@ public class ProductService {
     for (FileEntity file : productEntity.getFileEntities()) {
       String originalImage = file.getSavedFileName();
       File originalFile = new File(path + File.separator + originalImage);
-      originalFile.delete();
+      if(!originalFile.delete()){
+        throw new FileDeleteException("파일 삭제 실패");
+      }
     }
 
     String resizedImage =
-        "resize_" + productRepository.findByProductId(productId).getProductId() + ".jpg";
+        Constants.RESIZE + productRepository.findByProductId(productId).getProductId() + ".jpg";
     File appResizedFile = new File(
-        path + File.separator + "resize_app" + File.separator + resizedImage);
+        path + File.separator + Constants.RESIZE_APP + File.separator + resizedImage);
     File webResizedFile = new File(
-        path + File.separator + "resize_web" + File.separator + resizedImage);
+        path + File.separator + Constants.RESIZE_WEB + File.separator + resizedImage);
 
-    appResizedFile.delete();
-    webResizedFile.delete();
+    if(!appResizedFile.delete() | webResizedFile.delete()){
+      throw new FileDeleteException("파일 삭제 실패");
+    }
   }
 
   private void saveProductValidation(ProductWriteDto productWriteDto, List<MultipartFile> files) {
@@ -251,8 +255,8 @@ public class ProductService {
   // 파일 경로 생성
   private List<String> createPathIfNeed() throws IOException {
     String realPath = UPLOAD_FOLDER;
-    String resizeAppPath = realPath + File.separator + "resize_app";
-    String resizeWebPath = realPath + File.separator + "resize_web";
+    String resizeAppPath = realPath + File.separator + Constants.RESIZE_APP;
+    String resizeWebPath = realPath + File.separator + Constants.RESIZE_WEB;
     Files.createDirectories(Path.of(resizeAppPath));
     Files.createDirectories(Path.of(resizeWebPath));
     return Arrays.asList(realPath, resizeAppPath, resizeWebPath);
@@ -338,8 +342,8 @@ public class ProductService {
    */
   public ResponseEntity<Resource> getThumbnail(Long productId, boolean isWeb) throws IOException {
     InputStream inputStream;
-    String imagePath = UPLOAD_FOLDER + File.separator + (isWeb ? "resize_web" : "resize_app");
-    File image = new File(imagePath + "/resize_" + productId + ".jpg");
+    String imagePath = UPLOAD_FOLDER + File.separator + (isWeb ? Constants.RESIZE_WEB : Constants.RESIZE_APP);
+    File image = new File(imagePath + "/" + Constants.RESIZE + productId + ".jpg");
     if (image.exists()) {
       inputStream = new FileInputStream(image);
     } else {
@@ -407,7 +411,7 @@ public class ProductService {
     Image resizedImg = img.getResizedToSquare(width, 0.0);
     inputStream.close();
 
-    File resizedFile = new File(path, "resize_" + imageName);
+    File resizedFile = new File(path, Constants.RESIZE + imageName);
     resizedImg.writeToFile(resizedFile);
   }
 
@@ -423,7 +427,7 @@ public class ProductService {
     }
     Image resizedImg = img.getResizedToSquare(width, 0.0);
 
-    File resizedFile = new File("resize_" + imageName);
+    File resizedFile = new File(Constants.RESIZE + imageName);
 
     return resizedImg.writeToFile(resizedFile);
   }
