@@ -91,6 +91,23 @@ public class ProductEntity extends BaseTimeEntity {
     this.user = user;
   }
 
+  public void modify(
+      String path,
+      ProductWriteDto productWriteDto,
+      List<MultipartFile> files,
+      CategoryEntity category)
+      throws Exception {
+    productTitle = productWriteDto.getProductTitle();
+    productContent = productWriteDto.getProductContent();
+    openingBid = productWriteDto.getOpeningBid();
+    hopePrice = productWriteDto.getHopePrice();
+    tick = productWriteDto.getTick();
+    representPicture = productWriteDto.getRepresentPicture();
+    this.category = category;
+    expirationDate = productWriteDto.getExpirationDate();
+    fileEntities = makeFileEntityList(path, files);
+  }
+
   // 파일 엔티티 리스트 만듦
   private List<FileEntity> makeFileEntityList(String path, List<MultipartFile> files)
       throws IOException {
