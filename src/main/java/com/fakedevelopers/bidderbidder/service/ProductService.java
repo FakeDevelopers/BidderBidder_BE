@@ -152,7 +152,7 @@ public class ProductService {
     File webResizedFile = new File(
         path + File.separator + Constants.RESIZE_WEB + File.separator + resizedImage);
 
-    if(!appResizedFile.delete() | webResizedFile.delete()){
+    if(!appResizedFile.delete() || !webResizedFile.delete()){
       throw new FileDeleteException("파일 삭제 실패");
     }
   }
@@ -343,7 +343,7 @@ public class ProductService {
   public ResponseEntity<Resource> getThumbnail(Long productId, boolean isWeb) throws IOException {
     InputStream inputStream;
     String imagePath = UPLOAD_FOLDER + File.separator + (isWeb ? Constants.RESIZE_WEB : Constants.RESIZE_APP);
-    File image = new File(imagePath + "/" + Constants.RESIZE + productId + ".jpg");
+    File image = new File(imagePath + File.separator + Constants.RESIZE + productId + ".jpg");
     if (image.exists()) {
       inputStream = new FileInputStream(image);
     } else {
