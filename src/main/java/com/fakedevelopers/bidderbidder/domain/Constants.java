@@ -22,6 +22,9 @@ public class Constants {
   public static final String FAIL = "fail";
   public static final String REQUIRED = "required";
   public static final String OPTIONAL = "optional";
+  public static final String RESIZE = "resize_";
+  public static final String RESIZE_APP = "resize_app";
+  public static final String RESIZE_WEB = "resize_web";
 
   public static final int MIN_USERNAME_SIZE = 6;
   public static final int MAX_USERNAME_SIZE = 64;
