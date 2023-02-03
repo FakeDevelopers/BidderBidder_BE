@@ -80,7 +80,7 @@ public class ProductController {
   }
 
   @PostMapping(
-      value = "/getProductInfo/{productId}/modify",
+      value = "/modifyProductInfo/{productId}",
       consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   String modifyProductInfo(
       UserEntity userEntity,

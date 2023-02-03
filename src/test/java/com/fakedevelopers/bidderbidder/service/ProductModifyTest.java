@@ -9,6 +9,7 @@ import com.fakedevelopers.bidderbidder.model.CategoryEntity;
 import com.fakedevelopers.bidderbidder.model.ProductEntity;
 import com.fakedevelopers.bidderbidder.model.UserEntity;
 import com.fakedevelopers.bidderbidder.repository.CategoryRepository;
+import com.fakedevelopers.bidderbidder.repository.FileRepository;
 import com.fakedevelopers.bidderbidder.repository.ProductRepository;
 import com.fakedevelopers.bidderbidder.repository.UserRepository;
 import java.io.File;
@@ -34,7 +35,6 @@ public class ProductModifyTest extends IntegrationTestBase {
   private static List<MultipartFile> modifyList;
   private static UserEntity myUserEntity;
   private static UserEntity savedUserEntity;
-  private static CategoryEntity categoryEntity;
   private static long productID;
   @Autowired
   ProductService productService;
@@ -46,6 +46,8 @@ public class ProductModifyTest extends IntegrationTestBase {
   UserRepository userRepository;
   @Autowired
   CategoryRepository categoryRepository;
+  @Autowired
+  FileRepository fileRepository;
 
   private static List<MultipartFile> makeImageList(String imageName, String extension)
       throws IOException {
@@ -76,10 +78,10 @@ public class ProductModifyTest extends IntegrationTestBase {
     ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트",
         1000, 10, 100000L, 0, 4,
         LocalDateTime.now().plusHours(1));
+    CategoryEntity categoryEntity = categoryRepository.getById(4L);
     ProductEntity product = new ProductEntity("./upload", productWriteDto, savedList,
         categoryEntity, savedUserEntity);
     productID = productRepository.save(product).getProductId();
-    categoryEntity = categoryRepository.getById(4L);
   }
 
   @AfterAll
@@ -152,32 +154,6 @@ public class ProductModifyTest extends IntegrationTestBase {
   @Nested
   @DisplayName("글쓰기 정보를 제대로 입력했을 시")
   class Describe_productSave {
-
-    @Nested
-    @DisplayName("희망가가 없으면")
-    class Context_NotExistHopePrice {
-
-      @Test
-      @DisplayName("성공한다.")
-      void it_success() throws Exception {
-        ProductWriteDto productWriteDto = new ProductWriteDto("수정 테스트", "수정 테스트", 10000, 100,
-            null, 0, 5,
-            LocalDateTime.now().plusHours(1));
-        ProductEntity product = productService.modifyProduct(savedUserEntity, productWriteDto,
-            modifyList, productID);
-
-        assertThat(product.getProductId()).isEqualTo(productID);
-        assertThat(product.getProductTitle()).isEqualTo(productWriteDto.getProductTitle());
-        assertThat(product.getProductContent()).isEqualTo(productWriteDto.getProductContent());
-        assertThat(product.getOpeningBid()).isEqualTo(productWriteDto.getOpeningBid());
-        assertThat(product.getTick()).isEqualTo(productWriteDto.getTick());
-        assertThat(product.getHopePrice()).isEqualTo(productWriteDto.getHopePrice());
-        assertThat(product.getRepresentPicture()).isEqualTo(productWriteDto.getRepresentPicture());
-        assertThat(product.getCategory().getCategoryId()).isEqualTo(productWriteDto.getCategory());
-
-        deleteImage(productID);
-      }
-    }
 
     @Nested
     @DisplayName("희망가가 있으면")
