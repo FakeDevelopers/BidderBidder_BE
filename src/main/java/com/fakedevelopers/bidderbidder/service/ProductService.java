@@ -113,12 +113,12 @@ public class ProductService {
 
   public ProductEntity modifyProduct(UserEntity userEntity, ProductWriteDto productWriteDto,
       List<MultipartFile> files, long productId) throws Exception {
-    modifyProductValidation(userEntity, productWriteDto, files, productId);
     ProductEntity productEntity = productRepository.findById(productId)
         .orElseThrow(() -> new ProductNotFoundException(productId));
+    modifyProductValidation(userEntity, productWriteDto, files, productId);
 
     fileRepository.deleteAllInBatch(productEntity.getFileEntities());
-    deleteImage(productId);
+    deleteOriginalImage(productId);
 
     List<String> pathList = createPathIfNeed();
     CategoryEntity categoryEntity = categoryRepository.getById(productWriteDto.getCategory());
@@ -134,25 +134,28 @@ public class ProductService {
     return productEntity;
   }
 
-  private void deleteImage(long productId) {
-    String path = UPLOAD_FOLDER;
+  // 수정할 때는 굳이 리사이즈 파일을 지우지 않아도 됨
+  private void deleteOriginalImage(long productId) {
     ProductEntity productEntity = productRepository.findByProductId(productId);
     for (FileEntity file : productEntity.getFileEntities()) {
       String originalImage = file.getSavedFileName();
-      File originalFile = new File(path + File.separator + originalImage);
+      File originalFile = new File(UPLOAD_FOLDER + File.separator + originalImage);
       if(!originalFile.delete()){
         throw new FileDeleteException("파일 삭제 실패");
       }
     }
+  }
 
+  // 게시글 삭제할 때 필요한 리사이즈 파일 삭제
+  private void deleteResizeImage(long productId) {
     String resizedImage =
         Constants.RESIZE + productRepository.findByProductId(productId).getProductId() + ".jpg";
     File appResizedFile = new File(
-        path + File.separator + Constants.RESIZE_APP + File.separator + resizedImage);
+        UPLOAD_FOLDER + File.separator + Constants.RESIZE_APP + File.separator + resizedImage);
     File webResizedFile = new File(
-        path + File.separator + Constants.RESIZE_WEB + File.separator + resizedImage);
+        UPLOAD_FOLDER + File.separator + Constants.RESIZE_WEB + File.separator + resizedImage);
 
-    if(!appResizedFile.delete() || !webResizedFile.delete()){
+    if (!(appResizedFile.delete() && webResizedFile.delete())) {
       throw new FileDeleteException("파일 삭제 실패");
     }
   }
