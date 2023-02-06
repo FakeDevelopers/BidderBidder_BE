@@ -2,10 +2,10 @@ package com.fakedevelopers.bidderbidder.controller;
 
 import com.fakedevelopers.bidderbidder.domain.Constants;
 import com.fakedevelopers.bidderbidder.dto.PageListResponseDto;
+import com.fakedevelopers.bidderbidder.dto.ProductInfoDto;
 import com.fakedevelopers.bidderbidder.dto.ProductInformationDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListRequestDto;
-import com.fakedevelopers.bidderbidder.dto.ProductWriteDto;
 import com.fakedevelopers.bidderbidder.model.CategoryEntity;
 import com.fakedevelopers.bidderbidder.model.ProductEntity;
 import com.fakedevelopers.bidderbidder.model.UserEntity;
@@ -40,10 +40,10 @@ public class ProductController {
       value = "/write",
       consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   String productWrite(UserEntity userEntity,
-      @Validated ProductWriteDto productWriteDto,
+      @Validated ProductInfoDto productInfoDto,
       @RequestPart(required = false) List<MultipartFile> files)
       throws Exception {
-    productService.saveProduct(userEntity, productWriteDto, files);
+    productService.saveProduct(userEntity, productInfoDto, files);
     return Constants.SUCCESS;
   }
 
@@ -84,11 +84,11 @@ public class ProductController {
       consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   String modifyProductInfo(
       UserEntity userEntity,
-      @Validated ProductWriteDto productWriteDto,
+      @Validated ProductInfoDto productInfoDto,
       @RequestPart(required = false) List<MultipartFile> files,
       @PathVariable long productId)
       throws Exception {
-    productService.modifyProduct(userEntity, productWriteDto, files, productId);
+    productService.modifyProduct(userEntity, productInfoDto, files, productId);
     return Constants.SUCCESS;
   }
 

@@ -3,7 +3,9 @@ package com.fakedevelopers.bidderbidder.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.fakedevelopers.bidderbidder.IntegrationTestBase;
-import com.fakedevelopers.bidderbidder.dto.ProductWriteDto;
+import com.fakedevelopers.bidderbidder.domain.Constants;
+import com.fakedevelopers.bidderbidder.dto.OAuth2UserRegisterDto;
+import com.fakedevelopers.bidderbidder.dto.ProductInfoDto;
 import com.fakedevelopers.bidderbidder.exception.ModifyProductException;
 import com.fakedevelopers.bidderbidder.model.CategoryEntity;
 import com.fakedevelopers.bidderbidder.model.ProductEntity;
@@ -18,6 +20,7 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -35,19 +38,17 @@ public class ProductModifyTest extends IntegrationTestBase {
   private static List<MultipartFile> modifyList;
   private static UserEntity myUserEntity;
   private static UserEntity savedUserEntity;
-  private static long productID;
+  private static long productID, productID2;
   @Autowired
   ProductService productService;
   @Autowired
   BidService bidService;
   @Autowired
+  UserService userService;
+  @Autowired
   ProductRepository productRepository;
   @Autowired
-  UserRepository userRepository;
-  @Autowired
   CategoryRepository categoryRepository;
-  @Autowired
-  FileRepository fileRepository;
 
   private static List<MultipartFile> makeImageList(String imageName, String extension)
       throws IOException {
@@ -66,40 +67,48 @@ public class ProductModifyTest extends IntegrationTestBase {
 
   @BeforeAll
   static void setUp(@Autowired ResourceLoader resourceLoader,
-      @Autowired UserRepository userRepository,
       @Autowired ProductRepository productRepository,
-      @Autowired CategoryRepository categoryRepository) throws Exception {
+      @Autowired CategoryRepository categoryRepository,
+      @Autowired UserService userService) throws Exception {
     testResourceLoader = resourceLoader;
     modifyList = makeImageList("5wlq.", "jpg");
-    myUserEntity = userRepository.findById(34001L).orElseThrow();
+    myUserEntity = userService.register(OAuth2UserRegisterDto.builder().username("myUser").
+        email("a@b.com").nickname("my" + Constants.INIT_NICKNAME).build());
 
     List<MultipartFile> savedList = makeImageList("Starry night.", "jpg");
-    savedUserEntity = userRepository.findById(33001L).orElseThrow();
-    ProductWriteDto productWriteDto = new ProductWriteDto("테스트", "테스트",
+    List<MultipartFile> savedList2 = makeImageList("나선의 달.", "jpg");
+
+    savedUserEntity = userService.register(OAuth2UserRegisterDto.builder().username("savedUser").
+        email("c@d.com").nickname("saved" + Constants.INIT_NICKNAME).build());
+    ProductInfoDto productInfoDto = new ProductInfoDto("테스트", "테스트",
         1000, 10, 100000L, 0, 4,
         LocalDateTime.now().plusHours(1));
     CategoryEntity categoryEntity = categoryRepository.getById(4L);
-    ProductEntity product = new ProductEntity("./upload", productWriteDto, savedList,
+
+    ProductEntity product = new ProductEntity(Constants.UPLOAD_FOLDER, productInfoDto, savedList,
+        categoryEntity, savedUserEntity);
+    ProductEntity product2 = new ProductEntity(Constants.UPLOAD_FOLDER, productInfoDto, savedList2,
         categoryEntity, savedUserEntity);
     productID = productRepository.save(product).getProductId();
+    productID2 = productRepository.save(product2).getProductId();
   }
 
   @AfterAll
   static void tearDown(@Autowired ProductRepository productRepository) {
     productRepository.deleteById(productID);
+    productRepository.deleteById(productID2);
   }
 
   private void deleteImage(long productId) {
-    String path = "upload";
     String originalImage = productRepository.findByProductId(productId).getFileEntities().get(0)
         .getSavedFileName();
     String resizedImage =
-        "resize_" + productRepository.findByProductId(productId).getProductId() + ".jpg";
-    File originalFile = new File(path + File.separator + originalImage);
+        Constants.RESIZE + productRepository.findByProductId(productId).getProductId() + ".jpg";
+    File originalFile = new File(Constants.UPLOAD_FOLDER + File.separator + originalImage);
     File appResizedFile = new File(
-        path + File.separator + "resize_app" + File.separator + resizedImage);
+        Constants.UPLOAD_FOLDER + File.separator + Constants.RESIZE_APP + File.separator + resizedImage);
     File webResizedFile = new File(
-        path + File.separator + "resize_web" + File.separator + resizedImage);
+        Constants.UPLOAD_FOLDER + File.separator + Constants.RESIZE_WEB + File.separator + resizedImage);
 
     originalFile.delete();
     appResizedFile.delete();
@@ -122,12 +131,12 @@ public class ProductModifyTest extends IntegrationTestBase {
         long bid = 10000;
         bidService.addBid(productID, userID, bid);
 
-        ProductWriteDto productWriteDto = new ProductWriteDto("수정 테스트", "수정 테스트", 10000, 100,
+        ProductInfoDto productInfoDto = new ProductInfoDto("수정 테스트", "수정 테스트", 10000, 100,
             null, 0, 5,
-            LocalDateTime.now().plusHours(1));
+            LocalDateTime.now().plusHours(5));
 
         assertThrows(ModifyProductException.class,
-            () -> productService.modifyProduct(savedUserEntity, productWriteDto, modifyList,
+            () -> productService.modifyProduct(savedUserEntity, productInfoDto, modifyList,
                 productID));
       }
     }
@@ -140,12 +149,12 @@ public class ProductModifyTest extends IntegrationTestBase {
       @DisplayName("ModifyProductException을 던진다.")
       void it_throwInvalidOpeningBidException() {
 
-        ProductWriteDto productWriteDto = new ProductWriteDto("수정 테스트", "수정 테스트", 10000, 100,
+        ProductInfoDto productInfoDto = new ProductInfoDto("수정 테스트", "수정 테스트", 10000, 100,
             null, 0, 5,
-            LocalDateTime.now().plusHours(1));
+            LocalDateTime.now().plusHours(5));
 
         assertThrows(ModifyProductException.class,
-            () -> productService.modifyProduct(myUserEntity, productWriteDto, modifyList,
+            () -> productService.modifyProduct(myUserEntity, productInfoDto, modifyList,
                 productID));
       }
     }
@@ -162,20 +171,46 @@ public class ProductModifyTest extends IntegrationTestBase {
       @Test
       @DisplayName("성공한다.")
       void it_success() throws Exception {
-        ProductWriteDto productWriteDto = new ProductWriteDto("수정 테스트2", "수정 테스트2", 20000, 200,
+        ProductInfoDto productInfoDto = new ProductInfoDto("수정 테스트2", "수정 테스트2", 20000, 200,
             2000000L, 0, 5,
-            LocalDateTime.now().plusHours(1));
-        ProductEntity product = productService.modifyProduct(savedUserEntity, productWriteDto,
+            LocalDateTime.now().plusHours(2));
+        ProductEntity product = productService.modifyProduct(savedUserEntity, productInfoDto,
+            modifyList, productID2);
+
+        assertThat(product.getProductId()).isEqualTo(productID2);
+        assertThat(product.getProductTitle()).isEqualTo(productInfoDto.getProductTitle());
+        assertThat(product.getProductContent()).isEqualTo(productInfoDto.getProductContent());
+        assertThat(product.getOpeningBid()).isEqualTo(productInfoDto.getOpeningBid());
+        assertThat(product.getTick()).isEqualTo(productInfoDto.getTick());
+        assertThat(product.getHopePrice()).isEqualTo(productInfoDto.getHopePrice());
+        assertThat(product.getRepresentPicture()).isEqualTo(productInfoDto.getRepresentPicture());
+        assertThat(product.getCategory().getCategoryId()).isEqualTo(productInfoDto.getCategory());
+
+        deleteImage(productID2);
+      }
+    }
+
+    @Nested
+    @DisplayName("희망가가 없으면")
+    class Context_NotExistHopePrice {
+
+      @Test
+      @DisplayName("성공한다.")
+      void it_success() throws Exception {
+        ProductInfoDto productInfoDto = new ProductInfoDto("수정 테스트", "수정 테스트", 10000, 100,
+            null, 0, 5,
+            LocalDateTime.now().plusHours(3));
+        ProductEntity product = productService.modifyProduct(savedUserEntity, productInfoDto,
             modifyList, productID);
 
         assertThat(product.getProductId()).isEqualTo(productID);
-        assertThat(product.getProductTitle()).isEqualTo(productWriteDto.getProductTitle());
-        assertThat(product.getProductContent()).isEqualTo(productWriteDto.getProductContent());
-        assertThat(product.getOpeningBid()).isEqualTo(productWriteDto.getOpeningBid());
-        assertThat(product.getTick()).isEqualTo(productWriteDto.getTick());
-        assertThat(product.getHopePrice()).isEqualTo(productWriteDto.getHopePrice());
-        assertThat(product.getRepresentPicture()).isEqualTo(productWriteDto.getRepresentPicture());
-        assertThat(product.getCategory().getCategoryId()).isEqualTo(productWriteDto.getCategory());
+        assertThat(product.getProductTitle()).isEqualTo(productInfoDto.getProductTitle());
+        assertThat(product.getProductContent()).isEqualTo(productInfoDto.getProductContent());
+        assertThat(product.getOpeningBid()).isEqualTo(productInfoDto.getOpeningBid());
+        assertThat(product.getTick()).isEqualTo(productInfoDto.getTick());
+        assertThat(product.getHopePrice()).isEqualTo(productInfoDto.getHopePrice());
+        assertThat(product.getRepresentPicture()).isEqualTo(productInfoDto.getRepresentPicture());
+        assertThat(product.getCategory().getCategoryId()).isEqualTo(productInfoDto.getCategory());
 
         deleteImage(productID);
       }
