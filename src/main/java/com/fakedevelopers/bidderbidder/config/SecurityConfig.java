@@ -47,7 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/user/**")
         .antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**",
             "/term/**", "/chat/**")
-        .regexMatchers(".product.(?!write|modifyProductInfo).*");
+        .regexMatchers("\\/product\\/(?!write|modifyProductInfo).*");
 
   }
 

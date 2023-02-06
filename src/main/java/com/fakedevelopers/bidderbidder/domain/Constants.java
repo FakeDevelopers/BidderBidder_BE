@@ -1,5 +1,7 @@
 package com.fakedevelopers.bidderbidder.domain;
 
+import java.io.File;
+
 /**
  * The type Constants.
  */
@@ -22,9 +24,13 @@ public class Constants {
   public static final String FAIL = "fail";
   public static final String REQUIRED = "required";
   public static final String OPTIONAL = "optional";
+  public static final String UPLOAD_FOLDER = "./upload";
   public static final String RESIZE = "resize_";
   public static final String RESIZE_APP = "resize_app";
   public static final String RESIZE_WEB = "resize_web";
+  public static final String PATH_RESIZE_APP = UPLOAD_FOLDER + File.separator + RESIZE_APP;
+  public static final String PATH_RESIZE_WEB = UPLOAD_FOLDER + File.separator + RESIZE_WEB;
+  public static final String IMAGE_TYPE = "image/jpg";
 
   public static final int MIN_USERNAME_SIZE = 6;
   public static final int MAX_USERNAME_SIZE = 64;
