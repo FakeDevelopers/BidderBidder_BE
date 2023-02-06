@@ -7,7 +7,6 @@ import com.fakedevelopers.bidderbidder.dto.ProductInfoDto;
 import com.fakedevelopers.bidderbidder.dto.ProductInformationDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListRequestDto;
-import com.fakedevelopers.bidderbidder.exception.FileDeleteException;
 import com.fakedevelopers.bidderbidder.exception.InvalidCategoryException;
 import com.fakedevelopers.bidderbidder.exception.InvalidExpirationDateException;
 import com.fakedevelopers.bidderbidder.exception.InvalidExtensionException;
@@ -129,19 +128,19 @@ public class ProductService {
   }
 
   // 수정할 때는 굳이 리사이즈 파일을 지우지 않아도 됨
-  private void deleteOriginalImage(long productId) {
+  private void deleteOriginalImage(long productId) throws IOException {
     ProductEntity productEntity = productRepository.findByProductId(productId);
     for (FileEntity file : productEntity.getFileEntities()) {
       String originalImage = file.getSavedFileName();
       File originalFile = new File(Constants.UPLOAD_FOLDER + File.separator + originalImage);
       if (!originalFile.delete()) {
-        throw new FileDeleteException("파일 삭제 실패");
+        throw new IOException("파일 삭제 실패");
       }
     }
   }
 
   // 게시글 삭제할 때 필요한 리사이즈 파일 삭제
-  private void deleteResizeImage(long productId) {
+  private void deleteResizeImage(long productId) throws IOException {
     String resizedImage =
         Constants.RESIZE + productRepository.findByProductId(productId).getProductId() + ".jpg";
     File appResizedFile = new File(
@@ -150,7 +149,7 @@ public class ProductService {
         Constants.PATH_RESIZE_WEB + File.separator + resizedImage);
 
     if (!(appResizedFile.delete() && webResizedFile.delete())) {
-      throw new FileDeleteException("파일 삭제 실패");
+      throw new IOException("파일 삭제 실패");
     }
   }
 

@@ -11,16 +11,13 @@ import com.fakedevelopers.bidderbidder.model.CategoryEntity;
 import com.fakedevelopers.bidderbidder.model.ProductEntity;
 import com.fakedevelopers.bidderbidder.model.UserEntity;
 import com.fakedevelopers.bidderbidder.repository.CategoryRepository;
-import com.fakedevelopers.bidderbidder.repository.FileRepository;
 import com.fakedevelopers.bidderbidder.repository.ProductRepository;
-import com.fakedevelopers.bidderbidder.repository.UserRepository;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -106,9 +103,11 @@ public class ProductModifyTest extends IntegrationTestBase {
         Constants.RESIZE + productRepository.findByProductId(productId).getProductId() + ".jpg";
     File originalFile = new File(Constants.UPLOAD_FOLDER + File.separator + originalImage);
     File appResizedFile = new File(
-        Constants.UPLOAD_FOLDER + File.separator + Constants.RESIZE_APP + File.separator + resizedImage);
+        Constants.UPLOAD_FOLDER + File.separator + Constants.RESIZE_APP + File.separator
+            + resizedImage);
     File webResizedFile = new File(
-        Constants.UPLOAD_FOLDER + File.separator + Constants.RESIZE_WEB + File.separator + resizedImage);
+        Constants.UPLOAD_FOLDER + File.separator + Constants.RESIZE_WEB + File.separator
+            + resizedImage);
 
     originalFile.delete();
     appResizedFile.delete();
