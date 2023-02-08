@@ -235,7 +235,7 @@ public class ProductService {
   }
 
   private void checkFileIsNull(List<MultipartFile> files) {
-    if (files == null) {
+    if (files == null || files.isEmpty()) {
       throw new NoImageException();
     }
   }
