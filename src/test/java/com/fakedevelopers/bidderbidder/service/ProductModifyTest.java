@@ -114,6 +114,12 @@ public class ProductModifyTest extends IntegrationTestBase {
     webResizedFile.delete();
   }
 
+  private ProductInfoDto getProductInfoDto(){
+    return new ProductInfoDto("수정 테스트", "수정 테스트", 10000, 100,
+        null, 0, 5,
+        LocalDateTime.now().plusHours(5));
+  }
+
   @Nested
   @DisplayName("게시글에서")
   class Describe_ProductEntity {
@@ -130,9 +136,7 @@ public class ProductModifyTest extends IntegrationTestBase {
         long bid = 10000;
         bidService.addBid(productID, userID, bid);
 
-        ProductInfoDto productInfoDto = new ProductInfoDto("수정 테스트", "수정 테스트", 10000, 100,
-            null, 0, 5,
-            LocalDateTime.now().plusHours(5));
+        ProductInfoDto productInfoDto = getProductInfoDto();
 
         assertThrows(ModifyProductException.class,
             () -> productService.modifyProduct(savedUserEntity, productInfoDto, modifyList,
@@ -148,9 +152,7 @@ public class ProductModifyTest extends IntegrationTestBase {
       @DisplayName("ModifyProductException을 던진다.")
       void it_throwInvalidOpeningBidException() {
 
-        ProductInfoDto productInfoDto = new ProductInfoDto("수정 테스트", "수정 테스트", 10000, 100,
-            null, 0, 5,
-            LocalDateTime.now().plusHours(5));
+        ProductInfoDto productInfoDto = getProductInfoDto();
 
         assertThrows(ModifyProductException.class,
             () -> productService.modifyProduct(myUserEntity, productInfoDto, modifyList,
@@ -170,9 +172,7 @@ public class ProductModifyTest extends IntegrationTestBase {
       @Test
       @DisplayName("성공한다.")
       void it_success() throws Exception {
-        ProductInfoDto productInfoDto = new ProductInfoDto("수정 테스트2", "수정 테스트2", 20000, 200,
-            2000000L, 0, 5,
-            LocalDateTime.now().plusHours(2));
+        ProductInfoDto productInfoDto = getProductInfoDto();
         ProductEntity product = productService.modifyProduct(savedUserEntity, productInfoDto,
             modifyList, productID2);
 
@@ -196,9 +196,7 @@ public class ProductModifyTest extends IntegrationTestBase {
       @Test
       @DisplayName("성공한다.")
       void it_success() throws Exception {
-        ProductInfoDto productInfoDto = new ProductInfoDto("수정 테스트", "수정 테스트", 10000, 100,
-            null, 0, 5,
-            LocalDateTime.now().plusHours(3));
+        ProductInfoDto productInfoDto = getProductInfoDto();
         ProductEntity product = productService.modifyProduct(savedUserEntity, productInfoDto,
             modifyList, productID);
 
