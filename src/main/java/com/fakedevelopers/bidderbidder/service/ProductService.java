@@ -169,8 +169,7 @@ public class ProductService {
       throw new ModifyProductException("입찰자가 있어서 수정할 수 없습니다.");
     }
     // UserEntity userId 와 해당 게시글 user_id가 같은지 확인하는 코드드
-    if (!Objects.equals(productRepository.getById(productId).getUser().getId(),
-        userEntity.getId())) {
+    if (!productRepository.getById(productId).getUser().getId().equals(userEntity.getId())) {
       throw new ModifyProductException("게시글 작성자와 로그인한 유저가 다릅니다.");
     }
     saveProductValidation(productInfoDto, files);
