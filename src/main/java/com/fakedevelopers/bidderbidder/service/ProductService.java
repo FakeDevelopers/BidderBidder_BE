@@ -7,6 +7,7 @@ import com.fakedevelopers.bidderbidder.dto.ProductInfoDto;
 import com.fakedevelopers.bidderbidder.dto.ProductInformationDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListRequestDto;
+import com.fakedevelopers.bidderbidder.exception.DifferentUserException;
 import com.fakedevelopers.bidderbidder.exception.InvalidCategoryException;
 import com.fakedevelopers.bidderbidder.exception.InvalidExpirationDateException;
 import com.fakedevelopers.bidderbidder.exception.InvalidExtensionException;
@@ -170,7 +171,7 @@ public class ProductService {
     }
     // UserEntity userId 와 해당 게시글 user_id가 같은지 확인하는 코드드
     if (!productRepository.getById(productId).getUser().getId().equals(userEntity.getId())) {
-      throw new ModifyProductException("게시글 작성자와 로그인한 유저가 다릅니다.");
+      throw new DifferentUserException("게시글 작성자와 로그인한 유저가 다릅니다.");
     }
     saveProductValidation(productInfoDto, files);
   }
