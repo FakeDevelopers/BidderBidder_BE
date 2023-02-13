@@ -44,7 +44,7 @@ public class ProductController {
   String productWrite(UserEntity userEntity,
       @Validated ProductUpsertDto productUpsertDto,
       @RequestPart(required = false) List<MultipartFile> files)
-      throws Exception {
+      throws IOException {
     productService.saveProduct(userEntity, productUpsertDto, files);
     return Constants.SUCCESS;
   }
@@ -89,7 +89,7 @@ public class ProductController {
       @Validated ProductUpsertDto productUpsertDto,
       @RequestPart(required = false) List<MultipartFile> files,
       @PathVariable long productId)
-      throws Exception {
+      throws IOException {
     productService.modifyProduct(userEntity, productUpsertDto, files, productId);
     return Constants.SUCCESS;
   }
