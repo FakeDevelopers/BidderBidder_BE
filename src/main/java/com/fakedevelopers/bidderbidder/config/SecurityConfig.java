@@ -57,7 +57,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     http.csrf().disable()
         .authorizeRequests()
         .antMatchers("/product/write/**", "/product/modifyProductInfo/**",
-            "/product/checkUserIsSame/**",
             "product/deleteProduct/**").authenticated()
         .anyRequest().permitAll() // 현재 모든 인증은 수행되지 않는다.
         .and()

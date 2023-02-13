@@ -78,7 +78,7 @@ public class ProductEntity extends BaseTimeEntity {
       List<MultipartFile> files,
       CategoryEntity category,
       UserEntity user)
-      throws Exception {
+      throws IOException {
     productTitle = productUpsertDto.getProductTitle();
     productContent = productUpsertDto.getProductContent();
     openingBid = productUpsertDto.getOpeningBid();
@@ -96,7 +96,7 @@ public class ProductEntity extends BaseTimeEntity {
       ProductUpsertDto productUpsertDto,
       List<MultipartFile> files,
       CategoryEntity category)
-      throws Exception {
+      throws IOException {
     productTitle = productUpsertDto.getProductTitle();
     productContent = productUpsertDto.getProductContent();
     openingBid = productUpsertDto.getOpeningBid();

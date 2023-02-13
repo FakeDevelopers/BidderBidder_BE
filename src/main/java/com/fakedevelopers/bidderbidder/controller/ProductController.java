@@ -16,9 +16,11 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -79,7 +81,7 @@ public class ProductController {
     return productService.getProductInfo(productId);
   }
 
-  @PostMapping(
+  @PutMapping(
       value = "/modifyProductInfo/{productId}",
       consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   String modifyProductInfo(
@@ -92,7 +94,7 @@ public class ProductController {
     return Constants.SUCCESS;
   }
 
-  @PostMapping("/deleteProduct/{productId}")
+  @DeleteMapping("/deleteProduct/{productId}")
   String deleteProduct(UserEntity userEntity, @PathVariable long productId) throws IOException {
     productService.deleteProduct(userEntity, productId);
     return Constants.SUCCESS;
