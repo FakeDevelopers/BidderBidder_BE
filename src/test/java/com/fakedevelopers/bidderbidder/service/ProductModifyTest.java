@@ -5,13 +5,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.fakedevelopers.bidderbidder.IntegrationTestBase;
 import com.fakedevelopers.bidderbidder.domain.Constants;
 import com.fakedevelopers.bidderbidder.dto.OAuth2UserRegisterDto;
-import com.fakedevelopers.bidderbidder.dto.ProductInfoDto;
+import com.fakedevelopers.bidderbidder.dto.ProductUpsertDto;
+import com.fakedevelopers.bidderbidder.exception.DifferentUserException;
 import com.fakedevelopers.bidderbidder.exception.ModifyProductException;
 import com.fakedevelopers.bidderbidder.model.CategoryEntity;
 import com.fakedevelopers.bidderbidder.model.ProductEntity;
 import com.fakedevelopers.bidderbidder.model.UserEntity;
 import com.fakedevelopers.bidderbidder.repository.CategoryRepository;
 import com.fakedevelopers.bidderbidder.repository.ProductRepository;
+import com.fakedevelopers.bidderbidder.repository.UserRepository;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -77,23 +79,27 @@ public class ProductModifyTest extends IntegrationTestBase {
 
     savedUserEntity = userService.register(OAuth2UserRegisterDto.builder().username("savedUser").
         email("c@d.com").nickname("saved" + Constants.INIT_NICKNAME).build());
-    ProductInfoDto productInfoDto = new ProductInfoDto("테스트", "테스트",
+    ProductUpsertDto productUpsertDto = new ProductUpsertDto("테스트", "테스트",
         1000, 10, 100000L, 0, 4,
         LocalDateTime.now().plusHours(1));
     CategoryEntity categoryEntity = categoryRepository.getById(4L);
 
-    ProductEntity product = new ProductEntity(Constants.UPLOAD_FOLDER, productInfoDto, savedList,
+    ProductEntity product = new ProductEntity(Constants.UPLOAD_FOLDER, productUpsertDto, savedList,
         categoryEntity, savedUserEntity);
-    ProductEntity product2 = new ProductEntity(Constants.UPLOAD_FOLDER, productInfoDto, savedList2,
+    ProductEntity product2 = new ProductEntity(Constants.UPLOAD_FOLDER, productUpsertDto,
+        savedList2,
         categoryEntity, savedUserEntity);
     productID = productRepository.save(product).getProductId();
     productID2 = productRepository.save(product2).getProductId();
   }
 
   @AfterAll
-  static void tearDown(@Autowired ProductRepository productRepository) {
+  static void tearDown(@Autowired ProductRepository productRepository,
+      @Autowired UserRepository userRepository) {
     productRepository.deleteById(productID);
     productRepository.deleteById(productID2);
+    userRepository.deleteById(savedUserEntity.getId());
+    userRepository.deleteById(myUserEntity.getId());
   }
 
   private void deleteImage(long productId) {
@@ -114,8 +120,8 @@ public class ProductModifyTest extends IntegrationTestBase {
     webResizedFile.delete();
   }
 
-  private ProductInfoDto getProductInfoDto(){
-    return new ProductInfoDto("수정 테스트", "수정 테스트", 10000, 100,
+  private ProductUpsertDto getProductInfoDto() {
+    return new ProductUpsertDto("수정 테스트", "수정 테스트", 10000, 100,
         null, 0, 5,
         LocalDateTime.now().plusHours(5));
   }
@@ -130,16 +136,16 @@ public class ProductModifyTest extends IntegrationTestBase {
 
       @Test
       @DisplayName("ModifyProductException을 던진다.")
-      void it_throwInvalidOpeningBidException() {
+      void it_throwModifyProductException() {
 
         long userID = 1;
         long bid = 10000;
         bidService.addBid(productID, userID, bid);
 
-        ProductInfoDto productInfoDto = getProductInfoDto();
+        ProductUpsertDto productUpsertDto = getProductInfoDto();
 
         assertThrows(ModifyProductException.class,
-            () -> productService.modifyProduct(savedUserEntity, productInfoDto, modifyList,
+            () -> productService.modifyProduct(savedUserEntity, productUpsertDto, modifyList,
                 productID));
       }
     }
@@ -150,12 +156,12 @@ public class ProductModifyTest extends IntegrationTestBase {
 
       @Test
       @DisplayName("ModifyProductException을 던진다.")
-      void it_throwInvalidOpeningBidException() {
+      void it_throwDifferentUserException() {
 
-        ProductInfoDto productInfoDto = getProductInfoDto();
+        ProductUpsertDto productUpsertDto = getProductInfoDto();
 
-        assertThrows(ModifyProductException.class,
-            () -> productService.modifyProduct(myUserEntity, productInfoDto, modifyList,
+        assertThrows(DifferentUserException.class,
+            () -> productService.modifyProduct(myUserEntity, productUpsertDto, modifyList,
                 productID));
       }
     }
@@ -163,7 +169,7 @@ public class ProductModifyTest extends IntegrationTestBase {
 
   @Nested
   @DisplayName("글쓰기 정보를 제대로 입력했을 시")
-  class Describe_productSave {
+  class Describe_productModify {
 
     @Nested
     @DisplayName("희망가가 있으면")
@@ -172,18 +178,18 @@ public class ProductModifyTest extends IntegrationTestBase {
       @Test
       @DisplayName("성공한다.")
       void it_success() throws Exception {
-        ProductInfoDto productInfoDto = getProductInfoDto();
-        ProductEntity product = productService.modifyProduct(savedUserEntity, productInfoDto,
+        ProductUpsertDto productUpsertDto = getProductInfoDto();
+        ProductEntity product = productService.modifyProduct(savedUserEntity, productUpsertDto,
             modifyList, productID2);
 
         assertThat(product.getProductId()).isEqualTo(productID2);
-        assertThat(product.getProductTitle()).isEqualTo(productInfoDto.getProductTitle());
-        assertThat(product.getProductContent()).isEqualTo(productInfoDto.getProductContent());
-        assertThat(product.getOpeningBid()).isEqualTo(productInfoDto.getOpeningBid());
-        assertThat(product.getTick()).isEqualTo(productInfoDto.getTick());
-        assertThat(product.getHopePrice()).isEqualTo(productInfoDto.getHopePrice());
-        assertThat(product.getRepresentPicture()).isEqualTo(productInfoDto.getRepresentPicture());
-        assertThat(product.getCategory().getCategoryId()).isEqualTo(productInfoDto.getCategory());
+        assertThat(product.getProductTitle()).isEqualTo(productUpsertDto.getProductTitle());
+        assertThat(product.getProductContent()).isEqualTo(productUpsertDto.getProductContent());
+        assertThat(product.getOpeningBid()).isEqualTo(productUpsertDto.getOpeningBid());
+        assertThat(product.getTick()).isEqualTo(productUpsertDto.getTick());
+        assertThat(product.getHopePrice()).isEqualTo(productUpsertDto.getHopePrice());
+        assertThat(product.getRepresentPicture()).isEqualTo(productUpsertDto.getRepresentPicture());
+        assertThat(product.getCategory().getCategoryId()).isEqualTo(productUpsertDto.getCategory());
 
         deleteImage(productID2);
       }
@@ -196,18 +202,18 @@ public class ProductModifyTest extends IntegrationTestBase {
       @Test
       @DisplayName("성공한다.")
       void it_success() throws Exception {
-        ProductInfoDto productInfoDto = getProductInfoDto();
-        ProductEntity product = productService.modifyProduct(savedUserEntity, productInfoDto,
+        ProductUpsertDto productUpsertDto = getProductInfoDto();
+        ProductEntity product = productService.modifyProduct(savedUserEntity, productUpsertDto,
             modifyList, productID);
 
         assertThat(product.getProductId()).isEqualTo(productID);
-        assertThat(product.getProductTitle()).isEqualTo(productInfoDto.getProductTitle());
-        assertThat(product.getProductContent()).isEqualTo(productInfoDto.getProductContent());
-        assertThat(product.getOpeningBid()).isEqualTo(productInfoDto.getOpeningBid());
-        assertThat(product.getTick()).isEqualTo(productInfoDto.getTick());
-        assertThat(product.getHopePrice()).isEqualTo(productInfoDto.getHopePrice());
-        assertThat(product.getRepresentPicture()).isEqualTo(productInfoDto.getRepresentPicture());
-        assertThat(product.getCategory().getCategoryId()).isEqualTo(productInfoDto.getCategory());
+        assertThat(product.getProductTitle()).isEqualTo(productUpsertDto.getProductTitle());
+        assertThat(product.getProductContent()).isEqualTo(productUpsertDto.getProductContent());
+        assertThat(product.getOpeningBid()).isEqualTo(productUpsertDto.getOpeningBid());
+        assertThat(product.getTick()).isEqualTo(productUpsertDto.getTick());
+        assertThat(product.getHopePrice()).isEqualTo(productUpsertDto.getHopePrice());
+        assertThat(product.getRepresentPicture()).isEqualTo(productUpsertDto.getRepresentPicture());
+        assertThat(product.getCategory().getCategoryId()).isEqualTo(productUpsertDto.getCategory());
 
         deleteImage(productID);
       }
