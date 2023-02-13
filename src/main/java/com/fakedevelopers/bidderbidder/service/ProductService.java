@@ -87,7 +87,7 @@ public class ProductService {
    */
   public ProductEntity saveProduct(UserEntity userEntity, ProductUpsertDto productUpsertDto,
       List<MultipartFile> files)
-      throws Exception {
+      throws IOException {
 
     saveProductValidation(productUpsertDto, files);
     createPathIfNeed();
@@ -106,7 +106,7 @@ public class ProductService {
   }
 
   public ProductEntity modifyProduct(UserEntity userEntity, ProductUpsertDto productUpsertDto,
-      List<MultipartFile> files, long productId) throws Exception {
+      List<MultipartFile> files, long productId) throws IOException {
     ProductEntity productEntity = checkProductId(productId);
     modifyProductValidation(userEntity, productUpsertDto, files, productId);
 
