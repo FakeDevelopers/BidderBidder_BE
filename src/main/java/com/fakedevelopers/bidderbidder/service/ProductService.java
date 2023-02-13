@@ -3,10 +3,10 @@ package com.fakedevelopers.bidderbidder.service;
 import static java.lang.Math.min;
 import com.fakedevelopers.bidderbidder.domain.Constants;
 import com.fakedevelopers.bidderbidder.dto.PageListResponseDto;
-import com.fakedevelopers.bidderbidder.dto.ProductInfoDto;
 import com.fakedevelopers.bidderbidder.dto.ProductInformationDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListRequestDto;
+import com.fakedevelopers.bidderbidder.dto.ProductUpsertDto;
 import com.fakedevelopers.bidderbidder.exception.DifferentUserException;
 import com.fakedevelopers.bidderbidder.exception.InvalidCategoryException;
 import com.fakedevelopers.bidderbidder.exception.InvalidExpirationDateException;
@@ -41,7 +41,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.core.io.InputStreamResource;
@@ -86,46 +85,64 @@ public class ProductService {
   /**
    * . 게시글 저장
    */
-  public ProductEntity saveProduct(UserEntity userEntity, ProductInfoDto productInfoDto,
+  public ProductEntity saveProduct(UserEntity userEntity, ProductUpsertDto productUpsertDto,
       List<MultipartFile> files)
       throws Exception {
 
-    saveProductValidation(productInfoDto, files);
+    saveProductValidation(productUpsertDto, files);
     createPathIfNeed();
-    CategoryEntity categoryEntity = categoryRepository.getById(productInfoDto.getCategory());
+    CategoryEntity categoryEntity = categoryRepository.getById(productUpsertDto.getCategory());
 
     ProductEntity productEntity =
-        new ProductEntity(Constants.UPLOAD_FOLDER, productInfoDto, files, categoryEntity,
+        new ProductEntity(Constants.UPLOAD_FOLDER, productUpsertDto, files, categoryEntity,
             userEntity);
     ProductEntity savedProductEntity = productRepository.save(productEntity);
 
     FileEntity representFileEntity =
-        savedProductEntity.getFileEntities().get(productInfoDto.getRepresentPicture());
+        savedProductEntity.getFileEntities().get(productUpsertDto.getRepresentPicture());
     saveResizeFile(
         representFileEntity.getSavedFileName(), savedProductEntity.getProductId());
     return savedProductEntity;
   }
 
-  public ProductEntity modifyProduct(UserEntity userEntity, ProductInfoDto productInfoDto,
+  public ProductEntity modifyProduct(UserEntity userEntity, ProductUpsertDto productUpsertDto,
       List<MultipartFile> files, long productId) throws Exception {
-    ProductEntity productEntity = productRepository.findById(productId)
-        .orElseThrow(() -> new ProductNotFoundException(productId));
-    modifyProductValidation(userEntity, productInfoDto, files, productId);
+    ProductEntity productEntity = checkProductId(productId);
+    modifyProductValidation(userEntity, productUpsertDto, files, productId);
 
     fileRepository.deleteAllInBatch(productEntity.getFileEntities());
     deleteOriginalImage(productId);
 
     createPathIfNeed();
-    CategoryEntity categoryEntity = categoryRepository.getById(productInfoDto.getCategory());
-    productEntity.modify(Constants.UPLOAD_FOLDER, productInfoDto, files, categoryEntity);
+    CategoryEntity categoryEntity = categoryRepository.getById(productUpsertDto.getCategory());
+    productEntity.modify(Constants.UPLOAD_FOLDER, productUpsertDto, files, categoryEntity);
     productRepository.save(productEntity);
 
     FileEntity representFileEntity =
-        productEntity.getFileEntities().get(productInfoDto.getRepresentPicture());
+        productEntity.getFileEntities().get(productUpsertDto.getRepresentPicture());
     saveResizeFile(
         representFileEntity.getSavedFileName(), productEntity.getProductId());
 
     return productEntity;
+  }
+
+  public void deleteProduct(UserEntity userEntity, long productId) throws IOException {
+    ProductEntity productEntity = checkProductId(productId);
+
+    deleteProductValidation(userEntity, productId);
+
+    fileRepository.deleteAllInBatch(productEntity.getFileEntities());
+    productEntity.getFileEntities().clear();
+
+    deleteOriginalImage(productId);
+    deleteResizeImage(productId);
+
+    productRepository.deleteById(productId);
+  }
+
+  private ProductEntity checkProductId(long productId) {
+    return productRepository.findById(productId)
+        .orElseThrow(() -> new ProductNotFoundException(productId));
   }
 
   // 수정할 때는 굳이 리사이즈 파일을 지우지 않아도 됨
@@ -154,26 +171,26 @@ public class ProductService {
     }
   }
 
-  private void saveProductValidation(ProductInfoDto productInfoDto, List<MultipartFile> files) {
+  private void saveProductValidation(ProductUpsertDto productUpsertDto, List<MultipartFile> files) {
     checkFileIsNull(files);
-    checkOpeningBid(productInfoDto.getHopePrice(), productInfoDto.getOpeningBid());
-    compareDate(productInfoDto.getExpirationDate());
-    checkCategoryId(productInfoDto.getCategory());
-    checkLastSubCategory(productInfoDto.getCategory());
+    checkOpeningBid(productUpsertDto.getHopePrice(), productUpsertDto.getOpeningBid());
+    compareDate(productUpsertDto.getExpirationDate());
+    checkCategoryId(productUpsertDto.getCategory());
+    checkLastSubCategory(productUpsertDto.getCategory());
     compareExtension(files);
-    imageCount(productInfoDto.getRepresentPicture(), files);
+    imageCount(productUpsertDto.getRepresentPicture(), files);
   }
 
-  private void modifyProductValidation(UserEntity userEntity, ProductInfoDto productInfoDto,
+  private void modifyProductValidation(UserEntity userEntity, ProductUpsertDto productUpsertDto,
       List<MultipartFile> files, long productId) {
-    if (!bidRepository.getBidsByProductId(productId).isEmpty()) {
-      throw new ModifyProductException("입찰자가 있어서 수정할 수 없습니다.");
-    }
-    // UserEntity userId 와 해당 게시글 user_id가 같은지 확인하는 코드드
-    if (!productRepository.getById(productId).getUser().getId().equals(userEntity.getId())) {
-      throw new DifferentUserException("게시글 작성자와 로그인한 유저가 다릅니다.");
-    }
-    saveProductValidation(productInfoDto, files);
+    checkHaveBidder(productId);
+    checkUserSame(userEntity, productId);
+    saveProductValidation(productUpsertDto, files);
+  }
+
+  private void deleteProductValidation(UserEntity userEntity, long productId) {
+    checkHaveBidder(productId);
+    checkUserSame(userEntity, productId);
   }
 
   // 입력 받은 이미지를 web, app 에 맞게 각각 리사이징 후 저장
@@ -251,6 +268,18 @@ public class ProductService {
     CategoryEntity category = categoryRepository.getById(categoryId);
     if (!category.getSubCategories().isEmpty()) {
       throw new InvalidCategoryException("최하위 카테고리가 아닙니다.");
+    }
+  }
+
+  private void checkHaveBidder(long productId) {
+    if (!bidRepository.getBidsByProductId(productId).isEmpty()) {
+      throw new ModifyProductException("입찰자가 있어서 수정할 수 없습니다.");
+    }
+  }
+
+  private void checkUserSame(UserEntity userEntity, long productId) {
+    if (!productRepository.getById(productId).getUser().getId().equals(userEntity.getId())) {
+      throw new DifferentUserException("게시글 작성자와 로그인한 유저가 다릅니다.");
     }
   }
 

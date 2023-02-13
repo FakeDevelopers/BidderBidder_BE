@@ -45,7 +45,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/user/**")
         .antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**",
             "/term/**")
-        .regexMatchers("\\/product\\/(?!write|modifyProductInfo).*");
+        .regexMatchers("\\/product\\/(?!write|modifyProductInfo|checkUserIsSame|deleteProduct).*");
 
   }
 
@@ -54,7 +54,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     http.csrf().disable()
         .authorizeRequests()
-        .antMatchers("/product/write/**", "product/modifyProductInfo/**").authenticated()
+        .antMatchers("/product/write/**", "/product/modifyProductInfo/**",
+            "/product/checkUserIsSame/**",
+            "product/deleteProduct/**").authenticated()
         .anyRequest().permitAll() // 현재 모든 인증은 수행되지 않는다.
         .and()
         .addFilterBefore(new FirebaseTokenFilter(customUserDetailsService, firebaseAuth),

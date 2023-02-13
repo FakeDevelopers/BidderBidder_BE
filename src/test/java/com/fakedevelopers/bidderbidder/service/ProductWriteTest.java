@@ -3,7 +3,7 @@ package com.fakedevelopers.bidderbidder.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.fakedevelopers.bidderbidder.IntegrationTestBase;
-import com.fakedevelopers.bidderbidder.dto.ProductInfoDto;
+import com.fakedevelopers.bidderbidder.dto.ProductUpsertDto;
 import com.fakedevelopers.bidderbidder.exception.InvalidCategoryException;
 import com.fakedevelopers.bidderbidder.exception.InvalidExpirationDateException;
 import com.fakedevelopers.bidderbidder.exception.InvalidExtensionException;
@@ -93,11 +93,11 @@ public class ProductWriteTest extends IntegrationTestBase {
       @Test
       @DisplayName("InvalidOpeningBidException를 던진다.")
       void it_throwInvalidOpeningBidException() {
-        ProductInfoDto productInfoDto = new ProductInfoDto("테스트", "테스트", 100000, 10,
+        ProductUpsertDto productUpsertDto = new ProductUpsertDto("테스트", "테스트", 100000, 10,
             1000L, 0, 4,
             LocalDateTime.now().plusHours(1));
         assertThrows(InvalidOpeningBidException.class,
-            () -> sut.saveProduct(userEntity, productInfoDto, mList));
+            () -> sut.saveProduct(userEntity, productUpsertDto, mList));
       }
     }
   }
@@ -113,11 +113,11 @@ public class ProductWriteTest extends IntegrationTestBase {
       @Test
       @DisplayName("InvalidRepresentPictureIndexException를 던진다.")
       void it_throwInvalidRepresentPictureIndexException() {
-        ProductInfoDto productInfoDto = new ProductInfoDto("테스트", "테스트", 1000, 10,
+        ProductUpsertDto productUpsertDto = new ProductUpsertDto("테스트", "테스트", 1000, 10,
             100000L, -1, 4,
             LocalDateTime.now().plusHours(1));
         assertThrows(InvalidRepresentPictureIndexException.class,
-            () -> sut.saveProduct(userEntity, productInfoDto, mList));
+            () -> sut.saveProduct(userEntity, productUpsertDto, mList));
       }
     }
 
@@ -128,11 +128,11 @@ public class ProductWriteTest extends IntegrationTestBase {
       @Test
       @DisplayName("InvalidRepresentPictureIndexException를 던진다.")
       void it_throwInvalidRepresentPictureIndexException() {
-        ProductInfoDto productInfoDto = new ProductInfoDto("테스트", "테스트", 1000, 10,
+        ProductUpsertDto productUpsertDto = new ProductUpsertDto("테스트", "테스트", 1000, 10,
             100000L, 1, 4,
             LocalDateTime.now().plusHours(1));
         assertThrows(InvalidRepresentPictureIndexException.class,
-            () -> sut.saveProduct(userEntity, productInfoDto, mList));
+            () -> sut.saveProduct(userEntity, productUpsertDto, mList));
       }
     }
   }
@@ -148,11 +148,11 @@ public class ProductWriteTest extends IntegrationTestBase {
       @Test
       @DisplayName("InvalidCategoryException를 던진다")
       void it_throwInvalidCategoryException() {
-        ProductInfoDto productInfoDto = new ProductInfoDto("테스트", "테스트", 1000, 10,
+        ProductUpsertDto productUpsertDto = new ProductUpsertDto("테스트", "테스트", 1000, 10,
             100000L, 0, 99,
             LocalDateTime.now().plusHours(1));
         assertThrows(InvalidCategoryException.class,
-            () -> sut.saveProduct(userEntity, productInfoDto, mList));
+            () -> sut.saveProduct(userEntity, productUpsertDto, mList));
       }
     }
 
@@ -163,11 +163,11 @@ public class ProductWriteTest extends IntegrationTestBase {
       @Test
       @DisplayName("InvalidCategoryException를 던진다")
       void it_throwInvalidCategoryException() {
-        ProductInfoDto productInfoDto = new ProductInfoDto("테스트", "테스트", 1000, 10,
+        ProductUpsertDto productUpsertDto = new ProductUpsertDto("테스트", "테스트", 1000, 10,
             100000L, 0, 1,
             LocalDateTime.now().plusHours(1));
         assertThrows(InvalidCategoryException.class,
-            () -> sut.saveProduct(userEntity, productInfoDto, mList));
+            () -> sut.saveProduct(userEntity, productUpsertDto, mList));
       }
     }
 
@@ -184,11 +184,11 @@ public class ProductWriteTest extends IntegrationTestBase {
       @Test
       @DisplayName("InvalidExpirationDateException를 던진다.")
       void it_throwInvalidExpirationDateException() {
-        ProductInfoDto productInfoDto = new ProductInfoDto("테스트", "테스트", 1000, 10,
+        ProductUpsertDto productUpsertDto = new ProductUpsertDto("테스트", "테스트", 1000, 10,
             100000L, 0, 4,
             LocalDateTime.now().minusHours(1));
         assertThrows(InvalidExpirationDateException.class,
-            () -> sut.saveProduct(userEntity, productInfoDto, mList));
+            () -> sut.saveProduct(userEntity, productUpsertDto, mList));
       }
     }
 
@@ -201,11 +201,11 @@ public class ProductWriteTest extends IntegrationTestBase {
       void it_throwInvalidExpirationDateException() {
         // 서버에서는 시차가 존재해서 -9를 해주었지만
         // 로컬에서는 현재시간이 그대로 적용이기 때문에 72 + 9 + 1의 시간을 더해줌
-        ProductInfoDto productInfoDto = new ProductInfoDto("테스트", "테스트", 1000, 10,
+        ProductUpsertDto productUpsertDto = new ProductUpsertDto("테스트", "테스트", 1000, 10,
             100000L, 0, 4,
             LocalDateTime.now().plusHours(82));
         assertThrows(InvalidExpirationDateException.class,
-            () -> sut.saveProduct(userEntity, productInfoDto, mList));
+            () -> sut.saveProduct(userEntity, productUpsertDto, mList));
       }
     }
   }
@@ -221,11 +221,11 @@ public class ProductWriteTest extends IntegrationTestBase {
       @Test
       @DisplayName("NoImageException을 던진다.")
       void it_throwNoImageException() {
-        ProductInfoDto productInfoDto = new ProductInfoDto("테스트", "테스트", 1000, 10,
+        ProductUpsertDto productUpsertDto = new ProductUpsertDto("테스트", "테스트", 1000, 10,
             100000L, 0, 4,
             LocalDateTime.now().plusHours(1));
         assertThrows(NoImageException.class,
-            () -> sut.saveProduct(userEntity, productInfoDto, null));
+            () -> sut.saveProduct(userEntity, productUpsertDto, null));
       }
     }
 
@@ -236,12 +236,12 @@ public class ProductWriteTest extends IntegrationTestBase {
       @Test
       @DisplayName("InvalidExtensionException을 던진다.")
       void it_throwInvalidExtensionException() throws IOException {
-        ProductInfoDto productInfoDto = new ProductInfoDto("테스트", "테스트", 1000, 10,
+        ProductUpsertDto productUpsertDto = new ProductUpsertDto("테스트", "테스트", 1000, 10,
             100000L, 0, 4,
             LocalDateTime.now().plusHours(1));
         List<MultipartFile> mList = makeImageList("Tidokang_star.", "webp");
         assertThrows(InvalidExtensionException.class,
-            () -> sut.saveProduct(userEntity, productInfoDto, mList));
+            () -> sut.saveProduct(userEntity, productUpsertDto, mList));
       }
     }
   }
@@ -257,19 +257,19 @@ public class ProductWriteTest extends IntegrationTestBase {
       @Test
       @DisplayName("성공한다.")
       void it_success() throws Exception {
-        ProductInfoDto productInfoDto = new ProductInfoDto("테스트", "테스트", 1000, 10,
+        ProductUpsertDto productUpsertDto = new ProductUpsertDto("테스트", "테스트", 1000, 10,
             null, 0, 4,
             LocalDateTime.now().plusHours(1));
-        ProductEntity product = sut.saveProduct(userEntity, productInfoDto, mList);
+        ProductEntity product = sut.saveProduct(userEntity, productUpsertDto, mList);
 
         assertThat(product.getProductId()).isPositive();
-        assertThat(product.getProductTitle()).isEqualTo(productInfoDto.getProductTitle());
-        assertThat(product.getProductContent()).isEqualTo(productInfoDto.getProductContent());
-        assertThat(product.getOpeningBid()).isEqualTo(productInfoDto.getOpeningBid());
-        assertThat(product.getTick()).isEqualTo(productInfoDto.getTick());
-        assertThat(product.getHopePrice()).isEqualTo(productInfoDto.getHopePrice());
-        assertThat(product.getRepresentPicture()).isEqualTo(productInfoDto.getRepresentPicture());
-        assertThat(product.getCategory().getCategoryId()).isEqualTo(productInfoDto.getCategory());
+        assertThat(product.getProductTitle()).isEqualTo(productUpsertDto.getProductTitle());
+        assertThat(product.getProductContent()).isEqualTo(productUpsertDto.getProductContent());
+        assertThat(product.getOpeningBid()).isEqualTo(productUpsertDto.getOpeningBid());
+        assertThat(product.getTick()).isEqualTo(productUpsertDto.getTick());
+        assertThat(product.getHopePrice()).isEqualTo(productUpsertDto.getHopePrice());
+        assertThat(product.getRepresentPicture()).isEqualTo(productUpsertDto.getRepresentPicture());
+        assertThat(product.getCategory().getCategoryId()).isEqualTo(productUpsertDto.getCategory());
 
         deleteImage(product.getProductId());
       }
@@ -282,19 +282,19 @@ public class ProductWriteTest extends IntegrationTestBase {
       @Test
       @DisplayName("성공한다.")
       void it_success() throws Exception {
-        ProductInfoDto productInfoDto = new ProductInfoDto("테스트", "테스트", 1000, 10,
+        ProductUpsertDto productUpsertDto = new ProductUpsertDto("테스트", "테스트", 1000, 10,
             100000L, 0, 4,
             LocalDateTime.now().plusHours(1));
-        ProductEntity product = sut.saveProduct(userEntity, productInfoDto, mList);
+        ProductEntity product = sut.saveProduct(userEntity, productUpsertDto, mList);
 
         assertThat(product.getProductId()).isPositive();
-        assertThat(product.getProductTitle()).isEqualTo(productInfoDto.getProductTitle());
-        assertThat(product.getProductContent()).isEqualTo(productInfoDto.getProductContent());
-        assertThat(product.getOpeningBid()).isEqualTo(productInfoDto.getOpeningBid());
-        assertThat(product.getTick()).isEqualTo(productInfoDto.getTick());
-        assertThat(product.getHopePrice()).isEqualTo(productInfoDto.getHopePrice());
-        assertThat(product.getRepresentPicture()).isEqualTo(productInfoDto.getRepresentPicture());
-        assertThat(product.getCategory().getCategoryId()).isEqualTo(productInfoDto.getCategory());
+        assertThat(product.getProductTitle()).isEqualTo(productUpsertDto.getProductTitle());
+        assertThat(product.getProductContent()).isEqualTo(productUpsertDto.getProductContent());
+        assertThat(product.getOpeningBid()).isEqualTo(productUpsertDto.getOpeningBid());
+        assertThat(product.getTick()).isEqualTo(productUpsertDto.getTick());
+        assertThat(product.getHopePrice()).isEqualTo(productUpsertDto.getHopePrice());
+        assertThat(product.getRepresentPicture()).isEqualTo(productUpsertDto.getRepresentPicture());
+        assertThat(product.getCategory().getCategoryId()).isEqualTo(productUpsertDto.getCategory());
 
         deleteImage(product.getProductId());
       }

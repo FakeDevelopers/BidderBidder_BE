@@ -4,7 +4,7 @@ package com.fakedevelopers.bidderbidder.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.fakedevelopers.bidderbidder.IntegrationTestBase;
-import com.fakedevelopers.bidderbidder.dto.ProductInfoDto;
+import com.fakedevelopers.bidderbidder.dto.ProductUpsertDto;
 import com.fakedevelopers.bidderbidder.exception.AlreadyExpiredException;
 import com.fakedevelopers.bidderbidder.exception.InvalidBidException;
 import com.fakedevelopers.bidderbidder.exception.ProductNotFoundException;
@@ -45,10 +45,10 @@ class BidServiceTest extends IntegrationTestBase {
   static void setUp(@Autowired ProductRepository productRepository,
       @Autowired CategoryRepository categoryRepository,
       @Autowired UserRepository userRepository) throws Exception {
-    ProductInfoDto productInfoDto = new ProductInfoDto("테스트", "테스트", 1000, 10, 1000000L, 0, 1,
+    ProductUpsertDto productUpsertDto = new ProductUpsertDto("테스트", "테스트", 1000, 10, 1000000L, 0, 1,
         LocalDateTime.now().plusHours(1));
     userEntity = userRepository.findById(32001L).orElseThrow();
-    ProductEntity product = new ProductEntity(".", productInfoDto, new ArrayList<>(),
+    ProductEntity product = new ProductEntity(".", productUpsertDto, new ArrayList<>(),
         categoryEntity, userEntity);
     productID = productRepository.save(product).getProductId();
     categoryEntity = categoryRepository.findAllByParentCategoryIdIsNull()
@@ -101,9 +101,9 @@ class BidServiceTest extends IntegrationTestBase {
   @DisplayName("이미 끝난 경매에 응찰을 한다.")
   void alreadyExpired() throws Exception {
 
-    ProductInfoDto productInfoDto = new ProductInfoDto("테스트", "테스트", 1000, 10, 1000000L, 0, 1,
+    ProductUpsertDto productUpsertDto = new ProductUpsertDto("테스트", "테스트", 1000, 10, 1000000L, 0, 1,
         LocalDateTime.now().minusHours(1));
-    ProductEntity product = new ProductEntity(".", productInfoDto, new ArrayList<>(),
+    ProductEntity product = new ProductEntity(".", productUpsertDto, new ArrayList<>(),
         categoryEntity, userEntity);
 
     long productID = productRepository.save(product).getProductId();

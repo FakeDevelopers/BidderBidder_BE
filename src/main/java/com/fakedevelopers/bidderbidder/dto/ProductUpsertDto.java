@@ -13,7 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class ProductInfoDto {
+public class ProductUpsertDto {
 
   @NotBlank(message = "제목에 빈칸은 입력불가입니다.")
   @Size(max = 400, message = "제목은 최대 100자입니다.")
