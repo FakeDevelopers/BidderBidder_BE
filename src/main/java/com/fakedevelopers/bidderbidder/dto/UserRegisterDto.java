@@ -5,14 +5,18 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+
+import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
 @Getter
-@RequiredArgsConstructor
+@Setter
+@Builder
+@ToString
+@AllArgsConstructor
 public class UserRegisterDto {
 
+  private static UserRegisterDto dto;
   @NotBlank
   @Pattern(regexp = "\\w{6,64}")
   private final String username;
