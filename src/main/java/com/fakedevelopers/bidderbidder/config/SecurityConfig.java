@@ -4,7 +4,6 @@ import com.fakedevelopers.bidderbidder.filter.ExceptionHandlerFilter;
 import com.fakedevelopers.bidderbidder.filter.FirebaseTokenFilter;
 import com.fakedevelopers.bidderbidder.service.CustomUserDetailsService;
 import com.google.firebase.auth.FirebaseAuth;
-import javax.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +14,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
@@ -47,7 +45,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/user/**")
         .antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**",
             "/term/**")
-        .regexMatchers(".product.(?!write).*");
+        .regexMatchers("\\/product\\/(?!write|modifyProductInfo).*");
 
   }
 
@@ -56,7 +54,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     http.csrf().disable()
         .authorizeRequests()
-        .antMatchers("/product/write/**").authenticated()
+        .antMatchers("/product/write/**", "product/modifyProductInfo/**").authenticated()
         .anyRequest().permitAll() // 현재 모든 인증은 수행되지 않는다.
         .and()
         .addFilterBefore(new FirebaseTokenFilter(customUserDetailsService, firebaseAuth),

@@ -1,6 +1,6 @@
 package com.fakedevelopers.bidderbidder.model;
 
-import com.fakedevelopers.bidderbidder.dto.ProductWriteDto;
+import com.fakedevelopers.bidderbidder.dto.ProductInfoDto;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -74,21 +74,38 @@ public class ProductEntity extends BaseTimeEntity {
 
   public ProductEntity(
       String path,
-      ProductWriteDto productWriteDto,
+      ProductInfoDto productInfoDto,
       List<MultipartFile> files,
       CategoryEntity category,
       UserEntity user)
       throws Exception {
-    productTitle = productWriteDto.getProductTitle();
-    productContent = productWriteDto.getProductContent();
-    openingBid = productWriteDto.getOpeningBid();
-    hopePrice = productWriteDto.getHopePrice();
-    tick = productWriteDto.getTick();
-    representPicture = productWriteDto.getRepresentPicture();
+    productTitle = productInfoDto.getProductTitle();
+    productContent = productInfoDto.getProductContent();
+    openingBid = productInfoDto.getOpeningBid();
+    hopePrice = productInfoDto.getHopePrice();
+    tick = productInfoDto.getTick();
+    representPicture = productInfoDto.getRepresentPicture();
     this.category = category;
-    expirationDate = productWriteDto.getExpirationDate();
+    expirationDate = productInfoDto.getExpirationDate();
     fileEntities = makeFileEntityList(path, files);
     this.user = user;
+  }
+
+  public void modify(
+      String path,
+      ProductInfoDto productInfoDto,
+      List<MultipartFile> files,
+      CategoryEntity category)
+      throws Exception {
+    productTitle = productInfoDto.getProductTitle();
+    productContent = productInfoDto.getProductContent();
+    openingBid = productInfoDto.getOpeningBid();
+    hopePrice = productInfoDto.getHopePrice();
+    tick = productInfoDto.getTick();
+    representPicture = productInfoDto.getRepresentPicture();
+    this.category = category;
+    expirationDate = productInfoDto.getExpirationDate();
+    fileEntities = makeFileEntityList(path, files);
   }
 
   // 파일 엔티티 리스트 만듦
