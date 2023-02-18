@@ -3,6 +3,7 @@ package com.fakedevelopers.bidderbidder.service;
 import com.fakedevelopers.bidderbidder.IntegrationTestBase;
 import com.fakedevelopers.bidderbidder.domain.Constants;
 import com.fakedevelopers.bidderbidder.dto.OAuth2UserRegisterDto;
+import com.fakedevelopers.bidderbidder.dto.UserLoginDto;
 import com.fakedevelopers.bidderbidder.dto.UserRegisterDto;
 import com.fakedevelopers.bidderbidder.model.UserEntity;
 import com.fakedevelopers.bidderbidder.repository.UserRepository;
@@ -15,9 +16,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Random;
@@ -70,6 +73,35 @@ public class UserServiceTest extends IntegrationTestBase {
                 Arguments.of("invalidUser" + randomGenerator.nextInt(1, 1000), "a@b.com", "a".repeat(20)));
     }
 
+    public static Stream<Arguments> invalidLoginDtoGenerator() {
+        return Stream.of(
+                Arguments.of("test1", "wrong123"),
+                Arguments.of("test2", "wrong123"),
+                Arguments.of("test3", "wrong123"),
+                Arguments.of("test4", "wrong123"),
+                Arguments.of("test5", "wrong123"),
+                Arguments.of("test6", "wrong123"),
+                Arguments.of("test7", "wrong123"),
+                Arguments.of("test8", "wrong123"),
+                Arguments.of("test9", "wrong123"),
+                Arguments.of("test10", "wrong123")
+        );
+    }
+
+    public static Stream<Arguments> validLoginDtoGenerator() {
+        return Stream.of(
+                Arguments.of("test1", "123"),
+                Arguments.of("test2", "123"),
+                Arguments.of("test3", "123"),
+                Arguments.of("test4", "123"),
+                Arguments.of("test5", "123"),
+                Arguments.of("test6", "123"),
+                Arguments.of("test7", "123"),
+                Arguments.of("test8", "123"),
+                Arguments.of("test9", "123"),
+                Arguments.of("test10", "123")
+        );
+    }
 
     @Nested
     @DisplayName("Register 메소드는")
@@ -150,4 +182,66 @@ public class UserServiceTest extends IntegrationTestBase {
         }
     }
 
+    @Nested
+    @DisplayName("Login 메소드는")
+    class Describe_Login {
+
+        @Nested
+        @DisplayName("존재하는 회원에 대해서")
+        class Context_Existing_User {
+            @Nested
+            @DisplayName("올바르지 않는 패스워드가 들어오면")
+            class Context_Incorrect_Password {
+
+                @ParameterizedTest
+                @MethodSource("com.fakedevelopers.bidderbidder.service.UserServiceTest#invalidLoginDtoGenerator")
+                @DisplayName("예외를 던진다")
+                void It_returns_exception(String username, String password) {
+                    UserLoginDto dto = new UserLoginDto(username, password);
+                    Assertions.assertThrows(Exception.class, () -> userService.userLoginWithPassword(dto));
+                }
+            }
+
+            @Nested
+            @DisplayName("올바른 패스워드가 들어오면")
+            class Context_Correct_Password {
+                @ParameterizedTest
+                @MethodSource("com.fakedevelopers.bidderbidder.service.UserServiceTest#validLoginDtoGenerator")
+                @DisplayName("유저 정보를 반환한다")
+                void It_returns_userInfo(String username, String password) {
+                    UserLoginDto dto = new UserLoginDto(username, password);
+                    assertThat(userService.userLoginWithPassword(dto).getEmail()).isNotNull();
+                    assertThat(userService.userLoginWithPassword(dto).getUsername()).isEqualTo(username);
+                    assertThat(userService.userLoginWithPassword(dto).getNickname()).isNotNull();
+                }
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("GetUser 메소드는")
+    class Describe_GetUser {
+        @Nested
+        @DisplayName("존재하지 않는 회원 아이디에 대하여")
+        class Context_Invalid_Username {
+            @Test
+            @DisplayName("예외를 던진다")
+            void It_Throws_UserNotFoundException() {
+                String invalidUsername = "NOT_FOUND";
+                Assertions.assertThrows(UsernameNotFoundException.class, () -> userService.getUser(invalidUsername));
+            }
+        }
+
+        @Nested
+        @DisplayName("존재하는 회원 아이디에 대하여")
+        class Context_Valid_Username {
+            @ParameterizedTest
+            @ValueSource(strings = {"test1", "test2", "test3", "test4", "test5", "test6", "test7", "test8", "test9", "test10"})
+            @DisplayName("UserInfo를 반환한다")
+            void It_Returns_UserInfo(String username) {
+                assertThat(userService.getUser(username)).isNotNull();
+                assertThat(userService.getUser(username).getUsername()).isEqualTo(username);
+            }
+        }
+    }
 }
