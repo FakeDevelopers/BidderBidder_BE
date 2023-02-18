@@ -55,12 +55,12 @@ public class UserController {
     }
 
 
-    @PostMapping(value = "/login", params = {"userLoginDto"})
+    @PostMapping(value = "/login", params = {"with=password"})
     UserInfo userLogin(@Validated @RequestBody UserLoginDto userLoginDto) {
         return userService.userLoginWithPassword(userLoginDto);
     }
 
-    @PostMapping(value = "/login", params = {"token"})
+    @PostMapping(value = "/login", params = {"with=token"})
     UserInfo userLogin(@NotNull @RequestBody String token) {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         final FirebaseToken firebaseToken;
