@@ -1,6 +1,6 @@
 package com.fakedevelopers.bidderbidder.model;
 
-import com.fakedevelopers.bidderbidder.dto.ProductInfoDto;
+import com.fakedevelopers.bidderbidder.dto.ProductUpsertDto;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -74,37 +74,37 @@ public class ProductEntity extends BaseTimeEntity {
 
   public ProductEntity(
       String path,
-      ProductInfoDto productInfoDto,
+      ProductUpsertDto productUpsertDto,
       List<MultipartFile> files,
       CategoryEntity category,
       UserEntity user)
-      throws Exception {
-    productTitle = productInfoDto.getProductTitle();
-    productContent = productInfoDto.getProductContent();
-    openingBid = productInfoDto.getOpeningBid();
-    hopePrice = productInfoDto.getHopePrice();
-    tick = productInfoDto.getTick();
-    representPicture = productInfoDto.getRepresentPicture();
+      throws IOException {
+    productTitle = productUpsertDto.getProductTitle();
+    productContent = productUpsertDto.getProductContent();
+    openingBid = productUpsertDto.getOpeningBid();
+    hopePrice = productUpsertDto.getHopePrice();
+    tick = productUpsertDto.getTick();
+    representPicture = productUpsertDto.getRepresentPicture();
     this.category = category;
-    expirationDate = productInfoDto.getExpirationDate();
+    expirationDate = productUpsertDto.getExpirationDate();
     fileEntities = makeFileEntityList(path, files);
     this.user = user;
   }
 
   public void modify(
       String path,
-      ProductInfoDto productInfoDto,
+      ProductUpsertDto productUpsertDto,
       List<MultipartFile> files,
       CategoryEntity category)
-      throws Exception {
-    productTitle = productInfoDto.getProductTitle();
-    productContent = productInfoDto.getProductContent();
-    openingBid = productInfoDto.getOpeningBid();
-    hopePrice = productInfoDto.getHopePrice();
-    tick = productInfoDto.getTick();
-    representPicture = productInfoDto.getRepresentPicture();
+      throws IOException {
+    productTitle = productUpsertDto.getProductTitle();
+    productContent = productUpsertDto.getProductContent();
+    openingBid = productUpsertDto.getOpeningBid();
+    hopePrice = productUpsertDto.getHopePrice();
+    tick = productUpsertDto.getTick();
+    representPicture = productUpsertDto.getRepresentPicture();
     this.category = category;
-    expirationDate = productInfoDto.getExpirationDate();
+    expirationDate = productUpsertDto.getExpirationDate();
     fileEntities = makeFileEntityList(path, files);
   }
 

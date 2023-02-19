@@ -2,10 +2,10 @@ package com.fakedevelopers.bidderbidder.controller;
 
 import com.fakedevelopers.bidderbidder.domain.Constants;
 import com.fakedevelopers.bidderbidder.dto.PageListResponseDto;
-import com.fakedevelopers.bidderbidder.dto.ProductInfoDto;
 import com.fakedevelopers.bidderbidder.dto.ProductInformationDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListDto;
 import com.fakedevelopers.bidderbidder.dto.ProductListRequestDto;
+import com.fakedevelopers.bidderbidder.dto.ProductUpsertDto;
 import com.fakedevelopers.bidderbidder.model.CategoryEntity;
 import com.fakedevelopers.bidderbidder.model.ProductEntity;
 import com.fakedevelopers.bidderbidder.model.UserEntity;
@@ -16,9 +16,11 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -40,10 +42,10 @@ public class ProductController {
       value = "/write",
       consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   String productWrite(UserEntity userEntity,
-      @Validated ProductInfoDto productInfoDto,
+      @Validated ProductUpsertDto productUpsertDto,
       @RequestPart(required = false) List<MultipartFile> files)
-      throws Exception {
-    productService.saveProduct(userEntity, productInfoDto, files);
+      throws IOException {
+    productService.saveProduct(userEntity, productUpsertDto, files);
     return Constants.SUCCESS;
   }
 
@@ -79,16 +81,22 @@ public class ProductController {
     return productService.getProductInfo(productId);
   }
 
-  @PostMapping(
+  @PutMapping(
       value = "/modifyProductInfo/{productId}",
       consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   String modifyProductInfo(
       UserEntity userEntity,
-      @Validated ProductInfoDto productInfoDto,
+      @Validated ProductUpsertDto productUpsertDto,
       @RequestPart(required = false) List<MultipartFile> files,
       @PathVariable long productId)
-      throws Exception {
-    productService.modifyProduct(userEntity, productInfoDto, files, productId);
+      throws IOException {
+    productService.modifyProduct(userEntity, productUpsertDto, files, productId);
+    return Constants.SUCCESS;
+  }
+
+  @DeleteMapping("/deleteProduct/{productId}")
+  String deleteProduct(UserEntity userEntity, @PathVariable long productId) throws IOException {
+    productService.deleteProduct(userEntity, productId);
     return Constants.SUCCESS;
   }
 
