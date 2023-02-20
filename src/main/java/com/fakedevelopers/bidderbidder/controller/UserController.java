@@ -8,6 +8,7 @@ import com.fakedevelopers.bidderbidder.dto.KakaoAccessTokenResponseDto;
 import com.fakedevelopers.bidderbidder.dto.NaverAccessTokenResponseDto;
 import com.fakedevelopers.bidderbidder.dto.UserLoginDto;
 import com.fakedevelopers.bidderbidder.dto.UserRegisterDto;
+import com.fakedevelopers.bidderbidder.exception.InvalidTokenException;
 import com.fakedevelopers.bidderbidder.exception.KakaoApiException;
 import com.fakedevelopers.bidderbidder.exception.NaverApiException;
 import com.fakedevelopers.bidderbidder.message.response.UserInfo;
@@ -15,14 +16,18 @@ import com.fakedevelopers.bidderbidder.model.UserEntity;
 import com.fakedevelopers.bidderbidder.service.KakaoOAuthService;
 import com.fakedevelopers.bidderbidder.service.NaverOAuthService;
 import com.fakedevelopers.bidderbidder.service.OAuth2UserService;
+import com.fakedevelopers.bidderbidder.service.UserService;
 import com.fakedevelopers.bidderbidder.util.RequestUtil;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
+import javax.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -41,15 +46,37 @@ public class UserController {
   private final KakaoOAuthService kakaoOAuthService;
   private final NaverOAuthService naverOAuthService;
 
+  private final UserService userService;
+
   @PostMapping("/register")
-  String userRegister(@Validated UserRegisterDto userRegisterDto) {
-    return Constants.SUCCESS;
+  String userRegister(@Validated @RequestBody UserRegisterDto userRegisterDto) {
+    final String firebaseCustomToken;
+    try {
+      firebaseCustomToken = userService.register(userRegisterDto);
+      return firebaseCustomToken;
+    } catch (FirebaseAuthException e) {
+      return Constants.FAIL + e.getMessage();
+    }
   }
 
 
-  @PostMapping("/login")
-  String userLogin(@Validated UserLoginDto userLoginDto) {
-    return Constants.SUCCESS;
+  @PostMapping(value = "/login", params = {"with=password"})
+  UserInfo userLogin(@Validated @RequestBody UserLoginDto userLoginDto) {
+    return userService.userLoginWithPassword(userLoginDto);
+  }
+
+  @PostMapping(value = "/login", params = {"with=token"})
+  UserInfo userLogin(@NotNull @RequestBody String token) {
+    FirebaseAuth auth = FirebaseAuth.getInstance();
+    final FirebaseToken firebaseToken;
+    try {
+      firebaseToken = auth.verifyIdToken(token);
+    } catch (FirebaseAuthException e) {
+      throw new InvalidTokenException();
+    }
+
+    String id = firebaseToken.getUid();
+    return userService.getUser(id);
   }
 
 

@@ -7,6 +7,7 @@ import javax.validation.constraints.Pattern;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.lang.Nullable;
 
@@ -15,8 +16,9 @@ import org.springframework.lang.Nullable;
  * <br>
  * #33 기준 필요한 정보: Email, nickname(nullable)
  */
-@Builder
 @Getter
+@Builder
+@ToString
 @RequiredArgsConstructor
 public class OAuth2UserRegisterDto {
 
@@ -49,15 +51,5 @@ public class OAuth2UserRegisterDto {
         .email(userEntity.getEmail())
         .nickname(userEntity.getNickname())
         .build();
-  }
-
-  @Override
-  public String toString() {
-    return "OAuth2UserRegisterDto{" +
-        "username='" + username + '\'' +
-        ", email='" + email + '\'' +
-        ", nickname='" + nickname + '\'' +
-        ", serviceProvider='" + serviceProvider + '\'' +
-        '}';
   }
 }

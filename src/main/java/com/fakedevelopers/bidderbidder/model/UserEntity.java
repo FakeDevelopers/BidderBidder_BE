@@ -1,8 +1,11 @@
 package com.fakedevelopers.bidderbidder.model;
 
+import static com.fakedevelopers.bidderbidder.domain.Constants.MAX_PASSWORD_SIZE;
 import static com.fakedevelopers.bidderbidder.domain.Constants.MAX_USERNAME_SIZE;
+import static com.fakedevelopers.bidderbidder.domain.Constants.MIN_PASSWORD_SIZE;
 import static com.fakedevelopers.bidderbidder.domain.Constants.MIN_USERNAME_SIZE;
 
+import com.fakedevelopers.bidderbidder.dto.UserRegisterDto;
 import java.util.Collection;
 import java.util.Collections;
 import javax.persistence.Column;
@@ -13,8 +16,10 @@ import javax.persistence.Id;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,8 +30,10 @@ import org.springframework.security.core.userdetails.UserDetails;
  * 패스워드가 null 일 경우, OAuth2 로그인 방식으로 접속한 것. <br> 내부 회원가입은 반드시 not-null 이어야한다.
  * </p>
  */
-@NoArgsConstructor
-@Data
+@RequiredArgsConstructor
+@Getter
+@Setter
+@ToString
 @Entity
 public class UserEntity implements UserDetails {
 
@@ -48,6 +55,7 @@ public class UserEntity implements UserDetails {
   private String nickname;
 
   @Column
+  @Length(min = MIN_PASSWORD_SIZE, max = MAX_PASSWORD_SIZE)
   private String password;
 
   /**
@@ -59,11 +67,21 @@ public class UserEntity implements UserDetails {
    * @param password null일 경우 OAuth 로그인
    */
   @Builder
-  public UserEntity(String username, String email, String nickname, String password) {
+  public UserEntity(Long id, String username, String email, String nickname, String password) {
+    this.id = id;
     this.username = username;
     this.email = email;
     this.nickname = nickname;
     this.password = password;
+  }
+
+  public static UserEntity of(UserRegisterDto dto) {
+    return UserEntity.builder()
+        .username(dto.getUsername())
+        .email(dto.getEmail())
+        .nickname(dto.getNickname())
+        .password(dto.getPassword())
+        .build();
   }
 
   /* 아래는 firebase와 관련된 내용 */
@@ -74,7 +92,7 @@ public class UserEntity implements UserDetails {
 
   @Override
   public String getPassword() {
-    return null;
+    return this.password;
   }
 
   @Override

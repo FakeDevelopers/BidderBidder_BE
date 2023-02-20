@@ -34,8 +34,10 @@ public class Constants {
 
   public static final int MIN_USERNAME_SIZE = 6;
   public static final int MAX_USERNAME_SIZE = 64;
+  public static final int MIN_PASSWORD_SIZE = 10;
+  public static final int MAX_PASSWORD_SIZE = 64;
 
   private Constants() {
-    throw new IllegalStateException("Utility State");
+      throw new IllegalStateException("Utility State");
   }
 }
