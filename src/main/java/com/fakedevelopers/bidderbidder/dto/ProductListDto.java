@@ -22,9 +22,11 @@ public class ProductListDto {
 
   public ProductListDto(ProductEntity productEntity, boolean isWeb, int bidderCount) {
     productId = productEntity.getProductId();
+    // revision은 수정했을 때, 캐싱된 썸네일이 아닌 수정된 썸네일을 위한 값
     thumbnail =
         "/product/getThumbnail?productId=" + productEntity.getProductId() + "&isWeb="
-            + isWeb;
+            + isWeb + "&revision=" + productEntity.getModifiedDate()
+            .format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT_FOR_REVISION));
     productTitle = productEntity.getProductTitle();
     category = productEntity.getCategory().getCategoryName();
     hopePrice = productEntity.getHopePrice();
